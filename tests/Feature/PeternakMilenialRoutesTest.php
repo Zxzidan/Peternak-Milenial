@@ -55,19 +55,37 @@ test('pameran page renders successfully', function () {
     $response->assertSee('Kalender Terpadu', false);
 });
 
-test('redesigned dashboard includes plus jakarta sans and interactive controls', function () {
+test('flowbite dashboard includes plus jakarta sans and layout controls', function () {
     $response = $this->get(route('dashboard'));
 
     $response->assertStatus(200);
     $response->assertSee('Plus Jakarta Sans');
     $response->assertSee('id="theme-toggle"', false);
-    $response->assertSee('id="desktop-sidebar-toggle"', false);
-    $response->assertSee('id="mobile-sidebar-toggle"', false);
-    $response->assertSee('id="drawer-navigation"', false);
+    $response->assertSee('data-drawer-target="top-bar-sidebar"', false);
+    $response->assertSee('data-drawer-toggle="top-bar-sidebar"', false);
+    $response->assertSee('id="top-bar-sidebar"', false);
     $response->assertSee('id="main-content"', false);
-    $response->assertSee('pt-24');
-    $response->assertSee('pt-16');
-    $response->assertSee('h-16');
+    $response->assertSee('sm:ml-64');
+    $response->assertSee('mt-14');
+    $response->assertSee('id="dropdown-user"', false);
     $response->assertSee('id="sidebar-backdrop"', false);
     $response->assertSee('id="emergency-modal"', false);
+});
+
+test('dashboard has collapsible sidebar controls, kpi cards, charts, and interactive table', function () {
+    $response = $this->get(route('dashboard'));
+
+    $response->assertStatus(200);
+    $response->assertSee('Dashboard');
+    $response->assertSee('Dashboard Pertumbuhan Ternak');
+    $response->assertSee('id="desktop-sidebar-toggle"', false);
+    $response->assertSee('Pertumbuhan Produksi Susu');
+    $response->assertSee('Pertumbuhan Populasi Ternak');
+    $response->assertSee('Laju Pertambahan Bobot Harian');
+    $response->assertSee('Pertumbuhan Omzet Peternakan');
+    $response->assertSee('id="chart-perkembangan-peternak"', false);
+    $response->assertSee('id="chart-distribusi-status"', false);
+    $response->assertSee('id="chart-kategori-program"', false);
+    $response->assertSee('id="default-table"', false);
+    $response->assertSee('id="tabel-data-peternak"', false);
 });

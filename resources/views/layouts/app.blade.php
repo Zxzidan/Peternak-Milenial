@@ -29,22 +29,28 @@
 </head>
 <body class="antialiased bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 font-sans selection:bg-primary-500/20 selection:text-primary-800 dark:selection:text-primary-300">
     <div class="min-h-screen">
-        <!-- Top Navbar Component -->
+        <!-- Top Navbar Component (Fixed Top Navbar) -->
         <x-navbar />
 
-        <!-- Sidebar Navigation Component -->
+        <!-- Sidebar Navigation Component (Fixed Sidebar) -->
         <x-sidebar />
 
         <!-- Mobile Sidebar Backdrop Overlay -->
-        <div id="sidebar-backdrop" class="fixed inset-0 z-30 bg-gray-900/50 backdrop-blur-xs hidden md:hidden transition-opacity duration-200" aria-hidden="true"></div>
+        <div id="sidebar-backdrop" class="fixed inset-0 z-30 bg-gray-900/50 backdrop-blur-xs hidden transition-opacity" data-drawer-hide="top-bar-sidebar" aria-hidden="true"></div>
 
-        <!-- Main Content Area with Dynamic Desktop Margin -->
-        <main id="main-content" class="px-4 sm:px-6 pt-24 pb-12 md:ml-64 min-h-screen transition-all duration-200">
-            @yield('content')
+        <!-- Main Content Area (Flowbite Responsive Main Content) -->
+        <main id="main-content" class="p-4 sm:ml-64 mt-14 min-h-screen">
+            <div class="p-2 sm:p-4">
+                @yield('content')
+            </div>
         </main>
     </div>
 
     <!-- Emergency Report Modal Component -->
     <x-modal-emergency />
+
+    <!-- ApexCharts Library -->
+    <script src="{{ asset('js/apexcharts.min.js') }}"></script>
+    @stack('scripts')
 </body>
 </html>

@@ -93,6 +93,32 @@
     --color-brand-green: #209527;
     --color-brand-forest: #04793f;
     --color-brand-gold: #fbbb03;
+
+    /* Flowbite Semantic Tokens */
+    --color-neutral-primary-soft: #ffffff;
+    --color-neutral-primary-medium: #ffffff;
+    --color-neutral-secondary-medium: #f3f4f6;
+    --color-neutral-tertiary: #f3f4f6;
+    --color-neutral-tertiary-medium: #e5e7eb;
+    --color-default: #e5e7eb;
+    --color-default-medium: #d1d5db;
+    --color-heading: #111827;
+    --color-body: #4b5563;
+    --color-fg-brand: #013a85;
+    --radius-base: 0.5rem;
+}
+
+.dark {
+    --color-neutral-primary-soft: #1f2937;
+    --color-neutral-primary-medium: #1f2937;
+    --color-neutral-secondary-medium: #374151;
+    --color-neutral-tertiary: #374151;
+    --color-neutral-tertiary-medium: #4b5563;
+    --color-default: #374151;
+    --color-default-medium: #4b5563;
+    --color-heading: #ffffff;
+    --color-body: #9ca3af;
+    --color-fg-brand: #60a5fa;
 }
 
 /* Subtle, clean scrollbar for sidebar */
@@ -117,23 +143,45 @@
     transition-duration: 150ms;
 }
 
-/* Sidebar collapsed state helpers */
-#drawer-navigation.is-collapsed .sidebar-label,
-#drawer-navigation.is-collapsed .sidebar-badge,
-#drawer-navigation.is-collapsed .sidebar-dropdown-icon,
-#drawer-navigation.is-collapsed .sidebar-extra,
-#drawer-navigation.is-collapsed ul[id^="dropdown-"] {
+/* Sidebar transitions and collapsed state */
+#top-bar-sidebar {
+    transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1), transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#main-content {
+    transition: margin-left 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#top-bar-sidebar.is-collapsed .sidebar-label,
+#top-bar-sidebar.is-collapsed .sidebar-badge,
+#top-bar-sidebar.is-collapsed .sidebar-dropdown-icon,
+#top-bar-sidebar.is-collapsed .sidebar-extra,
+#top-bar-sidebar.is-collapsed .sidebar-section-title,
+#top-bar-sidebar.is-collapsed ul[id^="dropdown-"] {
     display: none !important;
 }
 
-#drawer-navigation.is-collapsed .sidebar-link {
+#top-bar-sidebar.is-collapsed .sidebar-link {
     justify-content: center;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
 }
 
-#drawer-navigation.is-collapsed .sidebar-icon {
+#top-bar-sidebar.is-collapsed .sidebar-icon {
     margin-right: 0;
     margin-left: 0;
+}
+
+/* ApexCharts dark mode override */
+.dark .apexcharts-text tspan {
+    fill: #9ca3af !important;
+}
+.dark .apexcharts-gridline {
+    stroke: #374151 !important;
+}
+.dark .apexcharts-tooltip {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #f3f4f6 !important;
 }
 
