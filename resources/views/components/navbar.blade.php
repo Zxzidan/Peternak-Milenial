@@ -46,7 +46,7 @@
                 </button>
 
                 <!-- Brand Logo (Image contains official styled text) -->
-                <a href="{{ url('/') }}" class="flex ms-1 sm:ms-2 md:me-16 items-center group" title="Peternak Milenial Jawa Timur">
+                <a href="{{ auth()->check() ? route('dashboard') : route('landing') }}" class="flex ms-1 sm:ms-2 md:me-16 items-center group" title="Peternak Milenial Jawa Timur">
                     <img
                         src="{{ asset('img/logoaplikasi2.png') }}"
                         alt="Peternak Milenial Logo"
@@ -56,7 +56,7 @@
                 </a>
 
                 <!-- Topbar Search Bar (Desktop) -->
-                <form action="#" method="GET" class="hidden md:block md:pl-2">
+                <form action="{{ route('search') }}" method="GET" class="hidden md:block md:pl-2">
                     <div class="relative w-60 lg:w-72">
                         <div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none text-gray-400 dark:text-gray-500">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -151,6 +151,15 @@
 
                 <!-- User Profile & Dropdown -->
                 <div class="flex items-center ms-2 sm:ms-3">
+                    @guest
+                        <a
+                            href="{{ route('login') }}"
+                            class="mr-2 inline-flex items-center text-xs px-2.5 py-1.5 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition"
+                        >
+                            Masuk
+                        </a>
+                    @endguest
+
                     <div>
                         <button
                             type="button"
@@ -160,65 +169,126 @@
                             id="user-menu-button"
                         >
                             <span class="sr-only">Open user menu</span>
-                            <img
-                                class="w-8 h-8 rounded-full object-cover"
-                                src="{{ asset('img/avatar-slamet.svg') }}"
-                                alt="Foto Profil {{ auth()->user()->name ?? 'Slamet Rahardjo' }}"
-                            />
+                            @auth
+                                <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs ring-2 ring-blue-400/40">
+                                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                                </div>
+                            @else
+                                <div class="w-8 h-8 rounded-full bg-gray-700 text-gray-300 flex items-center justify-center font-bold text-xs">
+                                    <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                    </svg>
+                                </div>
+                            @endauth
                         </button>
                     </div>
 
                     <!-- Flowbite User Dropdown -->
                     <div
-                        class="z-50 hidden bg-neutral-primary-medium bg-white dark:bg-gray-800 border border-default-medium border-gray-200 dark:border-gray-700 rounded-base rounded-xl shadow-lg w-48 sm:w-56"
+                        class="z-50 hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg w-48 sm:w-56"
                         id="dropdown-user"
                     >
-                        <div class="px-4 py-3 border-b border-default-medium border-gray-200 dark:border-gray-700">
-                            <p class="text-sm font-semibold text-heading dark:text-white truncate">
-                                {{ auth()->user()->name ?? 'Slamet Rahardjo' }}
-                            </p>
-                            <p class="text-xs text-body dark:text-gray-400 truncate mt-0.5">
-                                {{ auth()->user()->email ?? 'slamet@peternak.id' }}
-                            </p>
-                        </div>
+                        @auth
+                            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                                <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                                    {{ auth()->user()->name }}
+                                </p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                                    {{ auth()->user()->email }}
+                                </p>
+                                <span class="inline-block mt-1 text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300">
+                                    {{ auth()->user()->role === 'admin' ? 'Petugas Dinas' : 'Peternak Milenial' }}
+                                </span>
+                            </div>
 
-                        <ul class="p-2 text-sm text-body dark:text-gray-300 font-medium space-y-1">
-                            <li>
-                                <a href="{{ url('/') }}" class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-heading dark:hover:text-white rounded-lg transition-colors">
-                                    <svg class="w-4 h-4 mr-2.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                                    </svg>
-                                    Profil Usaha
-                                </a>
-                            </li>
+                            <ul class="p-2 text-sm text-gray-700 dark:text-gray-300 font-medium space-y-1">
+                                <li>
+                                    <a href="{{ url('/') }}" class="inline-flex items-center w-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors">
+                                        <svg class="w-4 h-4 mr-2.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                        </svg>
+                                        Profil Usaha
+                                    </a>
+                                </li>
 
-                            <li>
-                                <a href="{{ url('/pelatihan#sertifikat') }}" class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-heading dark:hover:text-white rounded-lg transition-colors">
-                                    <svg class="w-4 h-4 mr-2.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
-                                    </svg>
-                                    Sertifikat Digital
-                                </a>
-                            </li>
+                                <li>
+                                    <a href="{{ url('/pelatihan#sertifikat') }}" class="inline-flex items-center w-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors">
+                                        <svg class="w-4 h-4 mr-2.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.746 3.746 0 013.296 1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+                                        </svg>
+                                        Sertifikat Digital
+                                    </a>
+                                </li>
 
-                            <li>
-                                <a href="{{ url('/marketplace#toko') }}" class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-heading dark:hover:text-white rounded-lg transition-colors">
-                                    <svg class="w-4 h-4 mr-2.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.25a.75.75 0 01-.75-.75V3.75a.75.75 0 01.75-.75h14.25a.75.75 0 01.75.75v16.5a.75.75 0 01-.75.75h-3.75z" />
-                                    </svg>
-                                    Kelola Produk
-                                </a>
-                            </li>
+                                <li>
+                                    <a href="{{ route('landing') }}" class="inline-flex items-center w-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors">
+                                        <svg class="w-4 h-4 mr-2.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                                        </svg>
+                                        Halaman Depan Portal
+                                    </a>
+                                </li>
 
-                            <li class="pt-1 border-t border-gray-100 dark:border-gray-700">
-                                <a href="#" class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 rounded-lg transition-colors">
-                                    <svg class="w-4 h-4 mr-2.5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-                                    </svg>
-                                    Keluar
-                                </a>
-                            </li>
-                        </ul>
+                                <li>
+                                    <a href="{{ url('/marketplace#toko') }}" class="inline-flex items-center w-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors">
+                                        <svg class="w-4 h-4 mr-2.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.25a.75.75 0 01-.75-.75V3.75a.75.75 0 01.75-.75h14.25a.75.75 0 01.75.75v16.5a.75.75 0 01-.75.75h-3.75z" />
+                                        </svg>
+                                        Kelola Produk
+                                    </a>
+                                </li>
+
+                                <li class="pt-1 border-t border-gray-100 dark:border-gray-700">
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button
+                                            type="submit"
+                                            class="inline-flex items-center w-full p-2 hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 rounded-lg transition-colors text-left"
+                                        >
+                                            <svg class="w-4 h-4 mr-2.5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                                            </svg>
+                                            Keluar
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        @else
+                            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                                <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                    Tamu
+                                </p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                                    Belum masuk ke akun
+                                </p>
+                            </div>
+                            <ul class="p-2 text-sm text-gray-700 dark:text-gray-300 font-medium space-y-1">
+                                <li>
+                                    <a href="{{ route('login') }}" class="inline-flex items-center w-full p-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg transition-colors font-semibold">
+                                        <svg class="w-4 h-4 mr-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                                        </svg>
+                                        Masuk Akun
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('landing') }}" class="inline-flex items-center w-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors">
+                                        <svg class="w-4 h-4 mr-2.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                                        </svg>
+                                        Halaman Depan Portal
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('register') }}" class="inline-flex items-center w-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors">
+                                        <svg class="w-4 h-4 mr-2.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.765z" />
+                                        </svg>
+                                        Daftar Akun Baru
+                                    </a>
+                                </li>
+                            </ul>
+                        @endauth
                     </div>
                 </div>
             </div>

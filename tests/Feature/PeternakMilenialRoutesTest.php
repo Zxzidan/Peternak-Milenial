@@ -1,5 +1,54 @@
 <?php
 
+use App\Models\Commodity;
+use App\Models\CommodityPrice;
+use App\Models\Consultation;
+use App\Models\ConsultationMessage;
+use App\Models\EmergencyReport;
+use App\Models\Exhibition;
+use App\Models\ExhibitionRegistration;
+use App\Models\HealthRecord;
+use App\Models\Livestock;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\Region;
+use App\Models\Training;
+use App\Models\TrainingRegistration;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->seed();
+});
+
+test('landing page renders as initial route with cta and login buttons', function () {
+    $response = $this->get('/');
+
+    $response->assertStatus(200);
+    $response->assertSee('Pemberdayaan Digital');
+    $response->assertSee('Peternak Muda');
+    $response->assertSee('nav-login-btn', false);
+    $response->assertSee('nav-masuk-btn', false);
+    $response->assertSee('hero-masuk-btn', false);
+    $response->assertSee('hero-daftar-btn', false);
+    $response->assertSee('Dinas Peternakan Provinsi Jawa Timur');
+    $response->assertSee(route('login'));
+    $response->assertSee(route('register'));
+});
+
+test('landing page displays dashboard shortcut when authenticated', function () {
+    $user = User::first();
+
+    $response = $this->actingAs($user)->get(route('landing'));
+
+    $response->assertStatus(200);
+    $response->assertSee('Buka Dashboard');
+    $response->assertSee(route('dashboard'));
+});
+
 test('dashboard page renders successfully', function () {
     $response = $this->get(route('dashboard'));
 
@@ -72,20 +121,344 @@ test('flowbite dashboard includes plus jakarta sans and layout controls', functi
     $response->assertSee('id="emergency-modal"', false);
 });
 
-test('dashboard has collapsible sidebar controls, kpi cards, charts, and interactive table', function () {
+test('dashboard has collapsible sidebar controls, kpi cards, and charts', function () {
     $response = $this->get(route('dashboard'));
 
     $response->assertStatus(200);
     $response->assertSee('Dashboard');
-    $response->assertSee('Dashboard Pertumbuhan Ternak');
+    $response->assertSee('Dashboard Peternakan Provinsi Jawa Timur');
     $response->assertSee('id="desktop-sidebar-toggle"', false);
-    $response->assertSee('Pertumbuhan Produksi Susu');
-    $response->assertSee('Pertumbuhan Populasi Ternak');
-    $response->assertSee('Laju Pertambahan Bobot Harian');
-    $response->assertSee('Pertumbuhan Omzet Peternakan');
-    $response->assertSee('id="chart-perkembangan-peternak"', false);
-    $response->assertSee('id="chart-distribusi-status"', false);
-    $response->assertSee('id="chart-kategori-program"', false);
-    $response->assertSee('id="default-table"', false);
-    $response->assertSee('id="tabel-data-peternak"', false);
+    $response->assertSee('id="masp"', false);
+    $response->assertSee('MASP');
+    $response->assertSee('id="masp-map-frame"', false);
+    $response->assertSee('Pelaku Usaha Ternak');
+    $response->assertSee('Produktivitas Hasil');
+    $response->assertSee('Struktur Komoditas');
+    $response->assertSee('1.248.560');
+    $response->assertSee('1.460');
+    $response->assertSee('5 Sektor');
+    $response->assertSee('id="chart-distribusi-ternak"', false);
+    $response->assertSee('chart-produksi-komoditas', false);
+});
+
+test('emergency report can be created, updated status, and deleted', function () {
+    $postData = [
+        'incident_type' => 'wabah',
+        'livestock_type' => 'sapi_perah',
+        'affected_count' => 5,
+        'location_address' => 'Kec. Pujon, Kab. Malang',
+        'description' => 'Demam tinggi dan lepuh pada mulut serta kuku',
+    ];
+
+    $response = $this->post(route('darurat.store'), $postData);
+    $response->assertRedirect(route('darurat'));
+    $response->assertSessionHas('success');
+
+    $report = EmergencyReport::where('location_address', 'Kec. Pujon, Kab. Malang')->first();
+    expect($report)->not->toBeNull();
+    expect($report->livestock_type)->toBe('sapi_perah');
+
+    // Update status
+    $updateResponse = $this->patch(route('darurat.status', $report), [
+        'status' => 'in_progress',
+        'officer_notes' => 'Petugas medikvet telah meluncur ke lokasi',
+    ]);
+    $updateResponse->assertRedirect(route('darurat'));
+    $report->refresh();
+    expect($report->status)->toBe('in_progress');
+
+    // Delete
+    $deleteResponse = $this->delete(route('darurat.destroy', $report));
+    $deleteResponse->assertRedirect(route('darurat'));
+    expect(EmergencyReport::find($report->id))->toBeNull();
+});
+
+test('peternak can register and cancel training registration', function () {
+    $training = Training::create([
+        'title' => 'Bimtek Pakan Silase Baru',
+        'slug' => 'bimtek-pakan-silase-baru',
+        'description' => 'Pelatihan silase',
+        'instructor' => 'Dr. Ir. Budi',
+        'start_date' => now()->addDays(2),
+        'end_date' => now()->addDays(3),
+        'location' => 'Malang',
+        'quota' => 20,
+        'remaining_quota' => 20,
+        'cost_type' => 'gratis_apbd',
+        'status' => 'open',
+    ]);
+    $initialQuota = $training->remaining_quota;
+
+    // Register
+    $response = $this->post(route('pelatihan.register', $training));
+    $response->assertRedirect(route('pelatihan'));
+    $response->assertSessionHas('success');
+
+    $training->refresh();
+    expect($training->remaining_quota)->toBe($initialQuota - 1);
+
+    $registration = TrainingRegistration::where('training_id', $training->id)->latest('id')->first();
+    expect($registration)->not->toBeNull();
+
+    // Cancel registration
+    $cancelResponse = $this->delete(route('pelatihan.cancel', $registration));
+    $cancelResponse->assertRedirect(route('pelatihan'));
+    $cancelResponse->assertSessionHas('success');
+
+    $training->refresh();
+    expect($training->remaining_quota)->toBe($initialQuota);
+    expect(TrainingRegistration::find($registration->id))->toBeNull();
+});
+
+test('admin can create and delete training program', function () {
+    $data = [
+        'title' => 'Bimtek Teknologi Fermentasi Pakan Modern',
+        'description' => 'Pelatihan fermentasi pakan silase untuk peternak milenial.',
+        'instructor' => 'Dr. Ir. Bambang Sutrisno, M.Sc',
+        'start_date' => now()->addDays(5)->format('Y-m-d'),
+        'end_date' => now()->addDays(6)->format('Y-m-d'),
+        'time_info' => '08:00 - 15:00 WIB',
+        'location' => 'Balai Benih Tuban',
+        'quota' => 40,
+        'cost_type' => 'gratis_apbd',
+    ];
+
+    $response = $this->post(route('pelatihan.store'), $data);
+    $response->assertRedirect(route('pelatihan'));
+    $response->assertSessionHas('success');
+
+    $created = Training::where('title', 'Bimtek Teknologi Fermentasi Pakan Modern')->first();
+    expect($created)->not->toBeNull();
+
+    // Delete
+    $del = $this->delete(route('pelatihan.destroy', $created));
+    $del->assertRedirect(route('pelatihan'));
+    expect(Training::find($created->id))->toBeNull();
+});
+
+test('marketplace allows adding products, buying products, and updating orders', function () {
+    $category = ProductCategory::first();
+    $region = Region::first();
+
+    // Add product
+    $prodData = [
+        'name' => 'Susu Kambing Organik Super',
+        'product_category_id' => $category->id,
+        'region_id' => $region->id,
+        'price' => 35000,
+        'stock' => 50,
+        'unit' => 'Liter',
+        'description' => 'Susu kambing etawa segar higienis tanpa bahan pengawet.',
+    ];
+
+    $response = $this->post(route('marketplace.products.store'), $prodData);
+    $response->assertRedirect(route('marketplace'));
+    $response->assertSessionHas('success');
+
+    $product = Product::where('name', 'Susu Kambing Organik Super')->first();
+    expect($product)->not->toBeNull();
+    expect((float) $product->price)->toBe(35000.0);
+
+    // Buy product
+    $buyResponse = $this->post(route('marketplace.products.buy', $product), [
+        'quantity' => 5,
+        'buyer_name' => 'Rini Astuti',
+        'buyer_phone' => '08987654321',
+        'shipping_address' => 'Jl. Ijen No. 12, Malang',
+    ]);
+    $buyResponse->assertRedirect(route('marketplace'));
+    $buyResponse->assertSessionHas('success');
+
+    $product->refresh();
+    expect($product->stock)->toBe(45);
+
+    $order = Order::where('buyer_phone', '08987654321')->latest('id')->first();
+    expect($order)->not->toBeNull();
+    expect((float) $order->total_amount)->toBe(175000.0);
+
+    // Update order status
+    $updateOrder = $this->patch(route('marketplace.orders.status', $order), [
+        'status' => 'completed',
+    ]);
+    $updateOrder->assertRedirect(route('marketplace'));
+    $order->refresh();
+    expect($order->status)->toBe('completed');
+});
+
+test('commodity price can be submitted and saved to database', function () {
+    $commodity = Commodity::first();
+    $region = Region::first();
+
+    $priceData = [
+        'commodity_id' => $commodity->id,
+        'region_id' => $region->id,
+        'farmer_price' => 52000,
+        'consumer_price' => 58000,
+    ];
+
+    $response = $this->post(route('harga-komoditas.store'), $priceData);
+    $response->assertRedirect(route('harga-komoditas'));
+    $response->assertSessionHas('success');
+
+    $record = CommodityPrice::where('region_id', $region->id)
+        ->where('commodity_id', $commodity->id)
+        ->latest('id')
+        ->first();
+    expect($record)->not->toBeNull();
+    expect((int) $record->farmer_price)->toBe(52000);
+});
+
+test('consultation message and animal health checkup can be stored', function () {
+    $consultation = Consultation::first();
+
+    // Send chat message
+    $msgResponse = $this->post(route('konsultasi.message', $consultation), [
+        'message' => 'Dok, nafsu makan sapi saya berkurang drastis sejak 2 hari lalu.',
+    ]);
+    $msgResponse->assertRedirect(route('konsultasi'));
+    $msgResponse->assertSessionHas('success');
+
+    $msg = ConsultationMessage::where('message', 'Dok, nafsu makan sapi saya berkurang drastis sejak 2 hari lalu.')->first();
+    expect($msg)->not->toBeNull();
+
+    // Add health record
+    $livestock = Livestock::first();
+    $healthData = [
+        'livestock_id' => $livestock->id,
+        'record_type' => 'pemeriksaan',
+        'title' => 'Pemeriksaan Rutin Ternak Sehat',
+        'diagnosis' => 'Kondisi fisik prima, nafsu makan normal',
+        'treatment' => 'Pemberian vitamin B kompleks & mineral',
+        'record_date' => now()->format('Y-m-d'),
+    ];
+
+    $healthResponse = $this->post(route('konsultasi.health-record.store'), $healthData);
+    $healthResponse->assertRedirect(route('konsultasi'));
+    $healthResponse->assertSessionHas('success');
+
+    $record = HealthRecord::where('title', 'Pemeriksaan Rutin Ternak Sehat')->first();
+    expect($record)->not->toBeNull();
+
+    // Register livestock e-tag
+    $etagResponse = $this->post(route('konsultasi.livestock.store'), [
+        'tag_number' => 'ETAG-JTM-777',
+        'livestock_type' => 'sapi_potong',
+        'breed' => 'Limousin Cross',
+        'gender' => 'jantan',
+        'birth_date' => '2023-01-10',
+    ]);
+    $etagResponse->assertRedirect(route('konsultasi'));
+    $etagResponse->assertSessionHas('success');
+
+    $newLivestock = Livestock::where('e_tag_number', 'ETAG-JTM-777')->first();
+    expect($newLivestock)->not->toBeNull();
+});
+
+test('exhibition booth can be registered and updated', function () {
+    $exhibition = Exhibition::create([
+        'title' => 'East Java Livestock Expo Baru',
+        'slug' => 'east-java-livestock-expo-baru',
+        'theme' => 'Inovasi Ternak',
+        'description' => 'Pameran industri ternak',
+        'location' => 'Grand City Convex Surabaya',
+        'start_date' => now()->addDays(20),
+        'end_date' => now()->addDays(22),
+        'total_stands' => 50,
+        'registered_stands_count' => 0,
+        'status' => 'open',
+    ]);
+
+    $regData = [
+        'exhibition_id' => $exhibition->id,
+        'business_name' => 'CV Sumber Makmur Mandiri',
+        'exhibited_products' => 'Produk Olahan Susu Pasteurisasi & Yogurt Probiotik',
+        'notes' => 'Membutuhkan pasokan listrik chiller 1000W',
+    ];
+
+    $response = $this->post(route('pameran.register'), $regData);
+    $response->assertRedirect(route('pameran'));
+    $response->assertSessionHas('success');
+
+    $registration = ExhibitionRegistration::where('business_name', 'CV Sumber Makmur Mandiri')->first();
+    expect($registration)->not->toBeNull();
+    expect($registration->stand_number)->toStartWith('STD-');
+
+    // Update status
+    $statusResponse = $this->patch(route('pameran.status', $registration), [
+        'status' => 'approved',
+    ]);
+    $statusResponse->assertRedirect(route('pameran'));
+    $registration->refresh();
+    expect($registration->status)->toBe('approved');
+});
+
+test('search query redirects correctly to target page', function () {
+    $response = $this->get(route('search', ['query' => 'wabah']));
+    $response->assertRedirect(route('darurat'));
+
+    $response2 = $this->get(route('search', ['query' => 'pakan']));
+    $response2->assertRedirect(route('pelatihan'));
+
+    $response3 = $this->get(route('search', ['query' => 'keju artisan']));
+    $response3->assertRedirect(route('marketplace', ['q' => 'keju artisan']));
+});
+
+test('login page renders with flowbite welcome back elements', function () {
+    $response = $this->get(route('login'));
+
+    $response->assertStatus(200);
+    $response->assertSee('Welcome back');
+    $response->assertSee('Sign in with Google');
+    $response->assertSee('Sign in with Apple');
+    $response->assertSee('name@company.com');
+});
+
+test('user can authenticate and logout successfully', function () {
+    $user = User::first();
+
+    $response = $this->post(route('login.submit'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $response->assertRedirect(route('dashboard'));
+    $this->assertAuthenticatedAs($user);
+
+    // Logout
+    $logoutResponse = $this->post(route('logout'));
+    $logoutResponse->assertRedirect(route('login'));
+    $this->assertGuest();
+});
+
+test('invalid credentials returns error feedback', function () {
+    $response = $this->from(route('login'))->post(route('login.submit'), [
+        'email' => 'slamet@peternak.id',
+        'password' => 'wrongpassword123',
+    ]);
+
+    $response->assertRedirect(route('login'));
+    $response->assertSessionHasErrors('email');
+    $this->assertGuest();
+});
+
+test('new user can register, persist to database, and auto-login', function () {
+    $data = [
+        'name' => 'Ahmad Dahlan',
+        'email' => 'ahmad.dahlan@peternak.id',
+        'phone_number' => '081233445566',
+        'role' => 'peternak',
+        'password' => 'password123',
+        'password_confirmation' => 'password123',
+        'terms' => '1',
+    ];
+
+    $response = $this->post(route('register.submit'), $data);
+
+    $response->assertRedirect(route('dashboard'));
+    $this->assertAuthenticated();
+
+    $created = User::where('email', 'ahmad.dahlan@peternak.id')->first();
+    expect($created)->not->toBeNull();
+    expect($created->name)->toBe('Ahmad Dahlan');
+    expect($created->role)->toBe('peternak');
 });
