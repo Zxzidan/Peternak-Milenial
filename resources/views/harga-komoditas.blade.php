@@ -110,9 +110,9 @@
                     <td class="px-3.5 py-3">Liter</td>
                     <td class="px-3.5 py-3 font-semibold text-primary-700 dark:text-primary-400 tabular-nums">Rp 7.450</td>
                     <td class="px-3.5 py-3 tabular-nums">Rp 9.500</td>
-                    <td class="px-3.5 py-3 text-primary-700 dark:text-primary-400 font-medium">+Rp 250 (+3.4%)</td>
+                    <td class="px-3.5 py-3 text-green-700 dark:text-green-400 font-semibold inline-flex items-center gap-0.5">↑ +Rp 250 (+3.4%)</td>
                     <td class="px-3.5 py-3">Pasuruan & Malang</td>
-                    <td class="px-3.5 py-3"><span class="bg-primary-50 text-primary-700 dark:bg-primary-950/60 dark:text-primary-300 text-[10px] font-medium px-2 py-0.5 rounded">Stabil</span></td>
+                    <td class="px-3.5 py-3"><span class="bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300 text-[10px] font-medium px-2 py-0.5 rounded">Stabil</span></td>
                 </tr>
                 <tr>
                     <td class="px-3.5 py-3 font-semibold text-gray-900 dark:text-white">Daging Sapi Murni</td>
@@ -121,14 +121,14 @@
                     <td class="px-3.5 py-3 tabular-nums">Rp 135.000</td>
                     <td class="px-3.5 py-3 text-gray-400">Rp 0 (0.0%)</td>
                     <td class="px-3.5 py-3">Tuban & Lamongan</td>
-                    <td class="px-3.5 py-3"><span class="bg-primary-50 text-primary-700 dark:bg-primary-950/60 dark:text-primary-300 text-[10px] font-medium px-2 py-0.5 rounded">Stabil</span></td>
+                    <td class="px-3.5 py-3"><span class="bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300 text-[10px] font-medium px-2 py-0.5 rounded">Stabil</span></td>
                 </tr>
                 <tr>
                     <td class="px-3.5 py-3 font-semibold text-gray-900 dark:text-white">Daging Ayam Ras</td>
                     <td class="px-3.5 py-3">Kilogram</td>
                     <td class="px-3.5 py-3 font-semibold text-primary-700 dark:text-primary-400 tabular-nums">Rp 23.200</td>
                     <td class="px-3.5 py-3 tabular-nums">Rp 34.000</td>
-                    <td class="px-3.5 py-3 text-red-600 font-medium">-Rp 600 (-2.5%)</td>
+                    <td class="px-3.5 py-3 text-red-600 font-medium">↓ -Rp 600 (-2.5%)</td>
                     <td class="px-3.5 py-3">Blitar & Jombang</td>
                     <td class="px-3.5 py-3"><span class="bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 text-[10px] font-medium px-2 py-0.5 rounded">Fluktuatif</span></td>
                 </tr>
@@ -137,9 +137,9 @@
                     <td class="px-3.5 py-3">Kilogram</td>
                     <td class="px-3.5 py-3 font-semibold text-primary-700 dark:text-primary-400 tabular-nums">Rp 24.800</td>
                     <td class="px-3.5 py-3 tabular-nums">Rp 26.800</td>
-                    <td class="px-3.5 py-3 text-primary-700 dark:text-primary-400 font-medium">+Rp 400 (+1.6%)</td>
+                    <td class="px-3.5 py-3 text-green-700 dark:text-green-400 font-semibold inline-flex items-center gap-0.5">↑ +Rp 400 (+1.6%)</td>
                     <td class="px-3.5 py-3">Blitar & Kediri</td>
-                    <td class="px-3.5 py-3"><span class="bg-primary-50 text-primary-700 dark:bg-primary-950/60 dark:text-primary-300 text-[10px] font-medium px-2 py-0.5 rounded">Stabil</span></td>
+                    <td class="px-3.5 py-3"><span class="bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300 text-[10px] font-medium px-2 py-0.5 rounded">Stabil</span></td>
                 </tr>
                 <tr>
                     <td class="px-3.5 py-3 font-semibold text-gray-900 dark:text-white">Jagung Pakan Pipil</td>
@@ -148,7 +148,7 @@
                     <td class="px-3.5 py-3 tabular-nums">Rp 5.200</td>
                     <td class="px-3.5 py-3 text-gray-400">Rp 0 (0.0%)</td>
                     <td class="px-3.5 py-3">Bojonegoro & Tuban</td>
-                    <td class="px-3.5 py-3"><span class="bg-primary-50 text-primary-700 dark:bg-primary-950/60 dark:text-primary-300 text-[10px] font-medium px-2 py-0.5 rounded">Stabil</span></td>
+                    <td class="px-3.5 py-3"><span class="bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300 text-[10px] font-medium px-2 py-0.5 rounded">Stabil</span></td>
                 </tr>
             </tbody>
         </table>

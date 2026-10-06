@@ -7,6 +7,15 @@
     'region' => 'Jawa Timur',
 ])
 
+@php
+    $badgeColorClass = match($badge) {
+        'Organik', 'RPH Halal' => 'text-green-700 bg-green-50 dark:bg-green-950/60 dark:text-green-300',
+        'Terverifikasi', 'Bersertifikat' => 'text-cyan-700 bg-cyan-50 dark:bg-cyan-950/60 dark:text-cyan-300',
+        'Siap Saji' => 'text-amber-700 bg-amber-50 dark:bg-amber-950/60 dark:text-amber-300',
+        default => 'text-primary-700 bg-primary-50 dark:bg-primary-950/60 dark:text-primary-300',
+    };
+@endphp
+
 <div {{ $attributes->merge(['class' => 'bg-white dark:bg-gray-700/40 rounded-lg border border-gray-200 dark:border-gray-700 p-3.5 flex flex-col justify-between hover:border-gray-300 dark:hover:border-gray-600 transition']) }}>
     <div>
         <!-- Top Meta -->
@@ -15,7 +24,7 @@
                 {{ $region }}
             </span>
             @if($badge)
-                <span class="text-[10px] font-medium text-primary-700 bg-primary-50 dark:bg-primary-950/60 dark:text-primary-300 px-1.5 py-0.5 rounded">
+                <span class="text-[10px] font-medium {{ $badgeColorClass }} px-1.5 py-0.5 rounded">
                     {{ $badge }}
                 </span>
             @endif

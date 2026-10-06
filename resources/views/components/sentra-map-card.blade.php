@@ -23,7 +23,7 @@
                         <span class="text-[11px] text-gray-500 dark:text-gray-400">Sapi Perah · 145.000 L/hari</span>
                     </div>
                 </div>
-                <span class="text-xs font-medium text-primary-700 dark:text-primary-400">Wilayah Anda</span>
+                <span class="text-[11px] font-semibold text-cyan-700 bg-cyan-50 dark:bg-cyan-950/60 dark:text-cyan-300 px-2 py-0.5 rounded">Wilayah Anda</span>
             </div>
 
             <!-- Item 2: Blitar -->

@@ -53,7 +53,7 @@
         <div class="bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-[11px] font-medium text-primary-700 bg-primary-50 px-2 py-0.5 rounded dark:bg-primary-950/60 dark:text-primary-300">
+                    <span class="text-[11px] font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded dark:bg-green-950/60 dark:text-green-300">
                         Terbuka
                     </span>
                     <span class="text-[11px] text-gray-400">Sisa 14 Kuota</span>
@@ -79,7 +79,7 @@
             </div>
 
             <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-between text-xs">
-                <span class="font-medium text-primary-700 dark:text-primary-400">Gratis (APBD)</span>
+                <span class="font-semibold text-cyan-700 dark:text-cyan-400">Gratis (APBD)</span>
                 <button
                     type="button"
                     onclick="alert('Pendaftaran Bimtek Silase berhasil dikirim!')"
@@ -94,7 +94,7 @@
         <div class="bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-[11px] font-medium text-primary-700 bg-primary-50 px-2 py-0.5 rounded dark:bg-primary-950/60 dark:text-primary-300">
+                    <span class="text-[11px] font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded dark:bg-green-950/60 dark:text-green-300">
                         Terbuka
                     </span>
                     <span class="text-[11px] text-gray-400">Sisa 22 Kuota</span>
@@ -230,7 +230,7 @@
     <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/40 border border-gray-200/80 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
         <div>
             <div class="flex items-center gap-2 mb-1">
-                <span class="text-[10px] font-semibold text-primary-700 bg-primary-50 dark:bg-primary-950/60 dark:text-primary-300 px-1.5 py-0.2 rounded">
+                <span class="text-[10px] font-semibold text-cyan-700 bg-cyan-50 dark:bg-cyan-950/60 dark:text-cyan-300 px-1.5 py-0.2 rounded">
                     Terverifikasi
                 </span>
                 <span class="text-gray-400 text-[11px]">SK: DISNAK-JATIM/2026/CERT-891</span>

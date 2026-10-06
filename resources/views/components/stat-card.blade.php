@@ -13,7 +13,9 @@
     $badgeClasses = match($badgeType) {
         'danger' => 'text-red-700 bg-red-50 dark:bg-red-950/50 dark:text-red-300',
         'warning' => 'text-amber-700 bg-amber-50 dark:bg-amber-950/50 dark:text-amber-300',
-        'success' => 'text-primary-700 bg-primary-50 dark:bg-primary-950/50 dark:text-primary-300',
+        'success' => 'text-green-700 bg-green-50 dark:bg-green-950/50 dark:text-green-300',
+        'cyan' => 'text-cyan-700 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-300',
+        'primary' => 'text-primary-700 bg-primary-50 dark:bg-primary-950/50 dark:text-primary-300',
         default => 'text-gray-600 bg-gray-100 dark:bg-gray-700 dark:text-gray-300',
     };
 @endphp

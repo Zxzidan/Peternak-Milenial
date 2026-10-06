@@ -61,7 +61,7 @@
         unit="/ Liter"
         desc="+Rp 250 vs minggu lalu"
         badge="Pasuruan"
-        badge-type="default"
+        badge-type="cyan"
         action-url="{{ url('/harga-komoditas') }}"
         action-label="Tren"
     >
@@ -79,7 +79,7 @@
         unit="Kelas"
         desc="Silase Jagung Fermentasi"
         badge="14 Kuota"
-        badge-type="default"
+        badge-type="warning"
         action-url="{{ url('/pelatihan') }}"
         action-label="Daftar"
     >

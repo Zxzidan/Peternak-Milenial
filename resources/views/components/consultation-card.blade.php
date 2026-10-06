@@ -6,8 +6,8 @@
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Konsultasi Dokter Hewan</h3>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Tele-Medis Kesejahteraan Hewan</p>
             </div>
-            <span class="inline-flex items-center text-[11px] font-medium text-primary-700 bg-primary-50 dark:bg-primary-950/60 dark:text-primary-300 px-2 py-0.5 rounded">
-                <span class="w-1.5 h-1.5 rounded-full bg-primary-600 mr-1.5"></span> Aktif
+            <span class="inline-flex items-center text-[11px] font-medium text-green-700 bg-green-50 dark:bg-green-950/60 dark:text-green-300 px-2 py-0.5 rounded">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span> Aktif
             </span>
         </div>
 

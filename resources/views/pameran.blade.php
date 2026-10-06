@@ -68,7 +68,7 @@
 <div class="mb-5 bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-5 sm:p-6 shadow-xs">
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
         <div>
-            <span class="text-[11px] font-medium text-primary-700 bg-primary-50 dark:bg-primary-950/60 dark:text-primary-300 px-2 py-0.5 rounded">
+            <span class="text-[11px] font-semibold text-cyan-700 bg-cyan-50 dark:bg-cyan-950/60 dark:text-cyan-300 px-2 py-0.5 rounded">
                 Agenda Utama
             </span>
             <h2 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mt-1.5">

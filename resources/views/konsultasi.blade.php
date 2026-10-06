@@ -32,8 +32,8 @@
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Konsultasi Medis Aktif</h2>
             <p class="text-xs text-gray-500 dark:text-gray-400">Puskeswan Pandaan & Tim Dokter Hewan Dinas</p>
         </div>
-        <span class="text-xs font-medium text-primary-700 bg-primary-50 px-2 py-0.5 rounded dark:bg-primary-950/60 dark:text-primary-300 flex items-center">
-            <span class="w-1.5 h-1.5 rounded-full bg-primary-600 mr-1.5"></span> drh. Ratna (Aktif)
+        <span class="text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded dark:bg-green-950/60 dark:text-green-300 flex items-center">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse"></span> drh. Ratna (Aktif)
         </span>
     </div>
 
@@ -123,7 +123,7 @@
                     <td class="px-3.5 py-2.5">Bunting 4 Bln</td>
                     <td class="px-3.5 py-2.5 text-primary-700 dark:text-primary-400 font-medium">PMK Booster 2</td>
                     <td class="px-3.5 py-2.5">drh. Bambang</td>
-                    <td class="px-3.5 py-2.5"><span class="bg-primary-50 text-primary-700 dark:bg-primary-950/60 dark:text-primary-300 text-[10px] font-medium px-2 py-0.5 rounded">Sehat</span></td>
+                    <td class="px-3.5 py-2.5"><span class="bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300 text-[10px] font-medium px-2 py-0.5 rounded">Sehat</span></td>
                 </tr>
                 <tr>
                     <td class="px-3.5 py-2.5 font-mono font-medium text-gray-900 dark:text-white">JTM-PAS-0014</td>
@@ -141,7 +141,7 @@
                     <td class="px-3.5 py-2.5">Sapih (3 Bln)</td>
                     <td class="px-3.5 py-2.5 text-primary-700 dark:text-primary-400 font-medium">Primer</td>
                     <td class="px-3.5 py-2.5">drh. Ratna</td>
-                    <td class="px-3.5 py-2.5"><span class="bg-primary-50 text-primary-700 dark:bg-primary-950/60 dark:text-primary-300 text-[10px] font-medium px-2 py-0.5 rounded">Sehat</span></td>
+                    <td class="px-3.5 py-2.5"><span class="bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300 text-[10px] font-medium px-2 py-0.5 rounded">Sehat</span></td>
                 </tr>
             </tbody>
         </table>

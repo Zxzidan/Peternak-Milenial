@@ -16,50 +16,51 @@ Panduan visual, interaksi, dan bahasa untuk aplikasi mobile (React Native) dan w
 
 Semua warna teks diuji terhadap latar sesuai WCAG AA (≥ 4.5:1 untuk teks normal).
 
-### 2.1 Warna merek
+### 2.1 Warna Merek Resmi (Diekstrak dari Logo Aplikasi)
+
+| Identitas Logo | Token | Hex | Pemakaian |
+|---|---|---|---|
+| **Peternak (Navy Blue)** | `--color-primary-700` | `#013A85` | **Warna Brand Utama**: Word "Peternak", siluet sapi, tombol utama, tautan aktif |
+| | `--color-primary-600` | `#0A52AB` | State hover tombol utama, ikon interaktif |
+| | `--color-primary-50`  | `#EFF6FC` | Latar kartu/menu aktif, highlight navigasi |
+| **Milenial (Cyan / Sky)** | `--color-cyan-500`    | `#009FD2` | **Warna Aksen Milenial**: Word "Milenial", pixel digital, badge sertifikasi, chip teknologi |
+| | `--color-cyan-50`     | `#F0F9FD` | Latar chip verifikasi, info digital |
+| **Pertumbuhan (Green)** | `--color-green-500`   | `#209527` | **Warna Pertumbuhan & Pakan**: Panah pertumbuhan, daun, status ternak sehat/stabil, margin laba |
+| | `--color-green-700`   | `#04793F` | Hijau dasar daun logo, teks kontras tinggi di atas latar terang |
+| | `--color-green-50`    | `#F0FBF2` | Latar badge sukses, status sehat |
+| **Mentari Jatim (Sun Gold)** | `--color-amber-500`   | `#FBBB03` | **Warna Mentari Logo**: Matahari terbit, status proses/tindakan, rating, perhatian |
+| | `--color-amber-50`    | `#FFFBF0` | Latar chip proses, warning lembut |
+
+### 2.2 Warna Semantik
 
 | Token | Hex | Pemakaian |
 |---|---|---|
-| `--color-primary-700` | `#1B5E20` | Teks tautan di latar terang, header gelap, state tekan |
-| `--color-primary-600` | `#2E7D32` | **Warna utama**: tombol utama, tab aktif, ikon utama |
-| `--color-primary-500` | `#43A047` | Hover, grafik, aksen |
-| `--color-primary-100` | `#C8E6C9` | Latar chip, badge sukses lembut |
-| `--color-primary-50`  | `#E8F5E9` | Latar seksi, kartu terpilih |
-| `--color-accent-600`  | `#F9A825` | Aksen hangat: sorotan, rating, CTA sekunder (teks di atasnya wajib gelap) |
-| `--color-accent-100`  | `#FFF3CD` | Latar peringatan lembut |
-| `--color-earth-700`   | `#5D4037` | Judul alternatif, ilustrasi, label kategori |
-| `--color-earth-100`   | `#EFEBE9` | Latar kartu hangat |
-
-### 2.2 Warna semantik
-
-| Token | Hex | Pemakaian |
-|---|---|---|
-| `--color-danger-700` | `#B71C1C` | Tombol/banner **darurat**, error |
-| `--color-danger-600` | `#C62828` | Teks error di latar terang |
-| `--color-danger-50`  | `#FDECEA` | Latar pesan error |
-| `--color-warning-700`| `#E65100` | Peringatan, status "perlu tindakan" |
-| `--color-info-600`   | `#1565C0` | Informasi, tautan netral |
-| `--color-info-50`    | `#E3F2FD` | Latar info |
-| `--color-success-600`| `#2E7D32` | Sukses (sama dengan primary) |
+| `--color-danger-600` | `#DC2626` | Tombol/banner **darurat 24/7**, laporan wabah kesmavet |
+| `--color-danger-50`  | `#FEF2F2` | Latar pesan darurat/error |
+| `--color-warning-500`| `#FBBB03` | Peringatan, status "sedang ditangani / fluktuatif" (Sinar Mentari Logo) |
+| `--color-success-500`| `#209527` | Sukses, ternak sehat, komoditas stabil (Pertumbuhan Logo) |
+| `--color-info-500`   | `#009FD2` | Informasi, teknologi smart farming (Milenial Cyan Logo) |
 
 ### 2.3 Netral
 
 | Token | Hex | Pemakaian |
 |---|---|---|
-| `--color-text` | `#1F2933` | Teks utama |
-| `--color-text-muted` | `#52606D` | Teks sekunder (≥ 4.5:1 di putih) |
-| `--color-border` | `#CBD2D9` | Garis, pemisah |
-| `--color-surface` | `#FFFFFF` | Kartu, sheet |
-| `--color-bg` | `#F5F7F5` | Latar halaman |
-| `--color-disabled` | `#9AA5B1` | Elemen nonaktif (bukan untuk teks penting) |
+| `--color-text` | `#111827` | Teks utama |
+| `--color-text-muted` | `#6B7280` | Teks sekunder |
+| `--color-border` | `#E5E7EB` | Garis, pemisah |
+| `--color-surface` | `#FFFFFF` | Kartu, container |
+| `--color-bg` | `#F9FAFB` | Latar halaman terang |
+| `--color-bg-dark` | `#111827` | Latar halaman gelap |
 
-### 2.4 Mode gelap (opsional v1.1)
-Dukungan mode gelap tidak wajib di v1.0. Jika dibuat, gunakan `#121A14` sebagai latar dan turunkan saturasi hijau. Jangan membalik warna darurat.
+### 2.4 Mode Gelap
+Dukungan mode gelap menggunakan varian `.dark` Tailwind CSS v4 dengan surface `#1F2937` dan background `#111827`. Warna darurat merah tetap terjaga tegas.
 
-### 2.5 Aturan pemakaian
-- Hijau = aksi utama dan keberhasilan. Merah = **hanya** darurat, error, dan aksi destruktif.
-- Jangan menyampaikan makna lewat warna saja: tambahkan ikon dan teks (mis. status laporan).
-- Maksimal satu tombol utama per layar.
+### 2.5 Aturan Pemakaian
+- **Biru Peternak (`#013A85`)**: Wibawa instansi pemerintah dan fondasi utama peternakan.
+- **Cyan Milenial (`#009FD2`)**: Sentuhan modernitas generasi muda dan digitalisasi.
+- **Hijau Pertumbuhan (`#209527`)**: Keberhasilan, kesehatan ternak, dan kemakmuran pakan.
+- **Kuning Mentari (`#FBBB03`)**: Energi, kewaspadaan penanganan, dan optimisme.
+- **Merah Kesmavet (`#DC2626`)**: **Hanya** untuk tombol Siaga Darurat 24/7 dan peringatan kritis.
 
 ---
 

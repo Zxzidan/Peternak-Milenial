@@ -113,7 +113,7 @@
                 <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
                     Pasuruan
                 </span>
-                <span class="text-[10px] font-medium text-primary-700 bg-primary-50 dark:bg-primary-950/60 dark:text-primary-300 px-1.5 py-0.5 rounded">
+                <span class="text-[10px] font-semibold text-cyan-700 bg-cyan-50 dark:bg-cyan-950/60 dark:text-cyan-300 px-1.5 py-0.5 rounded">
                     Terverifikasi
                 </span>
             </div>
@@ -139,7 +139,7 @@
                 <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
                     Kota Batu
                 </span>
-                <span class="text-[10px] font-medium text-primary-700 bg-primary-50 dark:bg-primary-950/60 dark:text-primary-300 px-1.5 py-0.5 rounded">
+                <span class="text-[10px] font-semibold text-amber-700 bg-amber-50 dark:bg-amber-950/60 dark:text-amber-300 px-1.5 py-0.5 rounded">
                     Siap Saji
                 </span>
             </div>
@@ -165,7 +165,7 @@
                 <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
                     Lamongan
                 </span>
-                <span class="text-[10px] font-medium text-primary-700 bg-primary-50 dark:bg-primary-950/60 dark:text-primary-300 px-1.5 py-0.5 rounded">
+                <span class="text-[10px] font-semibold text-green-700 bg-green-50 dark:bg-green-950/60 dark:text-green-300 px-1.5 py-0.5 rounded">
                     RPH Halal
                 </span>
             </div>
@@ -220,7 +220,7 @@
                     <td class="px-3.5 py-2.5">Rini (Malang)</td>
                     <td class="px-3.5 py-2.5">5 Karung Silase (250 Kg)</td>
                     <td class="px-3.5 py-2.5 font-semibold text-gray-900 dark:text-white tabular-nums">Rp 475.000</td>
-                    <td class="px-3.5 py-2.5"><span class="bg-primary-50 text-primary-700 dark:bg-primary-950/60 dark:text-primary-300 text-[10px] font-medium px-2 py-0.5 rounded">Selesai</span></td>
+                    <td class="px-3.5 py-2.5"><span class="bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300 text-[10px] font-medium px-2 py-0.5 rounded">Selesai</span></td>
                     <td class="px-3.5 py-2.5 text-right text-gray-400 text-[11px]">Selesai</td>
                 </tr>
             </tbody>

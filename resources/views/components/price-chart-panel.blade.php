@@ -49,8 +49,8 @@
             <svg class="w-full h-full overflow-visible" viewBox="0 0 800 220" preserveAspectRatio="none">
                 <defs>
                     <linearGradient id="priceLineGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#16a34a" stop-opacity="0.18" />
-                        <stop offset="100%" stop-color="#16a34a" stop-opacity="0.0" />
+                        <stop offset="0%" stop-color="#209527" stop-opacity="0.22" />
+                        <stop offset="100%" stop-color="#209527" stop-opacity="0.0" />
                     </linearGradient>
                 </defs>
 
@@ -63,23 +63,23 @@
                 <!-- Price Area Fill -->
                 <polygon points="40,165 150,150 260,155 370,125 480,105 590,115 700,65 760,55 760,200 40,200" fill="url(#priceLineGrad)" />
 
-                <!-- Price Polyline -->
-                <polyline points="40,165 150,150 260,155 370,125 480,105 590,115 700,65 760,55" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                <!-- Price Polyline (Logo Growth Green #209527) -->
+                <polyline points="40,165 150,150 260,155 370,125 480,105 590,115 700,65 760,55" fill="none" stroke="#209527" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
 
-                <!-- Data Points -->
-                <circle cx="40" cy="165" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-600" stroke-width="2" />
-                <circle cx="150" cy="150" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-600" stroke-width="2" />
-                <circle cx="260" cy="155" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-600" stroke-width="2" />
-                <circle cx="370" cy="125" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-600" stroke-width="2" />
-                <circle cx="480" cy="105" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-600" stroke-width="2" />
-                <circle cx="590" cy="115" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-600" stroke-width="2" />
-                <circle cx="700" cy="65" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-600" stroke-width="2" />
-                <circle cx="760" cy="55" r="4.5" class="fill-primary-600 stroke-white dark:stroke-gray-800" stroke-width="2" />
+                <!-- Data Points (Brand Navy #013A85) -->
+                <circle cx="40" cy="165" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-700" stroke-width="2" />
+                <circle cx="150" cy="150" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-700" stroke-width="2" />
+                <circle cx="260" cy="155" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-700" stroke-width="2" />
+                <circle cx="370" cy="125" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-700" stroke-width="2" />
+                <circle cx="480" cy="105" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-700" stroke-width="2" />
+                <circle cx="590" cy="115" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-700" stroke-width="2" />
+                <circle cx="700" cy="65" r="3.5" class="fill-white dark:fill-gray-900 stroke-primary-700" stroke-width="2" />
+                <circle cx="760" cy="55" r="4.5" class="fill-primary-700 stroke-white dark:stroke-gray-800" stroke-width="2" />
             </svg>
 
-            <!-- Price Tag Overlay -->
+            <!-- Price Tag Overlay with Logo Milenial Cyan dot -->
             <div class="absolute right-2 top-2 bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 text-xs font-semibold px-2.5 py-1 rounded-md shadow-xs flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-primary-400"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
                 <span>Rp 7.450 / Liter</span>
             </div>
         </div>
@@ -112,7 +112,7 @@
         </div>
         <div class="p-2.5 bg-gray-50 dark:bg-gray-700/40 rounded-lg">
             <span class="text-gray-500 dark:text-gray-400 block text-[11px]">Margin Peternak</span>
-            <span class="font-semibold text-primary-700 dark:text-primary-400 tabular-nums">+Rp 650</span>
+            <span class="font-semibold text-green-700 dark:text-green-400 tabular-nums">+Rp 650</span>
         </div>
     </div>
 </div>

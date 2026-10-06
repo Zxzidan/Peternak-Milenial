@@ -10,39 +10,89 @@
 @theme {
     --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
-    /* Clean, Professional Primary Green Palette */
-    --color-primary-50: #f0fdf4;
-    --color-primary-100: #dcfce7;
-    --color-primary-200: #bbf7d0;
-    --color-primary-300: #86efac;
-    --color-primary-400: #4ade80;
-    --color-primary-500: #22c55e;
-    --color-primary-600: #16a34a;
-    --color-primary-700: #15803d;
-    --color-primary-800: #166534;
-    --color-primary-900: #14532d;
-    --color-primary-950: #052e16;
+    /* Brand Primary: Royal Navy Blue (Word "Peternak" & Bull Silhouette: #013A85) */
+    --color-primary-50: #eff6fc;
+    --color-primary-100: #dbeafe;
+    --color-primary-200: #bfdcfe;
+    --color-primary-300: #93c5fd;
+    --color-primary-400: #3b82f6;
+    --color-primary-500: #1b6cc7;
+    --color-primary-600: #0a52ab;
+    --color-primary-700: #013a85;
+    --color-primary-800: #022f6e;
+    --color-primary-900: #062656;
+    --color-primary-950: #021736;
 
-    /* Semantic Status Colors */
-    --color-success-50: #f0fdf4;
-    --color-success-500: #22c55e;
-    --color-success-600: #16a34a;
-    --color-success-700: #15803d;
+    /* Brand Accent: Vibrant Sky Blue / Cyan (Word "Milenial", Mountain Peak & Tech Pixels: #009FD2) */
+    --color-cyan-50: #f0f9fd;
+    --color-cyan-100: #def2fb;
+    --color-cyan-200: #bee6f8;
+    --color-cyan-300: #8ed3f3;
+    --color-cyan-400: #46b7e8;
+    --color-cyan-500: #009fd2;
+    --color-cyan-600: #0081ae;
+    --color-cyan-700: #01688d;
+    --color-cyan-800: #055573;
+    --color-cyan-900: #094760;
+    --color-cyan-950: #032d3f;
 
-    --color-warning-50: #fffbeb;
-    --color-warning-500: #f59e0b;
-    --color-warning-600: #d97706;
-    --color-warning-700: #b45309;
+    /* Agriculture & Nature Green (Growth Arrow & Foliage Leaf: #209527, Leaf Base: #04793F) */
+    --color-green-50: #f0fbf2;
+    --color-green-100: #dbf7df;
+    --color-green-200: #baefc1;
+    --color-green-300: #86e093;
+    --color-green-400: #4ecb60;
+    --color-green-500: #209527;
+    --color-green-600: #167d1d;
+    --color-green-700: #04793f;
+    --color-green-800: #08552f;
+    --color-green-900: #084628;
+    --color-green-950: #022816;
 
+    /* Semantic Success (Matched with Logo Growth Green) */
+    --color-success-50: #f0fbf2;
+    --color-success-100: #dbf7df;
+    --color-success-200: #baefc1;
+    --color-success-500: #209527;
+    --color-success-600: #167d1d;
+    --color-success-700: #04793f;
+
+    /* Sun Gold / Amber (Rising Sun in Logo: #FBBB03) */
+    --color-amber-50: #fffbf0;
+    --color-amber-100: #fef4d0;
+    --color-amber-200: #fee5a0;
+    --color-amber-300: #fcd269;
+    --color-amber-400: #fbc333;
+    --color-amber-500: #fbbb03;
+    --color-amber-600: #d99c00;
+    --color-amber-700: #b07902;
+    --color-amber-800: #8f5c09;
+    --color-amber-900: #764c0d;
+    --color-amber-950: #442802;
+
+    --color-warning-50: #fffbf0;
+    --color-warning-500: #fbbb03;
+    --color-warning-600: #d99c00;
+    --color-warning-700: #b07902;
+
+    /* Emergency & Alert Red (Kesmavet 24/7) */
     --color-danger-50: #fef2f2;
     --color-danger-500: #ef4444;
     --color-danger-600: #dc2626;
     --color-danger-700: #b91c1c;
 
-    --color-info-50: #eff6ff;
-    --color-info-500: #3b82f6;
-    --color-info-600: #2563eb;
-    --color-info-700: #1d4ed8;
+    /* Info Blue/Cyan (Digital Services) */
+    --color-info-50: #f0f9fd;
+    --color-info-500: #009fd2;
+    --color-info-600: #0081ae;
+    --color-info-700: #01688d;
+
+    /* Direct Logo Hex Tokens */
+    --color-brand-blue: #013a85;
+    --color-brand-cyan: #009fd2;
+    --color-brand-green: #209527;
+    --color-brand-forest: #04793f;
+    --color-brand-gold: #fbbb03;
 }
 
 /* Subtle, clean scrollbar for sidebar */

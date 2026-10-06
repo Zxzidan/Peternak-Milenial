@@ -15,7 +15,7 @@
         <div class="mt-3 p-3 bg-gray-50 dark:bg-gray-700/40 rounded-lg border border-gray-200/80 dark:border-gray-700">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-xs font-semibold text-gray-900 dark:text-white">Melati · JTM-PAS-0024</span>
-                <span class="text-[10px] font-medium text-primary-700 bg-primary-50 dark:bg-primary-950/60 dark:text-primary-300 px-1.5 py-0.2 rounded">
+                <span class="text-[10px] font-semibold text-green-700 bg-green-50 dark:bg-green-950/60 dark:text-green-300 px-1.5 py-0.2 rounded">
                     Laktasi II
                 </span>
             </div>
