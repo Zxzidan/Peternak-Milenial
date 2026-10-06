@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PeternakProfile;
-use App\Models\Region;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -103,18 +101,6 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
             'email_verified_at' => now(),
         ]);
-
-        // If registered as peternak, create initial profile with first region
-        if ($role === 'peternak') {
-            $defaultRegion = Region::first();
-            PeternakProfile::create([
-                'user_id' => $user->id,
-                'region_id' => $defaultRegion?->id,
-                'farm_name' => 'Peternakan '.$user->name,
-                'address' => 'Jawa Timur',
-                'verification_status' => 'pending',
-            ]);
-        }
 
         Auth::login($user);
         $request->session()->regenerate();

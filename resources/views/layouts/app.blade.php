@@ -13,22 +13,21 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700" rel="stylesheet" />
 
-    <!-- Dark Mode Init Script (Prevents flash of unstyled theme) -->
+    <!-- Theme Init Script: Always enforce bright/light theme -->
     <script>
         (function() {
-            var theme = localStorage.getItem('theme');
-            if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
+            try {
+                localStorage.removeItem('theme');
+                localStorage.setItem('theme', 'light');
+            } catch (e) {}
+            document.documentElement.classList.remove('dark');
         })();
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="antialiased bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 font-sans selection:bg-primary-500/20 selection:text-primary-800 dark:selection:text-primary-300">
+<body class="antialiased bg-gray-50 text-gray-900 font-sans selection:bg-primary-500/20 selection:text-primary-800">
     <div class="min-h-screen">
         <!-- Top Navbar Component (Fixed Top Navbar) -->
         <x-navbar />

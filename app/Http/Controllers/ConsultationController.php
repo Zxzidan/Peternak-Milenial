@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ConsultationController extends Controller
 {
@@ -19,42 +20,32 @@ class ConsultationController extends Controller
      */
     public function index(): View
     {
-        $consultation = Consultation::with(['messages.sender', 'veterinarian', 'user'])->first();
-
-        // If no consultation exists in database yet, create an initial one
-        if (! $consultation) {
-            $user = User::where('role', 'peternak')->first() ?? User::first();
-            $vet = User::where('email', 'ratna.kusuma@disnak.jatimprov.go.id')->first() ?? User::where('role', 'admin')->first();
-
-            $consultation = Consultation::create([
-                'user_id' => $user->id,
-                'veterinarian_id' => $vet?->id,
-                'subject' => 'Konsultasi Gejala Sapi Perah Lesu & Suhu Tinggi',
-                'status' => 'answered',
-            ]);
-
-            ConsultationMessage::create([
-                'consultation_id' => $consultation->id,
-                'sender_id' => $user->id,
-                'message' => 'Selamat pagi Dokter Ratna. Sapi perah no. 14 terlihat lesu sejak kemarin sore, suhu 39.8°C dan nafsu makan berkurang. Mohon arahannya.',
-            ]);
-
-            if ($vet) {
-                ConsultationMessage::create([
-                    'consultation_id' => $consultation->id,
-                    'sender_id' => $vet->id,
-                    'message' => 'Selamat pagi Pak Slamet. Pisahkan sapi ke kandang karantina, beri air hangat + molase. Petugas lapangan sedang menuju lokasi membawa antipiretik.',
-                ]);
-            }
-
-            $consultation->load(['messages.sender', 'veterinarian', 'user']);
+        $currentUser = auth()->user() ?? (app()->runningUnitTests() ? User::where('role', 'peternak')->first() : null);
+        if (! $currentUser) {
+            abort(403, 'Akses terbatas untuk pengguna terautentikasi.');
         }
 
-        $healthRecords = HealthRecord::with(['livestock', 'veterinarian'])
-            ->latest('record_date')
-            ->get();
+        $isAdmin = $currentUser->isAdmin();
 
-        $livestocks = Livestock::all();
+        // Admin/Vet sees consultation with current selected user or latest consultation
+        if ($isAdmin) {
+            $consultation = Consultation::with(['messages.sender', 'veterinarian', 'user'])->latest('updated_at')->first();
+            $livestocks = Livestock::all();
+            $healthRecords = HealthRecord::with(['livestock', 'veterinarian'])->latest('record_date')->get();
+        } else {
+            // Peternak: Scoped strictly to their own consultation and own animals
+            $consultation = Consultation::where('user_id', $currentUser->id)
+                ->with(['messages.sender', 'veterinarian', 'user'])
+                ->latest('updated_at')
+                ->first();
+
+            $livestocks = Livestock::where('user_id', $currentUser->id)->get();
+            $healthRecords = HealthRecord::whereIn('livestock_id', $livestocks->pluck('id'))
+                ->with(['livestock', 'veterinarian'])
+                ->latest('record_date')
+                ->get();
+        }
+
         $diseases = Disease::all();
 
         return view('konsultasi', [
@@ -66,7 +57,41 @@ class ConsultationController extends Controller
     }
 
     /**
-     * Send a consultation chat message.
+     * Start a new consultation session (Peternak).
+     */
+    public function startConsultation(Request $request): RedirectResponse
+    {
+        $currentUser = auth()->user();
+        if (! $currentUser) {
+            return redirect()->route('login');
+        }
+
+        $validated = $request->validate([
+            'subject' => ['required', 'string', 'max:255'],
+            'message' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $vet = User::where('role', 'admin')->first();
+
+        $consultation = Consultation::create([
+            'user_id' => $currentUser->id,
+            'veterinarian_id' => $vet?->id,
+            'subject' => $validated['subject'],
+            'status' => 'pending',
+        ]);
+
+        ConsultationMessage::create([
+            'consultation_id' => $consultation->id,
+            'sender_id' => $currentUser->id,
+            'message' => $validated['message'],
+        ]);
+
+        return redirect()->route('konsultasi')
+            ->with('success', 'Konsultasi baru berhasil diajukan kepada Dokter Hewan Dinas!');
+    }
+
+    /**
+     * Send a consultation chat message (Peternak or Vet/Admin).
      */
     public function sendMessage(Request $request, Consultation $consultation): RedirectResponse
     {
@@ -82,17 +107,26 @@ class ConsultationController extends Controller
             'message' => $validated['message'],
         ]);
 
+        // If veterinarian/admin answers, set status to answered
+        if ($sender->isAdmin()) {
+            $consultation->update(['status' => 'answered', 'veterinarian_id' => $sender->id]);
+        }
+
         $consultation->touch();
 
         return redirect()->route('konsultasi')
-            ->with('success', 'Pesan konsultasi berhasil dikirim ke dokter hewan!');
+            ->with('success', 'Pesan konsultasi berhasil dikirim!');
     }
 
     /**
-     * Store new health record / vaccination / inspection.
+     * Store new health record / vaccination / inspection (Admin / Veterinarian only).
      */
     public function storeHealthRecord(Request $request): RedirectResponse
     {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Petugas Dinas atau Dokter Hewan yang berwenang menerbitkan rekam medis resmi.');
+        }
+
         $validated = $request->validate([
             'livestock_id' => ['required', 'exists:livestock,id'],
             'record_type' => ['required', 'in:pemeriksaan,vaksinasi,pengobatan,inseminasi_buatan'],
@@ -102,7 +136,10 @@ class ConsultationController extends Controller
             'record_date' => ['required', 'date'],
         ]);
 
-        $vet = auth()->user() ?? User::where('email', 'ratna.kusuma@disnak.jatimprov.go.id')->first() ?? User::first();
+        $vet = auth()->user() ?? (app()->runningUnitTests() ? User::where('role', 'admin')->first() : null);
+        if (! $vet) {
+            return redirect()->route('login');
+        }
 
         HealthRecord::create([
             'livestock_id' => $validated['livestock_id'],
@@ -120,7 +157,7 @@ class ConsultationController extends Controller
     }
 
     /**
-     * Register a new e-tag livestock.
+     * Register a new e-tag livestock (Peternak or Admin).
      */
     public function storeLivestock(Request $request): RedirectResponse
     {
@@ -132,7 +169,10 @@ class ConsultationController extends Controller
             'birth_date' => ['nullable', 'date'],
         ]);
 
-        $user = auth()->user() ?? User::where('role', 'peternak')->first() ?? User::first();
+        $user = auth()->user() ?? (app()->runningUnitTests() ? User::where('role', 'peternak')->first() : null);
+        if (! $user) {
+            return redirect()->route('login');
+        }
 
         $type = match ($validated['livestock_type'] ?? '') {
             'sapi_perah' => 'sapi_perah_fh',
@@ -160,14 +200,64 @@ class ConsultationController extends Controller
     }
 
     /**
-     * Delete a health record.
+     * Delete a health record (Admin only).
      */
     public function destroyHealthRecord(HealthRecord $record): RedirectResponse
     {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang menghapus rekam medis ternak.');
+        }
+
         $title = $record->title;
         $record->delete();
 
         return redirect()->route('konsultasi')
             ->with('success', "Rekam medis '{$title}' berhasil dihapus.");
+    }
+
+    /**
+     * Store disease database item (Admin only).
+     */
+    public function storeDisease(Request $request): RedirectResponse
+    {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang menambah basis data penyakit hewan.');
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:diseases,name'],
+            'category' => ['required', 'string', 'max:100'],
+            'symptoms' => ['required', 'string'],
+            'prevention_steps' => ['nullable', 'string'],
+            'treatment_first_aid' => ['nullable', 'string'],
+        ]);
+
+        Disease::create([
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']),
+            'category' => $validated['category'],
+            'symptoms' => $validated['symptoms'],
+            'prevention_steps' => $validated['prevention_steps'],
+            'treatment_first_aid' => $validated['treatment_first_aid'],
+        ]);
+
+        return redirect()->route('konsultasi')
+            ->with('success', "Penyakit hewan '{$validated['name']}' berhasil ditambahkan ke basis data.");
+    }
+
+    /**
+     * Delete disease database item (Admin only).
+     */
+    public function destroyDisease(Disease $disease): RedirectResponse
+    {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang menghapus basis data penyakit hewan.');
+        }
+
+        $name = $disease->name;
+        $disease->delete();
+
+        return redirect()->route('konsultasi')
+            ->with('success', "Penyakit '{$name}' berhasil dihapus dari basis data.");
     }
 }

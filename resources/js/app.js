@@ -6,39 +6,11 @@ import { initFlowbite } from 'flowbite';
  * Supports localStorage persistence and syncs with Tailwind v4 class-based variant.
  */
 const initTheme = () => {
-    const isDark =
-        localStorage.getItem('theme') === 'dark' ||
-        (!localStorage.getItem('theme') &&
-            window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-    if (isDark) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
-
-    const updateThemeIcons = () => {
-        const darkIcon = document.getElementById('theme-toggle-dark-icon');
-        const lightIcon = document.getElementById('theme-toggle-light-icon');
-        const currentlyDark = document.documentElement.classList.contains('dark');
-
-        if (currentlyDark) {
-            darkIcon?.classList.add('hidden');
-            lightIcon?.classList.remove('hidden');
-        } else {
-            darkIcon?.classList.remove('hidden');
-            lightIcon?.classList.add('hidden');
-        }
-    };
-
-    updateThemeIcons();
-
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    themeToggleBtn?.addEventListener('click', () => {
-        const currentlyDark = document.documentElement.classList.toggle('dark');
-        localStorage.setItem('theme', currentlyDark ? 'dark' : 'light');
-        updateThemeIcons();
-    });
+    try {
+        localStorage.removeItem('theme');
+        localStorage.setItem('theme', 'light');
+    } catch (e) {}
+    document.documentElement.classList.remove('dark');
 };
 
 /**

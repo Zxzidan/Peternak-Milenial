@@ -18,6 +18,7 @@
             Acuan harga pasar harian dan pemetaan wilayah sentra ternak 38 Kabupaten/Kota Jawa Timur.
         </p>
     </div>
+    @if(auth()->check() && auth()->user()->isAdmin())
     <div class="flex items-center gap-2">
         <button
             type="button"
@@ -27,8 +28,10 @@
             + Perbarui Harga Pasar
         </button>
     </div>
+    @endif
 </div>
 
+@if(auth()->check() && auth()->user()->isAdmin())
 <!-- Form Input Harga (Collapsible & Persistent to Database) -->
 <div id="form-input-harga" class="hidden mb-5 bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-5 shadow-xs">
     <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700 mb-3.5">
@@ -74,6 +77,7 @@
         </div>
     </form>
 </div>
+@endif
 
 <!-- Filter Bar -->
 <form action="{{ route('harga-komoditas') }}" method="GET" class="mb-4 bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
@@ -120,7 +124,9 @@
                     <th class="px-3.5 py-2.5">Harga Konsumen</th>
                     <th class="px-3.5 py-2.5">Trend &bull; Perubahan</th>
                     <th class="px-3.5 py-2.5">Tanggal</th>
+                    @if(auth()->check() && auth()->user()->isAdmin())
                     <th class="px-3.5 py-2.5 text-right">Aksi</th>
+                    @endif
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -149,6 +155,7 @@
                         @endif
                     </td>
                     <td class="px-3.5 py-2.5 text-gray-400">{{ \Carbon\Carbon::parse($item->recorded_date)->format('d M Y') }}</td>
+                    @if(auth()->check() && auth()->user()->isAdmin())
                     <td class="px-3.5 py-2.5 text-right">
                         <form action="{{ route('harga-komoditas.destroy', $item) }}" method="POST" class="inline" onsubmit="return confirm('Hapus data harga {{ $item->commodity?->name }} ini?')">
                             @csrf
@@ -156,10 +163,11 @@
                             <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-medium">Hapus</button>
                         </form>
                     </td>
+                    @endif
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="px-3.5 py-4 text-center text-gray-400">Belum ada data harga sesuai filter.</td>
+                    <td colspan="8" class="px-3.5 py-6 text-center text-gray-400 text-xs">Belum ada data harga komoditas.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -207,7 +215,9 @@
             </div>
         </div>
         @empty
-        <div class="col-span-3 text-center py-4 text-gray-400">Belum ada data sentra produksi tersimpan.</div>
+        <div class="col-span-full py-6 text-center text-gray-400 text-xs bg-gray-50 dark:bg-gray-750/30 rounded-lg border border-dashed border-gray-200 dark:border-gray-700">
+            Belum ada data sentra produksi.
+        </div>
         @endforelse
     </div>
 </div>

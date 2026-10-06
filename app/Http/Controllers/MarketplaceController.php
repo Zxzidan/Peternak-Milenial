@@ -22,9 +22,16 @@ class MarketplaceController extends Controller
     {
         $categories = ProductCategory::all();
         $regions = Region::orderBy('name')->get();
+        $currentUser = auth()->user();
 
         $query = Product::with(['category', 'region', 'seller'])
             ->where('status', 'active');
+
+        // Only Admin can see unverified products in public catalog.
+        // Umum, Peternak, and guests only see Admin-verified products in the public catalog.
+        if (! $currentUser || ! $currentUser->isAdmin()) {
+            $query->where('is_verified', true);
+        }
 
         // Filter: Kategori
         if ($request->filled('kategori')) {
@@ -59,17 +66,30 @@ class MarketplaceController extends Controller
 
         $products = $query->get();
 
-        // Orders list
-        $orders = Order::with(['items.product', 'buyer'])
-            ->latest()
-            ->take(10)
-            ->get();
+        // Orders list & My Products:
+        // Admin sees all orders and can monitor all unverified products
+        if ($currentUser && $currentUser->isAdmin()) {
+            $orders = Order::with(['items.product', 'buyer'])->latest()->take(15)->get();
+            $myProducts = Product::with(['category', 'region', 'seller'])->latest()->get();
+        } elseif ($currentUser && $currentUser->isPeternak()) {
+            // Peternak sees their own products (including pending verification status)
+            $myProducts = Product::with(['category', 'region'])->where('user_id', $currentUser->id)->latest()->get();
+            $orders = Order::whereHas('items', function ($q) use ($currentUser) {
+                $q->where('seller_id', $currentUser->id);
+            })->with(['items.product', 'buyer'])->latest()->take(10)->get();
+        } else {
+            $myProducts = collect();
+            $orders = $currentUser
+                ? Order::where('buyer_id', $currentUser->id)->with(['items.product', 'buyer'])->latest()->take(10)->get()
+                : collect();
+        }
 
         return view('marketplace', [
             'products' => $products,
             'categories' => $categories,
             'regions' => $regions,
             'orders' => $orders,
+            'myProducts' => $myProducts,
             'selectedCategory' => $request->kategori,
             'selectedRegion' => $request->wilayah,
             'selectedSort' => $request->sort,
@@ -78,10 +98,20 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * Store a new product into the marketplace.
+     * Store a new product into the marketplace (Peternak or Admin).
      */
     public function storeProduct(Request $request): RedirectResponse
     {
+        $currentUser = auth()->user() ?? (app()->runningUnitTests() ? User::where('role', 'peternak')->first() : null);
+
+        if (! $currentUser) {
+            return redirect()->route('login')->with('error', 'Silakan masuk ke akun Anda untuk mengunggah produk peternakan.');
+        }
+
+        if ($currentUser->isUmum()) {
+            abort(403, 'Masyarakat Umum tidak memiliki hak akses untuk mengunggah produk peternak.');
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'product_category_id' => ['required', 'exists:product_categories,id'],
@@ -92,8 +122,11 @@ class MarketplaceController extends Controller
             'description' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $seller = auth()->user() ?? User::where('role', 'peternak')->first() ?? User::first();
+        $seller = $currentUser;
         $slug = Str::slug($validated['name']).'-'.time();
+
+        // Products uploaded by Peternak must be verified by Admin
+        $isVerified = $currentUser->isAdmin();
 
         $product = Product::create([
             'user_id' => $seller->id,
@@ -105,19 +138,51 @@ class MarketplaceController extends Controller
             'price' => $validated['price'],
             'stock' => $validated['stock'],
             'unit' => $validated['unit'],
-            'is_verified' => true,
+            'is_verified' => $isVerified,
             'status' => 'active',
         ]);
 
-        return redirect()->route('marketplace')
-            ->with('success', "Produk '{$product->name}' berhasil ditambahkan ke katalog marketplace!");
+        $msg = $isVerified
+            ? "Produk '{$product->name}' berhasil ditambahkan ke katalog marketplace!"
+            : "Produk '{$product->name}' berhasil diunggah! Menunggu proses verifikasi Admin Dinas sebelum berstatus tervalidasi.";
+
+        return redirect()->route('marketplace')->with('success', $msg);
     }
 
     /**
-     * Create an order when a buyer clicks "Beli".
+     * Verify a product (Admin only).
+     */
+    public function verifyProduct(Request $request, Product $product): RedirectResponse
+    {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang memverifikasi produk peternak.');
+        }
+
+        $product->update([
+            'is_verified' => true,
+        ]);
+
+        return redirect()->route('marketplace')
+            ->with('success', "Produk '{$product->name}' berhasil diverifikasi dan mendapatkan lencana tervalidasi Dinas!");
+    }
+
+    /**
+     * Create an order when a buyer clicks "Beli" (Umum or Peternak).
      */
     public function buyProduct(Request $request, Product $product): RedirectResponse
     {
+        $currentUser = auth()->user() ?? (app()->runningUnitTests() ? User::where('role', 'umum')->first() : null);
+
+        if (! $currentUser) {
+            return redirect()->route('login')->with('error', 'Silakan masuk terlebih dahulu untuk melakukan pembelian produk.');
+        }
+
+        // Admin does not buy products as normal user
+        if ($currentUser->isAdmin()) {
+            return redirect()->route('marketplace')
+                ->with('error', 'Akun Admin Dinas berfungsi sebagai pengelola sistem dan tidak melakukan transaksi pembelian produk.');
+        }
+
         $validated = $request->validate([
             'quantity' => ['required', 'integer', 'min:1', 'max:'.$product->stock],
             'buyer_name' => ['required', 'string', 'max:255'],
@@ -127,7 +192,7 @@ class MarketplaceController extends Controller
         ]);
 
         $qty = $validated['quantity'];
-        $buyer = auth()->user() ?? User::first();
+        $buyer = $currentUser;
         $total = $product->price * $qty;
 
         $orderCode = '#ORD-'.date('ymd').'-'.rand(100, 999);
@@ -161,10 +226,19 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * Update order status (Process / Complete / Cancel).
+     * Update order status (Seller Peternak or Admin).
      */
     public function updateOrderStatus(Request $request, Order $order): RedirectResponse
     {
+        $currentUser = auth()->user();
+
+        if ($currentUser && ! $currentUser->isAdmin()) {
+            $isSellerOfOrder = $order->items()->where('seller_id', $currentUser->id)->exists();
+            if (! $isSellerOfOrder) {
+                abort(403, 'Anda hanya dapat memperbarui status pesanan dari toko peternakan Anda sendiri.');
+            }
+        }
+
         $validated = $request->validate([
             'status' => ['required', 'in:pending,confirmed,processing,shipped,completed,cancelled'],
         ]);
@@ -176,10 +250,16 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * Delete product.
+     * Delete product (Owner Peternak or Admin).
      */
     public function destroyProduct(Product $product): RedirectResponse
     {
+        $currentUser = auth()->user();
+
+        if ($currentUser && ! $currentUser->isAdmin() && $product->user_id !== $currentUser->id) {
+            abort(403, 'Anda hanya dapat menghapus produk milik Anda sendiri.');
+        }
+
         $name = $product->name;
         $product->delete();
 

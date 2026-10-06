@@ -24,22 +24,33 @@
                 Pelaporan Darurat &amp; Kesejahteraan Hewan
             </h1>
             <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-2xl">
-                Saluran tanggap darurat wabah ternak, bencana alam, dan kecelakaan kandang. Laporan ditangani dalam &le; 30 menit.
+                @if(auth()->check() && auth()->user()->isAdmin())
+                    Pusat komando tanggap darurat Kesmavet. Admin bertugas menerima, memverifikasi, menugaskan petugas lapangan, dan menindaklanjuti seluruh laporan dari peternak.
+                @else
+                    Saluran tanggap darurat wabah ternak, bencana alam, dan kecelakaan kandang. Laporan ditangani dalam &le; 30 menit.
+                @endif
             </p>
         </div>
 
         <div class="flex items-center gap-3">
-            <button
-                type="button"
-                data-modal-target="emergency-modal"
-                data-modal-toggle="emergency-modal"
-                class="inline-flex items-center text-xs sm:text-sm font-semibold text-white bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-300 px-4 py-2.5 rounded-xl shadow-xs transition"
-            >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                </svg>
-                Buat Laporan Darurat
-            </button>
+            @if(auth()->check() && auth()->user()->isAdmin())
+                <div class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-xs">
+                    <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+                    <span>Panel Pengawasan: Menerima, Menangani &amp; Memverifikasi Laporan Peternak</span>
+                </div>
+            @else
+                <button
+                    type="button"
+                    data-modal-target="emergency-modal"
+                    data-modal-toggle="emergency-modal"
+                    class="inline-flex items-center text-xs sm:text-sm font-semibold text-white bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-300 px-4 py-2.5 rounded-xl shadow-xs transition"
+                >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                    Buat Laporan Darurat
+                </button>
+            @endif
         </div>
     </div>
 
@@ -223,34 +234,41 @@
 
         <!-- Real Actions to Advance / Complete / Manage this report -->
         <div class="pt-3 border-t border-gray-100 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div class="flex items-center gap-2">
-                <span class="text-gray-500 font-medium">Ubah Status Laporan:</span>
+            @if(auth()->check() && auth()->user()->isAdmin())
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-gray-600 font-semibold">Tindakan Admin:</span>
                 <form action="{{ route('darurat.status', $activeReport) }}" method="POST" class="inline-flex items-center gap-1.5">
                     @csrf
                     @method('PATCH')
                     <input type="hidden" name="status" value="verified">
-                    <button type="submit" class="px-2.5 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 font-medium text-gray-700 dark:text-gray-200 transition">
-                        Verifikasi
+                    <button type="submit" class="px-2.5 py-1.5 rounded-lg border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium transition" title="Verifikasi laporan dari peternak">
+                        1. Verifikasi Laporan
                     </button>
                 </form>
                 <form action="{{ route('darurat.status', $activeReport) }}" method="POST" class="inline-flex items-center gap-1.5">
                     @csrf
                     @method('PATCH')
                     <input type="hidden" name="status" value="in_progress">
-                    <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-medium shadow-xs transition">
-                        Tangani (OTW)
+                    <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-medium shadow-xs transition" title="Tugaskan petugas ke lokasi">
+                        2. Tangani (Kirim Petugas OTW)
                     </button>
                 </form>
                 <form action="{{ route('darurat.status', $activeReport) }}" method="POST" class="inline-flex items-center gap-1.5">
                     @csrf
                     @method('PATCH')
                     <input type="hidden" name="status" value="resolved">
-                    <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-xs transition">
-                        Tandai Selesai
+                    <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-xs transition" title="Tandai laporan selesai ditangani">
+                        3. Selesaikan Laporan
                     </button>
                 </form>
             </div>
+            @else
+            <div class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                Status dipantau &amp; diperbarui langsung oleh Petugas Kesmavet Dinas Peternakan Jatim.
+            </div>
+            @endif
 
+            @if(auth()->check() && (auth()->user()->isAdmin() || auth()->id() === $activeReport->user_id))
             <form action="{{ route('darurat.destroy', $activeReport) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus laporan darurat {{ $activeReport->report_code }} ini?')">
                 @csrf
                 @method('DELETE')
@@ -259,7 +277,20 @@
                     Hapus Laporan
                 </button>
             </form>
+            @endif
         </div>
+    </div>
+    @else
+    <div class="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-8 text-center shadow-xs">
+        <div class="w-12 h-12 mx-auto rounded-xl bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-400 mb-2.5 shadow-xs">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200">Tidak ada laporan darurat aktif</h3>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto">
+            Semua laporan telah tuntas atau belum ada laporan darurat baru yang masuk ke dalam database.
+        </p>
     </div>
     @endif
 
@@ -351,17 +382,60 @@
                                 <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-medium">Selesai</span>
                             @endif
                         </td>
-                        <td class="px-3.5 py-2.5 text-right space-x-1">
+                        <td class="px-3.5 py-2.5 text-right whitespace-nowrap">
+                            @if(auth()->check() && auth()->user()->isAdmin())
+                            <div class="inline-flex items-center gap-1.5 justify-end">
+                                @if($report->status === 'received')
+                                <form action="{{ route('darurat.status', $report) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="verified">
+                                    <button type="submit" class="px-2 py-1 text-[11px] font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md border border-blue-200 transition" title="Verifikasi Laporan Masuk">
+                                        Verifikasi
+                                    </button>
+                                </form>
+                                @elseif($report->status === 'verified')
+                                <form action="{{ route('darurat.status', $report) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="in_progress">
+                                    <button type="submit" class="px-2 py-1 text-[11px] font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 rounded-md border border-amber-200 transition" title="Tangani Laporan (Tugaskan OTW)">
+                                        Tangani (OTW)
+                                    </button>
+                                </form>
+                                @elseif($report->status === 'in_progress')
+                                <form action="{{ route('darurat.status', $report) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="resolved">
+                                    <button type="submit" class="px-2 py-1 text-[11px] font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-md border border-emerald-200 transition" title="Tandai Selesai Ditangani">
+                                        Selesaikan
+                                    </button>
+                                </form>
+                                @else
+                                <span class="px-2 py-0.5 text-[10px] font-semibold text-emerald-700 bg-emerald-50 rounded border border-emerald-200">Tuntas</span>
+                                @endif
+
+                                <form action="{{ route('darurat.destroy', $report) }}" method="POST" class="inline" onsubmit="return confirm('Hapus laporan {{ $report->report_code }}?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-medium ml-1">Hapus</button>
+                                </form>
+                            </div>
+                            @elseif(auth()->check() && auth()->id() === $report->user_id)
                             <form action="{{ route('darurat.destroy', $report) }}" method="POST" class="inline" onsubmit="return confirm('Hapus laporan {{ $report->report_code }}?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-medium">Hapus</button>
                             </form>
+                            @else
+                            <span class="text-gray-400 text-[11px]">-</span>
+                            @endif
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="px-3.5 py-4 text-center text-gray-400">Belum ada laporan darurat tersimpan.</td>
+                        <td colspan="8" class="px-3.5 py-6 text-center text-gray-400 text-xs">Belum ada data laporan darurat tersimpan di database.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -419,7 +493,9 @@
                 </div>
             </div>
             @empty
-            <div class="col-span-3 text-center text-gray-400 py-4 text-xs">Belum ada panduan mitigasi bencana.</div>
+            <div class="col-span-3 text-center text-gray-400 py-6 text-xs bg-gray-50 dark:bg-gray-750/30 rounded-lg border border-dashed border-gray-200 dark:border-gray-700">
+                Belum ada panduan penanganan bencana atau SOP kesmavet yang dimasukkan ke dalam database.
+            </div>
             @endforelse
         </div>
     </div>

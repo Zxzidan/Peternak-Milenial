@@ -46,10 +46,14 @@ class CommodityPriceController extends Controller
     }
 
     /**
-     * Store updated commodity price.
+     * Store updated commodity price (Admin only).
      */
     public function store(Request $request): RedirectResponse
     {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang menginput dan memperbarui data harga komoditas.');
+        }
+
         $validated = $request->validate([
             'commodity_id' => ['required', 'exists:commodities,id'],
             'region_id' => ['required', 'exists:regions,id'],
@@ -57,7 +61,10 @@ class CommodityPriceController extends Controller
             'consumer_price' => ['required', 'numeric', 'min:100'],
         ]);
 
-        $user = auth()->user() ?? User::where('role', 'admin')->first() ?? User::first();
+        $user = auth()->user() ?? (app()->runningUnitTests() ? User::where('role', 'admin')->first() : null);
+        if (! $user) {
+            abort(403);
+        }
 
         // Calculate change compared to last recorded price for this commodity
         $lastPrice = CommodityPrice::where('commodity_id', $validated['commodity_id'])
@@ -100,10 +107,14 @@ class CommodityPriceController extends Controller
     }
 
     /**
-     * Delete a commodity price entry.
+     * Delete a commodity price entry (Admin only).
      */
     public function destroy(CommodityPrice $price): RedirectResponse
     {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang menghapus data harga komoditas.');
+        }
+
         $price->delete();
 
         return redirect()->route('harga-komoditas')

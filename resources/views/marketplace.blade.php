@@ -19,6 +19,7 @@
         </p>
     </div>
     <div class="flex items-center gap-2">
+        @if(auth()->check() && (auth()->user()->isPeternak() || auth()->user()->isAdmin()))
         <button
             type="button"
             onclick="document.getElementById('form-tambah-produk').classList.toggle('hidden')"
@@ -26,6 +27,10 @@
         >
             + Tambah Produk
         </button>
+        @endif
+        <a href="#pesanan" class="inline-flex items-center text-xs font-medium text-gray-700 bg-white dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-50 border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-lg transition">
+            {{ auth()->check() && auth()->user()->isUmum() ? 'Riwayat Pesanan' : 'Kelola Pesanan' }}
+        </a>
     </div>
 </div>
 
@@ -130,9 +135,20 @@
                 <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
                     {{ $product->region?->name ?? 'Jawa Timur' }}
                 </span>
-                <span class="text-[10px] font-semibold text-cyan-700 bg-cyan-50 dark:bg-cyan-950/60 dark:text-cyan-300 px-1.5 py-0.5 rounded">
-                    {{ $product->category?->name ?? 'Ternak' }}
-                </span>
+                <div class="flex items-center gap-1">
+                    @if($product->is_verified)
+                        <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                            &check; Terverifikasi
+                        </span>
+                    @else
+                        <span class="text-[10px] font-semibold text-amber-700 bg-amber-50 dark:bg-amber-950/60 dark:text-amber-300 px-1.5 py-0.5 rounded">
+                            Menunggu Verifikasi
+                        </span>
+                    @endif
+                    <span class="text-[10px] font-semibold text-cyan-700 bg-cyan-50 dark:bg-cyan-950/60 dark:text-cyan-300 px-1.5 py-0.5 rounded">
+                        {{ $product->category?->name ?? 'Ternak' }}
+                    </span>
+                </div>
             </div>
             <h3 class="text-sm font-bold text-gray-900 dark:text-white">
                 {{ $product->name }}
@@ -151,23 +167,45 @@
             </span>
 
             <div class="flex items-center gap-1.5">
-                <!-- Trigger Buy Modal -->
-                <button
-                    type="button"
-                    onclick="document.getElementById('buy-modal-{{ $product->id }}').classList.remove('hidden')"
-                    class="px-3.5 py-1.5 bg-primary-700 hover:bg-primary-800 text-white text-xs font-semibold rounded-md transition shadow-xs"
-                >
-                    Beli
-                </button>
+                @if(auth()->check() && auth()->user()->isAdmin())
+                    @if(!$product->is_verified)
+                    <form action="{{ route('marketplace.products.verify', $product) }}" method="POST" class="inline">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-md transition shadow-xs">
+                            Verifikasi
+                        </button>
+                    </form>
+                    @endif
 
-                <!-- Delete Product -->
-                <form action="{{ route('marketplace.products.destroy', $product) }}" method="POST" onsubmit="return confirm('Hapus produk {{ $product->name }} dari marketplace?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="p-1 text-gray-400 hover:text-red-600 transition" title="Hapus Produk">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                    <form action="{{ route('marketplace.products.destroy', $product) }}" method="POST" onsubmit="return confirm('Hapus produk {{ $product->name }} dari marketplace?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="p-1 text-gray-400 hover:text-red-600 transition" title="Hapus Produk">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                        </button>
+                    </form>
+                @else
+                    <!-- Trigger Buy Modal (Peternak & Umum) -->
+                    <button
+                        type="button"
+                        onclick="document.getElementById('buy-modal-{{ $product->id }}').classList.remove('hidden')"
+                        class="px-3.5 py-1.5 bg-primary-700 hover:bg-primary-800 text-white text-xs font-semibold rounded-md transition shadow-xs"
+                    >
+                        Beli
                     </button>
-                </form>
+
+                    <!-- Delete Product (Hanya Peternak pemilik produk) -->
+                    @if(auth()->check() && auth()->id() === $product->user_id)
+                    <form action="{{ route('marketplace.products.destroy', $product) }}" method="POST" onsubmit="return confirm('Hapus produk {{ $product->name }} milik Anda?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="p-1 text-gray-400 hover:text-red-600 transition" title="Hapus Produk Saya">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                        </button>
+                    </form>
+                    @endif
+                @endif
             </div>
         </div>
 
@@ -186,15 +224,15 @@
                     </div>
                     <div>
                         <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Pembeli <span class="text-red-500">*</span></label>
-                        <input type="text" name="buyer_name" required value="Budi Setiawan (Surabaya)" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
+                        <input type="text" name="buyer_name" required value="{{ auth()->user()?->name ?? '' }}" placeholder="Nama lengkap Anda" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
                     </div>
                     <div>
                         <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Nomor WhatsApp / HP <span class="text-red-500">*</span></label>
-                        <input type="text" name="buyer_phone" required value="081234567890" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
+                        <input type="text" name="buyer_phone" required value="{{ auth()->user()?->phone ?? '' }}" placeholder="Contoh: 08123456789" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
                     </div>
                     <div>
                         <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Alamat Pengiriman <span class="text-red-500">*</span></label>
-                        <input type="text" name="shipping_address" required value="Jl. Basuki Rahmat No. 45, Surabaya" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
+                        <input type="text" name="shipping_address" required placeholder="Alamat lengkap penerima" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
                     </div>
                     <div>
                         <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Catatan Tambahan</label>
@@ -213,16 +251,119 @@
         </div>
     </div>
     @empty
-    <div class="col-span-3 text-center py-8 text-gray-400">Tidak ada produk ditemukan sesuai filter.</div>
+    <div class="col-span-full py-12 px-4 text-center bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+        <div class="w-12 h-12 mx-auto rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-400 mb-2.5 shadow-xs">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119.993Z" />
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200">Belum ada produk tersedia</h3>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto">Katalog produk peternakan akan tampil setelah produk diunggah oleh peternak dan diverifikasi oleh Admin Dinas.</p>
+    </div>
     @endforelse
 </div>
+
+<!-- Section: Kelola Produk Peternak & Verifikasi -->
+@if(auth()->check() && (auth()->user()->isPeternak() || auth()->user()->isAdmin()))
+<div class="mb-6 bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-5 shadow-xs">
+    <div class="pb-3 border-b border-gray-100 dark:border-gray-700 mb-3.5 flex items-center justify-between">
+        <div>
+            <h2 class="text-sm font-bold text-gray-900 dark:text-white">
+                {{ auth()->user()->isAdmin() ? 'Manajemen & Verifikasi Produk Peternak (Database)' : 'Daftar Produk Peternakan Saya (Database)' }}
+            </h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                {{ auth()->user()->isAdmin() ? 'Daftar seluruh produk peternakan yang masuk dari peternak dan status verifikasi Dinas.' : 'Status verifikasi produk yang Anda ajukan. Produk yang disetujui akan tayang di marketplace publik.' }}
+            </p>
+        </div>
+        <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+            Total: {{ $myProducts->count() }} Produk
+        </span>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left text-gray-600 dark:text-gray-300">
+            <thead class="text-[11px] text-gray-700 uppercase bg-gray-50 dark:bg-gray-700/50 dark:text-gray-300">
+                <tr>
+                    <th scope="col" class="px-3.5 py-2.5">Nama Produk</th>
+                    <th scope="col" class="px-3.5 py-2.5">Kategori / Wilayah</th>
+                    @if(auth()->user()->isAdmin())
+                    <th scope="col" class="px-3.5 py-2.5">Peternak</th>
+                    @endif
+                    <th scope="col" class="px-3.5 py-2.5">Harga &amp; Stok</th>
+                    <th scope="col" class="px-3.5 py-2.5">Status Verifikasi</th>
+                    <th scope="col" class="px-3.5 py-2.5 text-right">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                @forelse ($myProducts as $prod)
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition">
+                    <td class="px-3.5 py-2.5 font-bold text-gray-900 dark:text-white">{{ $prod->name }}</td>
+                    <td class="px-3.5 py-2.5">
+                        <div>{{ $prod->category?->name ?? '-' }}</div>
+                        <div class="text-[10px] text-gray-400">{{ $prod->region?->name ?? 'Jawa Timur' }}</div>
+                    </td>
+                    @if(auth()->user()->isAdmin())
+                    <td class="px-3.5 py-2.5 font-medium text-gray-800 dark:text-gray-200">
+                        {{ $prod->seller?->name ?? 'Peternak' }}
+                    </td>
+                    @endif
+                    <td class="px-3.5 py-2.5">
+                        <span class="font-semibold text-gray-900 dark:text-white">Rp {{ number_format($prod->price, 0, ',', '.') }}</span>
+                        <div class="text-[10px] text-gray-500">Stok: {{ $prod->stock }} {{ $prod->unit }}</div>
+                    </td>
+                    <td class="px-3.5 py-2.5">
+                        @if ($prod->is_verified)
+                            <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold px-2 py-0.5 rounded inline-flex items-center gap-1">
+                                &check; Terverifikasi / Dipublikasikan
+                            </span>
+                        @else
+                            <span class="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-semibold px-2 py-0.5 rounded">
+                                Menunggu Verifikasi Admin
+                            </span>
+                        @endif
+                    </td>
+                    <td class="px-3.5 py-2.5 text-right space-x-1">
+                        @if(auth()->user()->isAdmin() && ! $prod->is_verified)
+                            <form action="{{ route('marketplace.products.verify', $prod) }}" method="POST" class="inline">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-semibold px-2.5 py-1 rounded transition shadow-xs">
+                                    Setujui &amp; Publikasi
+                                </button>
+                            </form>
+                        @endif
+                        <form action="{{ route('marketplace.products.destroy', $prod) }}" method="POST" class="inline" onsubmit="return confirm('Hapus produk ini dari database?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-[10px] font-semibold px-2 py-1 rounded transition">
+                                Hapus
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="{{ auth()->user()->isAdmin() ? 6 : 5 }}" class="px-3.5 py-6 text-center text-gray-400">
+                        {{ auth()->user()->isAdmin() ? 'Belum ada produk yang diunggah oleh peternak di database.' : 'Belum ada produk yang Anda daftarkan di database.' }}
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif
 
 <!-- Section: Kelola Pesanan (Real Database Orders) -->
 <div id="pesanan" class="bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-5 shadow-xs">
     <div class="pb-3 border-b border-gray-100 dark:border-gray-700 mb-3.5 flex items-center justify-between">
         <div>
-            <h2 class="text-sm font-bold text-gray-900 dark:text-white">Kelola Pesanan Masuk (Database)</h2>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Daftar transaksi produk dari peternak ke pembeli yang tersimpan di sistem.</p>
+            <h2 class="text-sm font-bold text-gray-900 dark:text-white">
+                {{ auth()->check() && auth()->user()->isUmum() ? 'Riwayat Belanja Saya (Database)' : 'Kelola Pesanan Masuk (Database)' }}
+            </h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                {{ auth()->check() && auth()->user()->isUmum() ? 'Daftar produk peternakan yang telah Anda beli melalui marketplace.' : 'Daftar transaksi produk dari peternak ke pembeli yang tersimpan di sistem.' }}
+            </p>
         </div>
         <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
             Total: {{ $orders->count() }} Transaksi
@@ -269,31 +410,35 @@
                         @endif
                     </td>
                     <td class="px-3.5 py-2.5 text-right space-x-1">
-                        @if ($order->status !== 'completed' && $order->status !== 'cancelled')
-                            <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="inline">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="status" value="completed">
-                                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-semibold px-2 py-1 rounded transition shadow-xs">
-                                    Selesaikan
-                                </button>
-                            </form>
-                            <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="inline">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="status" value="cancelled">
-                                <button type="submit" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-[10px] font-medium px-2 py-1 rounded transition">
-                                    Batal
-                                </button>
-                            </form>
+                        @if (!auth()->check() || !auth()->user()->isUmum())
+                            @if ($order->status !== 'completed' && $order->status !== 'cancelled')
+                                <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="completed">
+                                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-semibold px-2 py-1 rounded transition shadow-xs">
+                                        Selesaikan
+                                    </button>
+                                </form>
+                                <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="cancelled">
+                                    <button type="submit" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-[10px] font-medium px-2 py-1 rounded transition">
+                                        Batal
+                                    </button>
+                                </form>
+                            @else
+                                <span class="text-gray-400 text-[11px]">Tuntas</span>
+                            @endif
                         @else
-                            <span class="text-gray-400 text-[11px]">Tuntas</span>
+                            <span class="text-gray-500 font-medium text-[11px]">{{ $order->status === 'completed' ? 'Pesanan Selesai' : 'Sedang Diproses' }}</span>
                         @endif
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-3.5 py-4 text-center text-gray-400">Belum ada pesanan tersimpan di database.</td>
+                    <td colspan="6" class="px-3.5 py-6 text-center text-gray-400">Belum ada data pesanan tersimpan di database.</td>
                 </tr>
                 @endforelse
             </tbody>

@@ -52,6 +52,45 @@ class User extends Authenticatable
         ];
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isPeternak(): bool
+    {
+        return $this->role === 'peternak';
+    }
+
+    public function isUmum(): bool
+    {
+        return $this->role === 'umum';
+    }
+
+    public function hasRole(string|array ...$roles): bool
+    {
+        $flattened = [];
+        foreach ($roles as $item) {
+            if (is_array($item)) {
+                $flattened = array_merge($flattened, $item);
+            } else {
+                $flattened[] = $item;
+            }
+        }
+
+        return in_array($this->role, $flattened, true);
+    }
+
+    public function getRoleLabelAttribute(): string
+    {
+        return match ($this->role) {
+            'admin' => 'Admin Dinas Peternakan Jatim',
+            'peternak' => 'Peternak Milenial',
+            'umum' => 'Masyarakat Umum',
+            default => ucfirst((string) $this->role),
+        };
+    }
+
     public function peternakProfile(): HasOne
     {
         return $this->hasOne(PeternakProfile::class);

@@ -40,7 +40,8 @@
                     </a>
                 </li>
 
-                <!-- 2. Siaga Darurat -->
+                <!-- 2. Siaga Darurat (Hanya Admin & Peternak) -->
+                @if(!auth()->check() || auth()->user()->hasRole('admin', 'peternak'))
                 <li>
                     <a
                         href="{{ url('/darurat') }}"
@@ -60,8 +61,10 @@
                         </span>
                     </a>
                 </li>
+                @endif
 
-                <!-- 3. Pelatihan & Bimtek (Dropdown Collapse) -->
+                <!-- 3. Pelatihan & Bimtek (Dropdown Collapse - Hanya Admin & Peternak) -->
+                @if(!auth()->check() || auth()->user()->hasRole('admin', 'peternak'))
                 <li>
                     <button
                         type="button"
@@ -98,6 +101,7 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
                 <!-- 4. Marketplace (Dropdown Collapse) -->
                 <li>
@@ -124,14 +128,16 @@
                                 Katalog Produk
                             </a>
                         </li>
+                        @if(!auth()->check() || !auth()->user()->isUmum())
                         <li>
                             <a href="{{ url('/marketplace#toko') }}" class="flex items-center w-full p-1.5 pl-10 text-xs text-body dark:text-gray-400 hover:text-heading dark:hover:text-white hover:bg-neutral-tertiary-medium hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
                                 Kelola Produk
                             </a>
                         </li>
+                        @endif
                         <li>
                             <a href="{{ url('/marketplace#pesanan') }}" class="flex items-center w-full p-1.5 pl-10 text-xs text-body dark:text-gray-400 hover:text-heading dark:hover:text-white hover:bg-neutral-tertiary-medium hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                                Riwayat Pesanan
+                                {{ auth()->check() && auth()->user()->isAdmin() ? 'Semua Pesanan' : (auth()->check() && auth()->user()->isUmum() ? 'Pesanan Saya' : 'Riwayat Pesanan') }}
                             </a>
                         </li>
                     </ul>
@@ -175,7 +181,8 @@
                     </ul>
                 </li>
 
-                <!-- 6. Kesehatan Hewan (Dropdown Collapse) -->
+                <!-- 6. Kesehatan Hewan (Dropdown Collapse - Hanya Admin & Peternak) -->
+                @if(!auth()->check() || auth()->user()->hasRole('admin', 'peternak'))
                 <li>
                     <button
                         type="button"
@@ -212,6 +219,7 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
                 <!-- 7. Pameran & Agenda -->
                 <li>

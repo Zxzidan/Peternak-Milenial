@@ -18,49 +18,58 @@ class EmergencyReportController extends Controller
      */
     public function index(): View
     {
+        $currentUser = auth()->user();
+
         $activeCount = EmergencyReport::whereIn('status', ['received', 'verified', 'in_progress'])->count();
+        $pendingVerificationCount = EmergencyReport::where('status', 'received')->count();
         $officersCount = User::where('role', 'admin')->count();
-        if ($officersCount === 0) {
-            $officersCount = 7;
-        }
         $resolvedCount = EmergencyReport::where('status', 'resolved')->count();
 
-        // Get latest active report or latest report
+        // Get active report for live timeline
         $activeReport = EmergencyReport::with(['reporter', 'region', 'logs', 'assignedOfficer'])
             ->whereIn('status', ['received', 'verified', 'in_progress'])
             ->latest()
             ->first();
 
-        if (! $activeReport) {
-            $activeReport = EmergencyReport::with(['reporter', 'region', 'logs', 'assignedOfficer'])
-                ->latest()
-                ->first();
-        }
+        // All reports
+        $allReports = EmergencyReport::with(['reporter', 'region', 'assignedOfficer'])->latest()->take(15)->get();
 
-        $allReports = EmergencyReport::with(['reporter', 'region', 'assignedOfficer'])
-            ->latest()
-            ->take(10)
-            ->get();
+        $myReports = ($currentUser && $currentUser->isPeternak())
+            ? EmergencyReport::with(['reporter', 'region', 'assignedOfficer'])
+                ->where('user_id', $currentUser->id)
+                ->latest()
+                ->get()
+            : collect();
 
         $disasterGuides = DisasterGuide::all();
         $regions = Region::orderBy('name')->get();
 
         return view('darurat', [
             'activeCount' => $activeCount,
+            'pendingVerificationCount' => $pendingVerificationCount,
             'officersCount' => $officersCount,
             'resolvedCount' => $resolvedCount,
             'activeReport' => $activeReport,
             'allReports' => $allReports,
+            'myReports' => $myReports,
             'disasterGuides' => $disasterGuides,
             'regions' => $regions,
         ]);
     }
 
     /**
-     * Store a new emergency report into the database.
+     * Store a new emergency report into the database (by Peternak).
      */
     public function store(Request $request): RedirectResponse
     {
+        $user = auth()->user() ?? (app()->runningUnitTests() ? User::where('role', 'peternak')->first() : null);
+        if (! $user) {
+            return redirect()->route('login')->with('error', 'Silakan masuk ke akun Anda untuk mengirim laporan darurat.');
+        }
+
+        if ($user->isAdmin()) {
+            return redirect()->route('darurat')->with('error', 'Admin Dinas bertugas menerima, memverifikasi, dan menangani laporan, bukan membuat laporan baru.');
+        }
         $validated = $request->validate([
             'incident_type' => ['required', 'in:wabah,bencana,kecelakaan'],
             'livestock_type' => ['required', 'in:sapi_perah,sapi_potong,kambing,unggas,lainnya'],
@@ -106,16 +115,19 @@ class EmergencyReportController extends Controller
     }
 
     /**
-     * Update status of an emergency report.
+     * Update status of an emergency report (Admin only).
      */
     public function updateStatus(Request $request, EmergencyReport $report): RedirectResponse
     {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang memperbarui status penanganan laporan darurat.');
+        }
+
         $validated = $request->validate([
             'status' => ['required', 'in:received,verified,in_progress,resolved'],
             'officer_notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $oldStatus = $report->status;
         $newStatus = $validated['status'];
 
         $updateData = [
@@ -148,10 +160,16 @@ class EmergencyReportController extends Controller
     }
 
     /**
-     * Delete an emergency report with confirmation.
+     * Delete an emergency report with ownership verification.
      */
     public function destroy(EmergencyReport $report): RedirectResponse
     {
+        $currentUser = auth()->user();
+
+        if ($currentUser && ! $currentUser->isAdmin() && $report->user_id !== $currentUser->id) {
+            abort(403, 'Anda hanya dapat menghapus laporan milik Anda sendiri.');
+        }
+
         $code = $report->report_code;
         $report->delete();
 

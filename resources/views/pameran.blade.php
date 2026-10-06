@@ -18,6 +18,7 @@
             Agenda pameran peternakan, temu bisnis, dan kalender kegiatan dinas Jawa Timur.
         </p>
     </div>
+    @if(auth()->check() && (auth()->user()->isPeternak() || auth()->user()->isAdmin()))
     <div class="flex items-center gap-2">
         <button
             type="button"
@@ -27,6 +28,7 @@
             + Daftar Peserta Pameran
         </button>
     </div>
+    @endif
 </div>
 
 <!-- Form Pengajuan Stand (Collapsible & Persisted into Database) -->
@@ -43,7 +45,7 @@
         @csrf
         <div>
             <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Usaha / Kelompok Ternak <span class="text-red-500">*</span></label>
-            <input type="text" name="business_name" required value="Peternak Sapi Perah Pasuruan" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
+            <input type="text" name="business_name" required value="{{ auth()->user()?->name ?? '' }}" placeholder="Nama usaha atau kelompok ternak Anda" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
         </div>
         <div>
             <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Pilihan Pameran <span class="text-red-500">*</span></label>
@@ -100,6 +102,7 @@
             </div>
         </div>
 
+        @if(auth()->check() && (auth()->user()->isPeternak() || auth()->user()->isAdmin()))
         <div class="flex flex-col sm:flex-row lg:flex-col gap-2 shrink-0">
             <button
                 type="button"
@@ -109,7 +112,18 @@
                 Daftar Stand Sekarang
             </button>
         </div>
+        @endif
     </div>
+</div>
+@else
+<div class="mb-5 bg-white rounded-xl border border-dashed border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-8 text-center shadow-xs">
+    <div class="w-12 h-12 mx-auto rounded-xl bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-400 mb-2.5 shadow-xs">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+        </svg>
+    </div>
+    <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200">Belum ada agenda pameran</h3>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto">Agenda pameran dan temu bisnis peternakan akan ditampilkan setelah dipublikasikan oleh Admin Dinas.</p>
 </div>
 @endif
 
@@ -154,24 +168,29 @@
                         @endif
                     </td>
                     <td class="px-3.5 py-2.5 text-right space-x-1">
-                        @if ($reg->status !== 'approved')
-                            <form action="{{ route('pameran.status', $reg) }}" method="POST" class="inline">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="status" value="approved">
-                                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-semibold px-2 py-1 rounded transition">Setujui</button>
-                            </form>
+                        @if(auth()->check() && auth()->user()->isAdmin())
+                            @if ($reg->status !== 'approved')
+                                <form action="{{ route('pameran.status', $reg) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="approved">
+                                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-semibold px-2 py-1 rounded transition">Setujui</button>
+                                </form>
+                            @endif
                         @endif
+
+                        @if(auth()->check() && (auth()->user()->isAdmin() || auth()->id() === $reg->user_id))
                         <form action="{{ route('pameran.destroy', $reg) }}" method="POST" class="inline" onsubmit="return confirm('Batalkan pengajuan stand {{ $reg->business_name }}?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-medium">Batal</button>
                         </form>
+                        @endif
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-3.5 py-4 text-center text-gray-400">Belum ada peserta terdaftar.</td>
+                    <td colspan="6" class="px-3.5 py-6 text-center text-gray-400 text-xs">Belum ada pengajuan stand pameran di dalam database.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -207,7 +226,9 @@
             </div>
         </div>
         @empty
-        <div class="col-span-3 text-center py-4 text-gray-400">Belum ada agenda di kalender.</div>
+        <div class="col-span-3 text-center py-6 text-gray-400 text-xs bg-gray-50 dark:bg-gray-750/30 rounded-lg border border-dashed border-gray-200 dark:border-gray-700">
+            Belum ada agenda kegiatan di dalam database.
+        </div>
         @endforelse
     </div>
 </div>

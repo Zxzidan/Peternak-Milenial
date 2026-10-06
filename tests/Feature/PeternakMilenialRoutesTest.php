@@ -109,7 +109,7 @@ test('flowbite dashboard includes plus jakarta sans and layout controls', functi
 
     $response->assertStatus(200);
     $response->assertSee('Plus Jakarta Sans');
-    $response->assertSee('id="theme-toggle"', false);
+    $response->assertDontSee('id="theme-toggle"', false);
     $response->assertSee('data-drawer-target="top-bar-sidebar"', false);
     $response->assertSee('data-drawer-toggle="top-bar-sidebar"', false);
     $response->assertSee('id="top-bar-sidebar"', false);
@@ -134,9 +134,7 @@ test('dashboard has collapsible sidebar controls, kpi cards, and charts', functi
     $response->assertSee('Pelaku Usaha Ternak');
     $response->assertSee('Produktivitas Hasil');
     $response->assertSee('Struktur Komoditas');
-    $response->assertSee('1.248.560');
-    $response->assertSee('1.460');
-    $response->assertSee('5 Sektor');
+    $response->assertSee('MASP');
     $response->assertSee('id="chart-distribusi-ternak"', false);
     $response->assertSee('chart-produksi-komoditas', false);
 });
@@ -461,4 +459,169 @@ test('new user can register, persist to database, and auto-login', function () {
     expect($created)->not->toBeNull();
     expect($created->name)->toBe('Ahmad Dahlan');
     expect($created->role)->toBe('peternak');
+});
+
+test('login and register pages render in bright theme without preview toolbar and use images from img directory', function () {
+    foreach ([route('login'), route('register')] as $url) {
+        $response = $this->get($url);
+        $response->assertStatus(200);
+
+        // Preview toolbar elements removed
+        $response->assertDontSee('title="Desktop view"');
+        $response->assertDontSee('title="Tablet view"');
+        $response->assertDontSee('title="Mobile view"');
+
+        // Bright theme: no hardcoded dark class on html
+        $response->assertDontSee('<html lang="id" class="dark">');
+
+        // References image files in img folder
+        $response->assertSee('img/logoaplikasi2.png');
+        $response->assertSee('img/auth-illustration.jpg');
+    }
+});
+
+// =========================================================================
+// SISTEM ROLE-BASED ACCESS CONTROL (RBAC) TESTS
+// 1. Admin Dinas Peternakan Provinsi Jawa Timur
+// 2. Peternak
+// 3. Masyarakat Umum
+// =========================================================================
+
+test('admin has full administrative oversight and can verify products, reports, and trainings', function () {
+    $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+    $peternak = User::where('role', 'peternak')->first() ?? User::factory()->create(['role' => 'peternak']);
+
+    // Admin can access all pages
+    foreach (['dashboard', 'darurat', 'pelatihan', 'marketplace', 'harga-komoditas', 'konsultasi', 'pameran'] as $routeName) {
+        $this->actingAs($admin)->get(route($routeName))->assertStatus(200);
+    }
+
+    // Admin can verify emergency report status
+    $report = EmergencyReport::first();
+    $this->actingAs($admin)
+        ->patch(route('darurat.status', $report), ['status' => 'verified'])
+        ->assertRedirect(route('darurat'));
+    expect($report->fresh()->status)->toBe('verified');
+
+    // Admin receives, handles, and verifies reports, but does NOT create reports
+    $daruratResponse = $this->actingAs($admin)->get(route('darurat'));
+    $daruratResponse->assertStatus(200);
+    $daruratResponse->assertDontSee('Buat Laporan Darurat');
+    $daruratResponse->assertSee('Panel Pengawasan');
+
+    $this->actingAs($admin)
+        ->post(route('darurat.store'), [
+            'incident_type' => 'wabah',
+            'livestock_type' => 'sapi_potong',
+            'affected_count' => 5,
+            'location_address' => 'Bojonegoro',
+        ])
+        ->assertRedirect(route('darurat'))
+        ->assertSessionHas('error');
+
+    // Admin can verify marketplace products
+    $product = Product::first();
+    $product->update(['is_verified' => false]);
+    $this->actingAs($admin)
+        ->patch(route('marketplace.products.verify', $product))
+        ->assertRedirect(route('marketplace'));
+    expect($product->fresh()->is_verified)->toBeTrue();
+
+    // Admin can store commodity prices
+    $region = Region::first();
+    $commodity = Commodity::first();
+    $this->actingAs($admin)
+        ->post(route('harga-komoditas.store'), [
+            'region_id' => $region->id,
+            'commodity_id' => $commodity->id,
+            'farmer_price' => 25000,
+            'consumer_price' => 30000,
+        ])
+        ->assertRedirect(route('harga-komoditas'));
+});
+
+test('peternak can access producer features but is blocked from admin mutations with 403', function () {
+    $peternak = User::where('role', 'peternak')->first() ?? User::factory()->create(['role' => 'peternak']);
+    $report = EmergencyReport::first();
+    $product = Product::first();
+    $region = Region::first();
+    $commodity = Commodity::first();
+
+    // Peternak can access allowed routes
+    foreach (['dashboard', 'darurat', 'pelatihan', 'marketplace', 'harga-komoditas', 'konsultasi', 'pameran'] as $routeName) {
+        $this->actingAs($peternak)->get(route($routeName))->assertStatus(200);
+    }
+
+    // Peternak CAN see "Buat Laporan Darurat"
+    $peternakDarurat = $this->actingAs($peternak)->get(route('darurat'));
+    $peternakDarurat->assertStatus(200);
+    $peternakDarurat->assertSee('Buat Laporan Darurat');
+
+    // Peternak CANNOT update emergency status (Admin only) -> 403 Forbidden
+    $this->actingAs($peternak)
+        ->patch(route('darurat.status', $report), ['status' => 'resolved'])
+        ->assertStatus(403);
+
+    // Peternak CANNOT verify products (Admin only) -> 403 Forbidden
+    $this->actingAs($peternak)
+        ->patch(route('marketplace.products.verify', $product))
+        ->assertStatus(403);
+
+    // Peternak CANNOT store commodity price (Admin only) -> 403 Forbidden
+    $this->actingAs($peternak)
+        ->post(route('harga-komoditas.store'), [
+            'region_id' => $region->id,
+            'commodity_id' => $commodity->id,
+            'farmer_price' => 20000,
+            'consumer_price' => 25000,
+        ])
+        ->assertStatus(403);
+
+    // Peternak product upload defaults to unverified
+    $cat = ProductCategory::first();
+    $this->actingAs($peternak)
+        ->post(route('marketplace.products.store'), [
+            'name' => 'Susu Kambing Organik Peternak',
+            'product_category_id' => $cat->id,
+            'region_id' => $region->id,
+            'price' => 35000,
+            'stock' => 50,
+            'unit' => 'Liter',
+            'description' => 'Susu segar kambing etawa peternak',
+        ])
+        ->assertRedirect(route('marketplace'));
+
+    $newProduct = Product::where('name', 'Susu Kambing Organik Peternak')->first();
+    expect($newProduct)->not->toBeNull();
+    expect($newProduct->is_verified)->toBeFalse();
+});
+
+test('masyarakat umum is restricted to public features and blocked with 403 on protected routes', function () {
+    $umum = User::where('role', 'umum')->first() ?? User::factory()->create(['role' => 'umum']);
+
+    // Umum CAN access public routes
+    $this->actingAs($umum)->get(route('dashboard'))->assertStatus(200);
+    $this->actingAs($umum)->get(route('marketplace'))->assertStatus(200);
+    $this->actingAs($umum)->get(route('harga-komoditas'))->assertStatus(200);
+    $this->actingAs($umum)->get(route('pameran'))->assertStatus(200);
+
+    // Umum CANNOT access internal features -> 403 Forbidden
+    $this->actingAs($umum)->get(route('darurat'))->assertStatus(403);
+    $this->actingAs($umum)->get(route('pelatihan'))->assertStatus(403);
+    $this->actingAs($umum)->get(route('konsultasi'))->assertStatus(403);
+
+    // Umum CAN perform purchasing in marketplace
+    $product = Product::first();
+    $this->actingAs($umum)
+        ->post(route('marketplace.products.buy', $product), [
+            'quantity' => 2,
+            'buyer_name' => $umum->name,
+            'buyer_phone' => '081234567899',
+            'shipping_address' => 'Jl. Pemuda No. 10 Surabaya',
+        ])
+        ->assertRedirect(route('marketplace'));
+
+    $order = Order::where('buyer_id', $umum->id)->latest()->first();
+    expect($order)->not->toBeNull();
+    expect($order->buyer?->name)->toBe($umum->name);
 });

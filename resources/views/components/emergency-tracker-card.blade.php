@@ -6,6 +6,14 @@
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Status Laporan Darurat</h3>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Penanganan Kasus & Bencana</p>
             </div>
+            @if(auth()->check() && auth()->user()->isAdmin())
+            <a
+                href="{{ route('darurat') }}"
+                class="text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 px-2.5 py-1 rounded-md transition"
+            >
+                Kelola Laporan &rarr;
+            </a>
+            @else
             <button
                 type="button"
                 data-modal-target="emergency-modal"
@@ -14,6 +22,7 @@
             >
                 + Lapor Baru
             </button>
+            @endif
         </div>
 
         <!-- Active Report Box -->
