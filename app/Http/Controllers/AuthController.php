@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Region;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -43,8 +44,9 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
+            $targetRoute = $user->isUmum() ? route('marketplace') : route('dashboard');
 
-            return redirect()->intended(route('dashboard'))
+            return redirect()->intended($targetRoute)
                 ->with('success', "Selamat datang kembali, {$user->name}!");
         }
 
@@ -64,7 +66,9 @@ class AuthController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return view('auth.register');
+        $regions = Region::orderBy('name')->get();
+
+        return view('auth.register', compact('regions'));
     }
 
     /**
@@ -76,9 +80,17 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'phone_number' => ['nullable', 'string', 'max:30'],
-            'role' => ['nullable', 'in:peternak,umum'],
+            'nik' => ['nullable', 'string', 'max:25'],
+            'birth_date' => ['nullable', 'date'],
+            'kabupaten' => ['nullable', 'string', 'max:255'],
+            'kecamatan' => ['nullable', 'string', 'max:255'],
+            'desa' => ['nullable', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
-            'terms' => ['accepted'],
+            'livestock_type' => ['nullable', 'string', 'max:100'],
+            'livestock_count' => ['nullable', 'numeric', 'min:0'],
+            'ktp_file' => ['nullable', 'file', 'mimes:jpeg,png,jpg', 'max:10240'],
+            'role' => ['nullable', 'in:peternak,umum'],
+            'terms' => ['nullable'],
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
             'email.required' => 'Email wajib diisi.',
@@ -87,15 +99,29 @@ class AuthController extends Controller
             'password.required' => 'Kata sandi wajib diisi.',
             'password.min' => 'Kata sandi minimal terdiri dari 6 karakter.',
             'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
-            'terms.accepted' => 'Anda wajib menyetujui syarat & ketentuan.',
+            'ktp_file.max' => 'Ukuran berkas KTP maksimal 10 MB.',
+            'ktp_file.mimes' => 'Format berkas KTP harus jpeg, png, atau jpg.',
         ]);
 
         $role = $validated['role'] ?? 'peternak';
 
+        $ktpPath = null;
+        if ($request->hasFile('ktp_file')) {
+            $ktpPath = $request->file('ktp_file')->store('ktp_documents', 'public');
+        }
+
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'phone_number' => $validated['phone_number'] ?? null,
+            'phone_number' => $validated['phone_number'] ?? $request->input('phone') ?? null,
+            'nik' => $validated['nik'] ?? null,
+            'birth_date' => $validated['birth_date'] ?? null,
+            'kabupaten' => $validated['kabupaten'] ?? null,
+            'kecamatan' => $validated['kecamatan'] ?? null,
+            'desa' => $validated['desa'] ?? null,
+            'livestock_type' => $validated['livestock_type'] ?? null,
+            'livestock_count' => isset($validated['livestock_count']) ? (int) $validated['livestock_count'] : null,
+            'ktp_path' => $ktpPath,
             'role' => $role,
             'is_active' => true,
             'password' => Hash::make($validated['password']),
@@ -105,7 +131,9 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('dashboard')
+        $targetRoute = $user->isUmum() ? route('marketplace') : route('dashboard');
+
+        return redirect($targetRoute)
             ->with('success', "Pendaftaran berhasil! Selamat datang di Peternak Milenial Jatim, {$user->name}.");
     }
 

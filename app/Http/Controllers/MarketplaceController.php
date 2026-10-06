@@ -69,26 +69,36 @@ class MarketplaceController extends Controller
         // Orders list & My Products:
         // Admin sees all orders and can monitor all unverified products
         if ($currentUser && $currentUser->isAdmin()) {
-            $orders = Order::with(['items.product', 'buyer'])->latest()->take(15)->get();
+            $orders = Order::with(['items.product.category', 'items.seller', 'buyer'])->latest()->take(20)->get();
             $myProducts = Product::with(['category', 'region', 'seller'])->latest()->get();
         } elseif ($currentUser && $currentUser->isPeternak()) {
             // Peternak sees their own products (including pending verification status)
             $myProducts = Product::with(['category', 'region'])->where('user_id', $currentUser->id)->latest()->get();
             $orders = Order::whereHas('items', function ($q) use ($currentUser) {
                 $q->where('seller_id', $currentUser->id);
-            })->with(['items.product', 'buyer'])->latest()->take(10)->get();
+            })->with(['items.product.category', 'items.seller', 'buyer'])->latest()->take(20)->get();
         } else {
             $myProducts = collect();
             $orders = $currentUser
-                ? Order::where('buyer_id', $currentUser->id)->with(['items.product', 'buyer'])->latest()->take(10)->get()
+                ? Order::where('buyer_id', $currentUser->id)->with(['items.product.category', 'items.seller', 'buyer'])->latest()->get()
                 : collect();
         }
+
+        $orderCounts = [
+            'all' => $orders->count(),
+            'pending' => $orders->where('status', 'pending')->count(),
+            'processing' => $orders->whereIn('status', ['confirmed', 'processing'])->count(),
+            'shipped' => $orders->where('status', 'shipped')->count(),
+            'completed' => $orders->where('status', 'completed')->count(),
+            'cancelled' => $orders->where('status', 'cancelled')->count(),
+        ];
 
         return view('marketplace', [
             'products' => $products,
             'categories' => $categories,
             'regions' => $regions,
             'orders' => $orders,
+            'orderCounts' => $orderCounts,
             'myProducts' => $myProducts,
             'selectedCategory' => $request->kategori,
             'selectedRegion' => $request->wilayah,
@@ -188,6 +198,7 @@ class MarketplaceController extends Controller
             'buyer_name' => ['required', 'string', 'max:255'],
             'buyer_phone' => ['required', 'string', 'max:30'],
             'shipping_address' => ['required', 'string', 'max:255'],
+            'payment_method' => ['nullable', 'string', 'max:100'],
             'notes' => ['nullable', 'string', 'max:255'],
         ]);
 
@@ -196,6 +207,9 @@ class MarketplaceController extends Controller
         $total = $product->price * $qty;
 
         $orderCode = '#ORD-'.date('ymd').'-'.rand(100, 999);
+        $paymentMethod = $validated['payment_method'] ?? 'Transfer Bank / QRIS';
+        $userNotes = $validated['notes'] ?? null;
+        $orderNotes = "Metode: {$paymentMethod}".($userNotes ? " • Catatan: {$userNotes}" : '');
 
         $order = Order::create([
             'order_code' => $orderCode,
@@ -204,7 +218,7 @@ class MarketplaceController extends Controller
             'status' => 'processing',
             'shipping_address' => $validated['shipping_address'].', Kontak: '.$validated['buyer_name'],
             'buyer_phone' => $validated['buyer_phone'],
-            'notes' => $validated['notes'] ?? 'Pesanan via Marketplace Peternak Milenial',
+            'notes' => $orderNotes,
         ]);
 
         OrderItem::create([
@@ -226,7 +240,7 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * Update order status (Seller Peternak or Admin).
+     * Update order status (Seller Peternak, Buyer Masyarakat, or Admin).
      */
     public function updateOrderStatus(Request $request, Order $order): RedirectResponse
     {
@@ -234,8 +248,17 @@ class MarketplaceController extends Controller
 
         if ($currentUser && ! $currentUser->isAdmin()) {
             $isSellerOfOrder = $order->items()->where('seller_id', $currentUser->id)->exists();
-            if (! $isSellerOfOrder) {
-                abort(403, 'Anda hanya dapat memperbarui status pesanan dari toko peternakan Anda sendiri.');
+            $isBuyerOfOrder = (int) $order->buyer_id === (int) $currentUser->id;
+
+            if (! $isSellerOfOrder && ! $isBuyerOfOrder) {
+                abort(403, 'Anda tidak memiliki hak akses untuk memperbarui status pesanan ini.');
+            }
+
+            // Buyer is allowed to complete (order received) or cancel
+            if ($isBuyerOfOrder && ! $isSellerOfOrder) {
+                if (! in_array($request->status, ['completed', 'cancelled'])) {
+                    abort(403, 'Pembeli hanya dapat menyelesaikan atau membatalkan pesanan.');
+                }
             }
         }
 
@@ -245,8 +268,18 @@ class MarketplaceController extends Controller
 
         $order->update(['status' => $validated['status']]);
 
+        $statusLabels = [
+            'pending' => 'Menunggu Pembayaran',
+            'confirmed' => 'Dikonfirmasi',
+            'processing' => 'Sedang Diproses Penjual',
+            'shipped' => 'Dalam Pengiriman',
+            'completed' => 'Selesai (Barang Diterima)',
+            'cancelled' => 'Dibatalkan',
+        ];
+        $label = $statusLabels[$validated['status']] ?? $validated['status'];
+
         return redirect()->route('marketplace')
-            ->with('success', "Status pesanan {$order->order_code} berhasil diperbarui menjadi {$validated['status']}!");
+            ->with('success', "Status pesanan {$order->order_code} berhasil diperbarui: {$label}!");
     }
 
     /**

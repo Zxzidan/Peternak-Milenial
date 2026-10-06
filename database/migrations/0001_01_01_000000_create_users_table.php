@@ -16,6 +16,14 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('phone_number')->nullable();
+            $table->string('nik', 20)->nullable();
+            $table->date('birth_date')->nullable();
+            $table->string('kabupaten')->nullable();
+            $table->string('kecamatan')->nullable();
+            $table->string('desa')->nullable();
+            $table->string('livestock_type')->nullable();
+            $table->unsignedInteger('livestock_count')->nullable();
+            $table->string('ktp_path')->nullable();
             $table->string('role')->default('umum'); // 'admin', 'peternak', 'umum'
             $table->boolean('is_active')->default(true);
             $table->timestamp('email_verified_at')->nullable();

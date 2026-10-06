@@ -17,6 +17,8 @@ use App\Models\Training;
 use App\Models\TrainingRegistration;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -55,6 +57,38 @@ test('dashboard page renders successfully', function () {
     $response->assertStatus(200);
     $response->assertSee('Peternak');
     $response->assertSee('Dinas Peternakan Provinsi Jawa Timur');
+});
+
+test('dashboard user count reflects exact dynamic registered accounts in database', function () {
+    $initialCount = User::where('is_active', true)->count();
+
+    $response = $this->get(route('dashboard'));
+    $response->assertStatus(200);
+    $response->assertSee('id="total-user-count"', false);
+    $response->assertSee((string) $initialCount);
+
+    // Register a brand new user via registration submission
+    $newEmail = 'peternak.dinamis.'.time().'@peternak.id';
+    $this->post(route('register.submit'), [
+        'name' => 'Peternak Realtime Baru',
+        'email' => $newEmail,
+        'phone_number' => '081234567899',
+        'password' => 'secret123',
+        'password_confirmation' => 'secret123',
+    ]);
+
+    expect(User::where('is_active', true)->count())->toBe($initialCount + 1);
+
+    // Verify dashboard immediately reflects incremented count
+    $afterRegisterResponse = $this->get(route('dashboard'));
+    $afterRegisterResponse->assertSee((string) ($initialCount + 1));
+
+    // Deactivate user and verify immediate decrease
+    $newUser = User::where('email', $newEmail)->first();
+    $newUser->update(['is_active' => false]);
+
+    $afterDeactivateResponse = $this->get(route('dashboard'));
+    $afterDeactivateResponse->assertSee((string) $initialCount);
 });
 
 test('pelatihan page renders successfully', function () {
@@ -409,6 +443,7 @@ test('login page renders with flowbite welcome back elements', function () {
     $response->assertSee('Sign in with Google');
     $response->assertSee('Sign in with Apple');
     $response->assertSee('name@company.com');
+    $response->assertDontSee('Akun Demo Cepat');
 });
 
 test('user can authenticate and logout successfully', function () {
@@ -461,6 +496,72 @@ test('new user can register, persist to database, and auto-login', function () {
     expect($created->role)->toBe('peternak');
 });
 
+test('register page renders all customized signup fields according to design specifications', function () {
+    $response = $this->get(route('register'));
+
+    $response->assertStatus(200);
+    $response->assertSee('Sign up');
+    $response->assertSee('Nama Lengkap');
+    $response->assertSee('No Telpon (WA)');
+    $response->assertSee('628xxxxxxxxxx');
+    $response->assertSee('NIK');
+    $response->assertSee('Tanggal Lahir');
+    $response->assertSee('Kabupaten/Kota');
+    $response->assertSee('Pilih Kabupaten...');
+    $response->assertSee('Kecamatan');
+    $response->assertSee('Pilih Kecamatan...');
+    $response->assertSee('Kelurahan/Desa');
+    $response->assertSee('Pilih Desa...');
+    $response->assertSee('Password Baru');
+    $response->assertSee('Konfirmasi Password');
+    $response->assertSee('Ternak yang Dimiliki');
+    $response->assertSee('Jumlah Ternak yang Dimiliki');
+    $response->assertSee('Jumlah Ternak yang Dimiliki (per ekor)');
+    $response->assertSee('Foto Berkas KTP');
+    $response->assertSee('* Besar Max 10 MB');
+    $response->assertSee('* Tipe: jpeg, png, dan jpg');
+    $response->assertSee('Sign Up');
+});
+
+test('user can register with full profile fields and ktp file upload', function () {
+    Storage::fake('public');
+
+    $file = UploadedFile::fake()->create('ktp_user.jpg', 500, 'image/jpeg');
+
+    $data = [
+        'name' => 'Budi Santoso',
+        'email' => 'budi.santoso@peternak.id',
+        'phone_number' => '6281234567890',
+        'nik' => '3507123456780001',
+        'birth_date' => '1998-05-15',
+        'kabupaten' => 'Kabupaten Malang',
+        'kecamatan' => 'Kepanjen',
+        'desa' => 'Ardirejo',
+        'password' => 'secret1234',
+        'password_confirmation' => 'secret1234',
+        'livestock_type' => 'Sapi Potong',
+        'livestock_count' => 12,
+        'ktp_file' => $file,
+    ];
+
+    $response = $this->post(route('register.submit'), $data);
+
+    $response->assertRedirect(route('dashboard'));
+    $this->assertAuthenticated();
+
+    $user = User::where('email', 'budi.santoso@peternak.id')->first();
+    expect($user)->not->toBeNull();
+    expect($user->nik)->toBe('3507123456780001');
+    expect($user->kabupaten)->toBe('Kabupaten Malang');
+    expect($user->kecamatan)->toBe('Kepanjen');
+    expect($user->desa)->toBe('Ardirejo');
+    expect($user->livestock_type)->toBe('Sapi Potong');
+    expect($user->livestock_count)->toBe(12);
+    expect($user->ktp_path)->not->toBeNull();
+
+    Storage::disk('public')->assertExists($user->ktp_path);
+});
+
 test('login and register pages render in bright theme without preview toolbar and use images from img directory', function () {
     foreach ([route('login'), route('register')] as $url) {
         $response = $this->get($url);
@@ -474,9 +575,18 @@ test('login and register pages render in bright theme without preview toolbar an
         // Bright theme: no hardcoded dark class on html
         $response->assertDontSee('<html lang="id" class="dark">');
 
-        // References image files in img folder
+        // References logo in img folder
         $response->assertSee('img/logoaplikasi2.png');
-        $response->assertSee('img/auth-illustration.jpg');
+    }
+
+    // Both login and register use dynamic transparent hiasan illustrations 1, 2, 3, 5
+    foreach ([route('login'), route('register')] as $url) {
+        $pageResponse = $this->get($url);
+        $pageResponse->assertSee('img/hiasan1.png');
+        $pageResponse->assertSee('img/hiasan2.png');
+        $pageResponse->assertSee('img/hiasan3.png');
+        $pageResponse->assertSee('img/hiasan5.png');
+        $pageResponse->assertDontSee('img/auth-illustration.jpg');
     }
 });
 

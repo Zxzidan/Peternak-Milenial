@@ -28,12 +28,10 @@ class DashboardController extends Controller
         $user = auth()->user();
         $userRole = $user?->role ?? 'umum';
 
-        // 1. KPI Agregat Tingkat Provinsi (Data Aktual Database)
-        $totalFarmerCount = ProductionCenter::sum('farmer_count');
-        if ($totalFarmerCount === 0) {
-            $totalFarmerCount = User::where('role', 'peternak')->count();
-        }
-        $displayPeternakCount = number_format($totalFarmerCount, 0, ',', '.');
+        // 1. KPI Pengguna Terdaftar (100% Real-time Berdasarkan Tabel users Authentication)
+        $totalUserCount = User::where('is_active', true)->count();
+        $displayUserCount = number_format($totalUserCount, 0, ',', '.');
+        $displayPeternakCount = $displayUserCount;
 
         $dailyProductionSum = ProductionCenter::sum('daily_production');
         $displayDailyProduction = number_format($dailyProductionSum, 0, ',', '.');
@@ -122,8 +120,26 @@ class DashboardController extends Controller
             }
         }
 
+        // 9. Data Khusus Pengguna Masyarakat (Marketplace Focus)
+        $buyerFeaturedProducts = Product::with(['category', 'region', 'seller'])
+            ->where('status', 'active')
+            ->where('is_verified', true)
+            ->latest()
+            ->take(6)
+            ->get();
+
+        $buyerOrders = ($user && $user->isUmum())
+            ? Order::where('buyer_id', $user->id)
+                ->with(['items.product.category', 'items.seller'])
+                ->latest()
+                ->take(5)
+                ->get()
+            : collect();
+
         return view('dashboard', [
             'userRole' => $userRole,
+            'totalUserCount' => $totalUserCount,
+            'displayUserCount' => $displayUserCount,
             'displayPeternakCount' => $displayPeternakCount,
             'displayDailyProduction' => $displayDailyProduction,
             'commodityCount' => $commodityCount,
@@ -140,6 +156,8 @@ class DashboardController extends Controller
             'upcomingEvents' => $upcomingEvents,
             'chartPopulasi' => $chartPopulasi,
             'chartProduksi' => $chartProduksi,
+            'buyerFeaturedProducts' => $buyerFeaturedProducts,
+            'buyerOrders' => $buyerOrders,
         ]);
     }
 }

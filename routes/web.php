@@ -59,12 +59,12 @@ Route::middleware(['role:admin,peternak'])->group(function () {
 // 6. Marketplace Peternak Milenial
 Route::get('/marketplace', [MarketplaceController::class, 'index'])->name('marketplace');
 Route::post('/marketplace/products/{product}/buy', [MarketplaceController::class, 'buyProduct'])->name('marketplace.products.buy');
+Route::patch('/marketplace/orders/{order}/status', [MarketplaceController::class, 'updateOrderStatus'])->name('marketplace.orders.status');
 
 // Kelola Produk (Peternak & Admin)
 Route::middleware(['role:admin,peternak'])->group(function () {
     Route::post('/marketplace/products', [MarketplaceController::class, 'storeProduct'])->name('marketplace.products.store');
     Route::delete('/marketplace/products/{product}', [MarketplaceController::class, 'destroyProduct'])->name('marketplace.products.destroy');
-    Route::patch('/marketplace/orders/{order}/status', [MarketplaceController::class, 'updateOrderStatus'])->name('marketplace.orders.status');
 
     // Verifikasi Produk oleh Admin
     Route::patch('/marketplace/products/{product}/verify', [MarketplaceController::class, 'verifyProduct'])

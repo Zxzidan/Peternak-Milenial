@@ -23,6 +23,14 @@ class User extends Authenticatable
         'name',
         'email',
         'phone_number',
+        'nik',
+        'birth_date',
+        'kabupaten',
+        'kecamatan',
+        'desa',
+        'livestock_type',
+        'livestock_count',
+        'ktp_path',
         'role',
         'is_active',
         'password',
@@ -47,6 +55,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'birth_date' => 'date',
+            'livestock_count' => 'integer',
             'password' => 'hashed',
             'is_active' => 'boolean',
         ];
