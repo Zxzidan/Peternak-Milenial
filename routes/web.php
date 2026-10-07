@@ -107,3 +107,7 @@ Route::middleware(['role:admin,peternak'])->group(function () {
         ->middleware('role:admin')
         ->name('pameran.status');
 });
+
+// 10. API Data Valid Peternakan Resmi Provinsi Jawa Timur (Disnak Jatim & BPS)
+Route::get('/api/statistik-peternakan', [DashboardController::class, 'apiStatistikPeternakan'])->name('api.statistik-peternakan');
+Route::get('/api/sentra-peternakan', [DashboardController::class, 'apiSentraPeternakan'])->name('api.sentra-peternakan');

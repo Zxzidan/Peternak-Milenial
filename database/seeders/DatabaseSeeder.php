@@ -408,8 +408,19 @@ class DatabaseSeeder extends Seeder
             'name' => 'Sentra Sapi Perah Pasuruan',
             'description' => 'Kawasan sentra populasi sapi perah terbesar Jawa Timur di Grati dan Nongkojajar.',
             'livestock_population' => 92400,
-            'latitude' => -7.6521,
-            'longitude' => 112.6983,
+            'latitude' => -7.7836,
+            'longitude' => 112.8582,
+            'is_featured' => true,
+        ]);
+
+        ProductionCenter::create([
+            'region_id' => $regions['malang']->id,
+            'commodity_id' => $commSusu->id,
+            'name' => 'Sentra Sapi Perah Malang',
+            'description' => 'Sentra agribisnis persusuan terpadu dataran tinggi Malang di Pujon dan Ngantang.',
+            'livestock_population' => 88600,
+            'latitude' => -7.8466,
+            'longitude' => 112.4697,
             'is_featured' => true,
         ]);
 
@@ -417,10 +428,32 @@ class DatabaseSeeder extends Seeder
             'region_id' => $regions['blitar']->id,
             'commodity_id' => $commTelur->id,
             'name' => 'Sentra Unggas & Telur Blitar',
-            'description' => 'Pemasok 70% kebutuhan telur Jawa Timur dan penyangga nasional.',
+            'description' => 'Pemasok 70% kebutuhan telur Jawa Timur dan penyangga 30% ketahanan pangan telur nasional.',
             'livestock_population' => 16500000,
-            'latitude' => -8.1333,
-            'longitude' => 112.2167,
+            'latitude' => -8.0954,
+            'longitude' => 112.1609,
+            'is_featured' => true,
+        ]);
+
+        ProductionCenter::create([
+            'region_id' => $regions['tuban']->id,
+            'commodity_id' => $commDaging->id,
+            'name' => 'Sentra Sapi Potong Tuban',
+            'description' => 'Sentra populasi sapi potong nomor satu Jawa Timur dan wilayah sumber bibit sapi PO.',
+            'livestock_population' => 345000,
+            'latitude' => -6.8972,
+            'longitude' => 112.0649,
+            'is_featured' => true,
+        ]);
+
+        ProductionCenter::create([
+            'region_id' => $regions['bojonegoro']->id,
+            'commodity_id' => $commDaging->id,
+            'name' => 'Sentra Sapi Potong Bojonegoro',
+            'description' => 'Kawasan korporasi peternakan sapi potong wilayah barat Jatim terintegrasi pertanian jagung.',
+            'livestock_population' => 248000,
+            'latitude' => -7.1502,
+            'longitude' => 111.8817,
             'is_featured' => true,
         ]);
 
@@ -428,10 +461,54 @@ class DatabaseSeeder extends Seeder
             'region_id' => $regions['lumajang']->id,
             'commodity_id' => $commDaging->id,
             'name' => 'Sentra Kambing Senduro Lumajang',
-            'description' => 'Balai pelestarian bibit kambing Senduro khas lereng Semeru.',
+            'description' => 'Balai pelestarian bibit rumpun asli kambing Senduro unggulan lereng Semeru.',
             'livestock_population' => 48200,
-            'latitude' => -8.1331,
-            'longitude' => 113.2246,
+            'latitude' => -8.1138,
+            'longitude' => 113.0645,
+            'is_featured' => true,
+        ]);
+
+        ProductionCenter::create([
+            'region_id' => $regions['kediri']->id,
+            'commodity_id' => $commAyam->id,
+            'name' => 'Sentra Ayam Ras & Unggas Kediri',
+            'description' => 'Sentra agribisnis unggas pedaging dan petelur modern terpadu korporasi peternak.',
+            'livestock_population' => 14800000,
+            'latitude' => -7.8228,
+            'longitude' => 112.0119,
+            'is_featured' => true,
+        ]);
+
+        ProductionCenter::create([
+            'region_id' => $regions['jombang']->id,
+            'commodity_id' => $commAyam->id,
+            'name' => 'Sentra Ayam Broiler Jombang',
+            'description' => 'Sentra adopsi kandang closed-house modern pemasok daging ayam higienis.',
+            'livestock_population' => 12300000,
+            'latitude' => -7.5460,
+            'longitude' => 112.2331,
+            'is_featured' => true,
+        ]);
+
+        ProductionCenter::create([
+            'region_id' => $regions['lamongan']->id,
+            'commodity_id' => $commDaging->id,
+            'name' => 'Sentra Sapi Potong & Pakan Lamongan',
+            'description' => 'Sentra peternakan sapi rakyat berbasis pengolahan limbah jerami fermentasi & feedlot.',
+            'livestock_population' => 118000,
+            'latitude' => -7.1206,
+            'longitude' => 112.4158,
+            'is_featured' => true,
+        ]);
+
+        ProductionCenter::create([
+            'region_id' => $regions['batu']->id,
+            'commodity_id' => $commSusu->id,
+            'name' => 'Sentra Agrowisata Sapi Perah Batu',
+            'description' => 'Sentra edukasi agrowisata persusuan dan hilirisasi olahan susu pasteurisasi & keju.',
+            'livestock_population' => 14200,
+            'latitude' => -7.8671,
+            'longitude' => 112.5239,
             'is_featured' => true,
         ]);
 

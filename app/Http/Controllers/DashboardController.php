@@ -16,10 +16,16 @@ use App\Models\ProductionCenter;
 use App\Models\Training;
 use App\Models\TrainingRegistration;
 use App\Models\User;
+use App\Services\JatimLivestockDataService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        protected JatimLivestockDataService $livestockDataService = new JatimLivestockDataService
+    ) {}
+
     /**
      * Display the application dashboard adapted to user role.
      */
@@ -33,11 +39,12 @@ class DashboardController extends Controller
         $displayUserCount = number_format($totalUserCount, 0, ',', '.');
         $displayPeternakCount = $displayUserCount;
 
-        $dailyProductionSum = ProductionCenter::sum('daily_production');
-        $displayDailyProduction = number_format($dailyProductionSum, 0, ',', '.');
+        // Ambil Data Statistik Resmi Provinsi Jawa Timur (Disnak Jatim & BPS)
+        $jatimStats = $this->livestockDataService->getStatistics();
+        $displayDailyProduction = number_format($jatimStats['summary']['daily_total_production_ton'] ?? 8348, 0, ',', '.');
 
         $commodityCount = Commodity::count();
-        $totalLivestockPopulation = ProductionCenter::sum('livestock_population') + Livestock::count();
+        $totalLivestockPopulation = $jatimStats['summary']['total_livestock_population'];
         $activeEmergencyCount = EmergencyReport::whereIn('status', ['received', 'verified', 'in_progress'])->count();
         $openTrainingCount = Training::where('status', 'open')->count();
         $activeProductCount = Product::where('status', 'active')->where('is_verified', true)->count();
@@ -88,37 +95,11 @@ class DashboardController extends Controller
             ->take(3)
             ->get();
 
-        // 7. Data Chart Distribusi Populasi Ternak (Dari Database Aktual)
-        $chartPopulasi = [
-            'categories' => [],
-            'data' => [],
-        ];
-        $sentraPopulasi = ProductionCenter::where('livestock_population', '>', 0)->get();
-        if ($sentraPopulasi->isNotEmpty()) {
-            foreach ($sentraPopulasi as $sp) {
-                $chartPopulasi['categories'][] = $sp->name;
-                $chartPopulasi['data'][] = round($sp->livestock_population / 1000000, 2);
-            }
-        } elseif (Livestock::exists()) {
-            $lsGroups = Livestock::selectRaw('type, count(*) as total')->groupBy('type')->get();
-            foreach ($lsGroups as $ls) {
-                $chartPopulasi['categories'][] = ucwords(str_replace('_', ' ', $ls->type));
-                $chartPopulasi['data'][] = $ls->total;
-            }
-        }
+        // 7. Data Chart Distribusi Populasi Ternak Jawa Timur (Valid dari Disnak Jatim & BPS)
+        $chartPopulasi = $jatimStats['populasi'];
 
-        // 8. Data Chart Produksi Komoditas Utama (Dari Database Aktual)
-        $chartProduksi = [
-            'categories' => [],
-            'data' => [],
-        ];
-        $sentraProduksi = ProductionCenter::with('commodity')->where('daily_production', '>', 0)->get();
-        if ($sentraProduksi->isNotEmpty()) {
-            foreach ($sentraProduksi as $sp) {
-                $chartProduksi['categories'][] = $sp->commodity?->name ?? $sp->name;
-                $chartProduksi['data'][] = round($sp->daily_production, 2);
-            }
-        }
+        // 8. Data Chart Produksi Komoditas Utama Jawa Timur (Valid dari Disnak Jatim & BPS)
+        $chartProduksi = $jatimStats['produksi'];
 
         // 9. Data Khusus Pengguna Masyarakat (Marketplace Focus)
         $buyerFeaturedProducts = Product::with(['category', 'region', 'seller'])
@@ -151,6 +132,7 @@ class DashboardController extends Controller
             'peternakMetrics' => $peternakMetrics,
             'umumMetrics' => $umumMetrics,
             'sentras' => $sentras,
+            'sentraData' => $this->livestockDataService->getSentraData(),
             'latestPrices' => $latestPrices,
             'activeReports' => $activeReports,
             'upcomingEvents' => $upcomingEvents,
@@ -158,6 +140,25 @@ class DashboardController extends Controller
             'chartProduksi' => $chartProduksi,
             'buyerFeaturedProducts' => $buyerFeaturedProducts,
             'buyerOrders' => $buyerOrders,
+            'jatimStats' => $jatimStats,
         ]);
+    }
+
+    /**
+     * API Data Valid Statistik Peternakan Milik Provinsi Jawa Timur.
+     * Sumber: Dinas Peternakan Jawa Timur & BPS (Satu Data Jatim).
+     */
+    public function apiStatistikPeternakan(): JsonResponse
+    {
+        return response()->json($this->livestockDataService->getStatistics());
+    }
+
+    /**
+     * API Resmi Sebaran Kawasan Sentra Peternakan (MASP) Dinas Peternakan Jawa Timur.
+     * Sumber: Dinas Peternakan Jawa Timur (disnak.jatimprov.go.id) & Satu Data Jatim.
+     */
+    public function apiSentraPeternakan(): JsonResponse
+    {
+        return response()->json($this->livestockDataService->getSentraData());
     }
 }

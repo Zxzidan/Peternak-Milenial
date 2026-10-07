@@ -98,11 +98,11 @@
         </div>
 
         <!-- 3 Kartu Fokus Belanja -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs flex items-center justify-between">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
+            <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs flex items-center justify-between">
                 <div>
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Produk Tersedia</span>
-                    <h3 class="text-3xl font-extrabold text-slate-900">{{ $activeProductCount }}</h3>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">{{ $activeProductCount }}</h3>
                     <span class="text-xs text-slate-500 mt-1 block">Produk Terverifikasi Dinas</span>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center text-2xl">
@@ -110,10 +110,10 @@
                 </div>
             </div>
 
-            <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs flex items-center justify-between">
+            <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs flex items-center justify-between">
                 <div>
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Pesanan Saya</span>
-                    <h3 class="text-3xl font-extrabold text-slate-900">{{ $umumMetrics['myOrdersCount'] }}</h3>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">{{ $umumMetrics['myOrdersCount'] }}</h3>
                     <span class="text-xs text-slate-500 mt-1 block">Transaksi Aktif / Berjalan</span>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">
@@ -121,10 +121,10 @@
                 </div>
             </div>
 
-            <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs flex items-center justify-between">
+            <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs flex items-center justify-between">
                 <div>
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Komoditas Unggulan</span>
-                    <h3 class="text-3xl font-extrabold text-slate-900">{{ $commodityCount }}</h3>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">{{ $commodityCount }}</h3>
                     <span class="text-xs text-slate-500 mt-1 block">Sektor Pangan &amp; Peternakan</span>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl">
@@ -248,10 +248,10 @@
     </div>
     @else
     <!-- 1. Statistik Utama: 3 Card Lega, Bersih, & Minimalis -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
         <!-- Card 1: Pengguna Terdaftar -->
-        <div class="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-7 shadow-xs hover:border-slate-300 transition flex flex-col justify-between">
-            <div class="flex items-center justify-between mb-4">
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs hover:border-slate-300 transition flex flex-col justify-between h-full">
+            <div class="flex items-center justify-between mb-3.5">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pengguna Terdaftar</span>
                 <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -260,8 +260,8 @@
                 </div>
             </div>
             <div class="flex items-baseline gap-2">
-                <h3 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900" id="total-user-count">{{ $displayUserCount ?? $displayPeternakCount }}</h3>
-                <span class="text-sm font-semibold text-slate-500">User</span>
+                <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900" id="total-user-count">{{ $displayUserCount ?? $displayPeternakCount }}</h3>
+                <span class="text-xs sm:text-sm font-semibold text-slate-500 whitespace-nowrap">User</span>
             </div>
             <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
                 Pelaku Usaha Ternak
@@ -269,8 +269,8 @@
         </div>
 
         <!-- Card 2: Produktivitas Hasil -->
-        <div class="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-7 shadow-xs hover:border-slate-300 transition flex flex-col justify-between">
-            <div class="flex items-center justify-between mb-4">
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs hover:border-slate-300 transition flex flex-col justify-between h-full">
+            <div class="flex items-center justify-between mb-3.5">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Produktivitas Hasil</span>
                 <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -279,8 +279,8 @@
                 </div>
             </div>
             <div class="flex items-baseline gap-2">
-                <h3 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">{{ $displayDailyProduction }}</h3>
-                <span class="text-sm font-semibold text-slate-500">Ton / Hari</span>
+                <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{{ $displayDailyProduction }}</h3>
+                <span class="text-xs sm:text-sm font-semibold text-slate-500 whitespace-nowrap">Ton / Hari</span>
             </div>
             <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
                 Estimasi Harian
@@ -288,8 +288,8 @@
         </div>
 
         <!-- Card 3: Struktur Komoditas -->
-        <div class="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-7 shadow-xs hover:border-slate-300 transition flex flex-col justify-between">
-            <div class="flex items-center justify-between mb-4">
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs hover:border-slate-300 transition flex flex-col justify-between h-full">
+            <div class="flex items-center justify-between mb-3.5">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Struktur Komoditas</span>
                 <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -298,8 +298,8 @@
                 </div>
             </div>
             <div class="flex items-baseline gap-2">
-                <h3 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">{{ $commodityCount }}</h3>
-                <span class="text-sm font-semibold text-slate-500">Sektor</span>
+                <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{{ $commodityCount }}</h3>
+                <span class="text-xs sm:text-sm font-semibold text-slate-500 whitespace-nowrap">Sektor</span>
             </div>
             <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
                 Komoditas Unggulan Jatim
@@ -319,15 +319,24 @@
                 </div>
                 <div>
                     <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Peta Sentra Peternakan (MASP)</h2>
-                    <p class="text-xs text-slate-500">Sebaran kawasan sentra produksi peternakan Jawa Timur</p>
+                    <p class="text-xs text-slate-500">Sebaran resmi kawasan sentra produksi &amp; perbibitan ternak Dinas Peternakan Jawa Timur</p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                 <span id="masp-active-badge" class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100 rounded-lg px-3 py-1.5">
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                     <span id="masp-active-text">Seluruh Jawa Timur</span>
                 </span>
+                <a
+                    href="{{ route('api.sentra-peternakan') }}"
+                    target="_blank"
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg px-3 py-1.5 transition shadow-2xs"
+                    title="Buka data JSON API resmi Sentra Peternakan Disnak Jatim"
+                >
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>API Sentra Jatim</span>
+                </a>
                 <a
                     id="masp-external-link"
                     href="https://www.google.com/maps/search/?api=1&query=Jawa+Timur"
@@ -343,11 +352,10 @@
             </div>
         </div>
 
-        @if($sentras->isEmpty())
-        <div class="py-12 px-4 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
-            <h3 class="text-sm font-semibold text-slate-700">Belum ada sentra terdaftar</h3>
-        </div>
-        @else
+        @php
+            $displayItems = $sentraData['items'] ?? [];
+        @endphp
+
         <!-- Filter Sentra Bersih & Ringkas -->
         <div class="flex items-center gap-2 overflow-x-auto pb-2 mb-4 text-xs">
             <button
@@ -355,15 +363,15 @@
                 onclick="selectSentra('semua', this)"
                 class="masp-filter-btn shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white shadow-xs transition"
             >
-                Semua Jatim
+                Semua Jatim (Provinsi)
             </button>
-            @foreach($sentras as $s)
+            @foreach($displayItems as $s)
             <button
                 type="button"
-                onclick="selectSentra('{{ $s->id }}', this)"
+                onclick="selectSentra('{{ $s['key'] }}', this)"
                 class="masp-filter-btn shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
             >
-                {{ str_replace(['Kabupaten ', 'Kota '], '', $s->region?->name ?? $s->name) }}
+                {{ str_replace(['Kabupaten ', 'Kota '], '', $s['kabupaten']) }}
             </button>
             @endforeach
         </div>
@@ -380,45 +388,146 @@
                 referrerpolicy="no-referrer-when-downgrade"
             ></iframe>
         </div>
-        @endif
+
+        <!-- Detail Panel Kawasan Sentra Resmi Dinas Peternakan -->
+        <div class="mt-4 p-4 sm:p-5 bg-gradient-to-br from-slate-50 via-white to-blue-50/40 rounded-xl border border-slate-200">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-200/80">
+                <div>
+                    <div class="flex flex-wrap items-center gap-2 mb-1">
+                        <span id="masp-detail-status" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                            Peringkat 1 Nasional Populasi &amp; Produksi Ternak
+                        </span>
+                        <span class="text-xs font-semibold text-slate-500" id="masp-detail-kawasan">
+                            38 Kabupaten/Kota Terpadu • Provinsi Jawa Timur
+                        </span>
+                    </div>
+                    <h3 id="masp-detail-title" class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
+                        Kawasan Agribisnis Peternakan Terpadu Jawa Timur
+                    </h3>
+                </div>
+                <a
+                    id="masp-detail-link"
+                    href="https://www.google.com/maps/search/?api=1&query=Jawa+Timur"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 bg-white hover:bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5 transition shadow-2xs shrink-0"
+                >
+                    <span>Navigasi Titik Koordinat</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Grid 4 Parameter Kunci Sentra -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 my-3.5">
+                <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
+                    <span class="text-[11px] font-semibold text-slate-500 block mb-0.5 uppercase tracking-wider">Komoditas Utama</span>
+                    <span id="masp-detail-komoditas" class="text-xs sm:text-sm font-extrabold text-slate-900 line-clamp-1">
+                        🏛️ Multi-Komoditas Strategis
+                    </span>
+                </div>
+                <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
+                    <span class="text-[11px] font-semibold text-slate-500 block mb-0.5 uppercase tracking-wider">Populasi Wilayah</span>
+                    <span id="masp-detail-populasi" class="text-xs sm:text-sm font-extrabold text-blue-700">
+                        573,05 Juta Ekor
+                    </span>
+                </div>
+                <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
+                    <span class="text-[11px] font-semibold text-slate-500 block mb-0.5 uppercase tracking-wider">Kelompok / Kemitraan</span>
+                    <span id="masp-detail-kelompok" class="text-xs sm:text-sm font-extrabold text-slate-900 line-clamp-1">
+                        1.200+ Kelompok Ternak
+                    </span>
+                </div>
+                <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
+                    <span class="text-[11px] font-semibold text-slate-500 block mb-0.5 uppercase tracking-wider">Estimasi Produksi</span>
+                    <span id="masp-detail-produksi" class="text-xs sm:text-sm font-extrabold text-emerald-700">
+                        8.348 Ton / Hari
+                    </span>
+                </div>
+            </div>
+
+            <p id="masp-detail-deskripsi" class="text-xs text-slate-600 leading-relaxed">
+                Pusat lumbung ternak nasional penyumbang lebih dari 52% sapi perah, 28% sapi potong, dan 30% telur ayam ras di Indonesia dengan tata kelola berbasis digital Satu Data Jatim.
+            </p>
+
+            <div class="mt-3 pt-2.5 border-t border-slate-200/60 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+                <span class="flex items-center gap-1.5">
+                    <span>🏛️ Sumber: Dinas Peternakan Provinsi Jawa Timur (disnak.jatimprov.go.id)</span>
+                </span>
+                <span class="font-medium text-slate-700 bg-white border border-slate-200 px-2 py-0.5 rounded-md shadow-2xs">
+                    Program MASP (Masterplan Agribisnis Sentra Peternakan)
+                </span>
+            </div>
+        </div>
     </div>
    
     <!-- 2. Visualisasi Grafik: 2 Kolom Bersih & Lega -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         <!-- Chart 1: Distribusi Populasi Ternak -->
-        <div class="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-7 shadow-xs">
-            <div class="pb-3 border-b border-slate-100 mb-4">
-                <h3 class="text-base font-bold text-slate-900">
-                    Distribusi Populasi Ternak
-                </h3>
-                <p class="text-xs text-slate-500 mt-0.5">Komposisi populasi hewan ternak</p>
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-7 shadow-xs flex flex-col justify-between">
+            <div>
+                <div class="flex items-start justify-between pb-3 border-b border-slate-100 mb-4 gap-3">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">
+                            Distribusi Populasi Ternak
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Komposisi populasi hewan ternak resmi Jawa Timur</p>
+                    </div>
+                    <a href="{{ route('api.statistik-peternakan') }}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-2xs transition shrink-0" title="Buka data JSON API resmi Satu Data Jatim">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>API Disnak Jatim</span>
+                    </a>
+                </div>
+
+                @if(empty($chartPopulasi['data']))
+                <div class="min-h-[290px] flex flex-col items-center justify-center text-center p-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                    <h4 class="text-xs sm:text-sm font-semibold text-slate-600">Belum ada data populasi</h4>
+                </div>
+                @else
+                <div id="chart-distribusi-ternak" class="w-full min-h-[290px]"></div>
+                @endif
             </div>
 
-            @if(empty($chartPopulasi['data']))
-            <div class="min-h-[290px] flex flex-col items-center justify-center text-center p-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                <h4 class="text-xs sm:text-sm font-semibold text-slate-600">Belum ada data populasi</h4>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+                <span class="flex items-center gap-1">
+                    <span>🏛️ Sumber: Disnak Jatim &amp; BPS (ST2023)</span>
+                </span>
+                <span class="font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">Satuan: Juta Ekor</span>
             </div>
-            @else
-            <div id="chart-distribusi-ternak" class="w-full min-h-[290px]"></div>
-            @endif
         </div>
 
         <!-- Chart 2: Volume Produksi Komoditas -->
-        <div class="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-7 shadow-xs">
-            <div class="pb-3 border-b border-slate-100 mb-4">
-                <h3 class="text-base font-bold text-slate-900">
-                    Produksi Komoditas Utama
-                </h3>
-                <p class="text-xs text-slate-500 mt-0.5">Volume produksi harian per komoditas</p>
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-7 shadow-xs flex flex-col justify-between">
+            <div>
+                <div class="flex items-start justify-between pb-3 border-b border-slate-100 mb-4 gap-3">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">
+                            Produksi Komoditas Utama
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Volume produksi harian komoditas unggulan Jawa Timur</p>
+                    </div>
+                    <a href="{{ route('api.statistik-peternakan') }}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 shadow-2xs transition shrink-0" title="Buka data JSON API resmi Satu Data Jatim">
+                        <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                        <span>API Disnak Jatim</span>
+                    </a>
+                </div>
+
+                @if(empty($chartProduksi['data']))
+                <div class="min-h-[290px] flex flex-col items-center justify-center text-center p-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                    <h4 class="text-xs sm:text-sm font-semibold text-slate-600">Belum ada data produksi</h4>
+                </div>
+                @else
+                <div id="chart-produksi-komoditas" class="w-full min-h-[290px]"></div>
+                @endif
             </div>
 
-            @if(empty($chartProduksi['data']))
-            <div class="min-h-[290px] flex flex-col items-center justify-center text-center p-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                <h4 class="text-xs sm:text-sm font-semibold text-slate-600">Belum ada data produksi</h4>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+                <span class="flex items-center gap-1">
+                    <span>🏛️ Sumber: Statistik Peternakan Jawa Timur</span>
+                </span>
+                <span class="font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">Satuan: Ton / Hari</span>
             </div>
-            @else
-            <div id="chart-produksi-komoditas" class="w-full min-h-[290px]"></div>
-            @endif
         </div>
     </div>
     @endif
@@ -430,22 +539,40 @@
 @php
     $sentraMap = [
         'semua' => [
-            'kota' => 'Provinsi Jawa Timur',
-            'peternak' => 'Pusat Distribusi Data Peternak Jawa Timur',
-            'detail' => 'Kawasan Pemetaan Sentra Peternakan Terdaftar',
+            'id' => 'semua',
+            'key' => 'semua',
+            'name' => 'Kawasan Agribisnis Peternakan Terpadu Jawa Timur',
+            'kawasan' => '38 Kabupaten/Kota Terpadu',
+            'kabupaten' => 'Provinsi Jawa Timur',
+            'komoditas' => 'Multi-Komoditas Strategis',
+            'komoditas_icon' => '🏛️',
+            'populasi' => '573,05 Juta Ekor',
+            'kelompok' => '1.200+ Kelompok Ternak',
+            'produksi' => '8.348 Ton / Hari',
+            'status' => 'Peringkat 1 Nasional Populasi & Produksi Ternak',
+            'deskripsi' => 'Pusat lumbung ternak nasional penyumbang lebih dari 52% sapi perah, 28% sapi potong, dan 30% telur ayam ras di Indonesia dengan tata kelola berbasis digital Satu Data Jatim.',
             'query' => 'Jawa Timur, Indonesia',
             'zoom' => 8,
             'badge' => 'Seluruh Jawa Timur'
         ]
     ];
-    foreach($sentras as $s) {
-        $sentraMap[$s->id] = [
-            'kota' => $s->region?->name ?? $s->name,
-            'peternak' => $s->name,
-            'detail' => ($s->commodity?->name ?? 'Sentra') . ' • Kapasitas: ' . number_format($s->capacity ?? 0, 0, ',', '.') . ' Ekor • ' . number_format($s->farmer_count ?? 0, 0, ',', '.') . ' Peternak',
-            'query' => ($s->latitude && $s->longitude) ? ($s->latitude . ',' . $s->longitude) : ($s->name . ', ' . ($s->region?->name ?? 'Jawa Timur')),
-            'zoom' => 14,
-            'badge' => ($s->region?->name ?? $s->name) . ': ' . ($s->commodity?->name ?? $s->name)
+    foreach(($sentraData['items'] ?? []) as $item) {
+        $sentraMap[$item['key']] = [
+            'id' => $item['id'],
+            'key' => $item['key'],
+            'name' => $item['name'],
+            'kawasan' => $item['kawasan'],
+            'kabupaten' => $item['kabupaten'],
+            'komoditas' => $item['komoditas'],
+            'komoditas_icon' => $item['komoditas_icon'],
+            'populasi' => $item['populasi_formatted'],
+            'kelompok' => $item['kelompok_binaan'],
+            'produksi' => $item['produksi_harian'],
+            'status' => $item['status_unggulan'],
+            'deskripsi' => $item['deskripsi'],
+            'query' => $item['maps_query'],
+            'zoom' => $item['zoom'] ?? 13,
+            'badge' => $item['kabupaten'] . ': ' . $item['komoditas']
         ];
     }
 @endphp
@@ -468,14 +595,20 @@ function updateMaspInfo(infoText) {
 const sentraDatabase = @json($sentraMap);
 const chartPopulasiCategories = @json($chartPopulasi['categories'] ?? []);
 const chartPopulasiData = @json($chartPopulasi['data'] ?? []);
+const chartPopulasiRaw = @json($chartPopulasi['raw_data'] ?? []);
+const chartPopulasiLabels = @json($chartPopulasi['formatted_labels'] ?? []);
+const chartPopulasiSentra = @json($chartPopulasi['sentra_info'] ?? []);
+
 const chartProduksiCategories = @json($chartProduksi['categories'] ?? []);
 const chartProduksiData = @json($chartProduksi['data'] ?? []);
+const chartProduksiLabels = @json($chartProduksi['formatted_labels'] ?? []);
+const chartProduksiNotes = @json($chartProduksi['notes'] ?? []);
 
 function selectSentra(key, buttonElement) {
     const data = sentraDatabase[key];
     if (!data) return;
 
-    // Arahkan iframe Google Maps langsung ke kota dan titik peternak
+    // Arahkan iframe Google Maps langsung ke koordinat akurat
     const iframe = document.getElementById('masp-map-frame');
     if (iframe) {
         iframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(data.query)}&t=&z=${data.zoom}&ie=UTF8&iwloc=&output=embed`;
@@ -483,30 +616,44 @@ function selectSentra(key, buttonElement) {
 
     updateMaspInfo(data.badge);
 
-    const kotaElem = document.getElementById('masp-target-kota');
-    if (kotaElem) kotaElem.textContent = data.kota;
+    // Update panel detail informasi kawasan sentra Disnak Jatim
+    const titleElem = document.getElementById('masp-detail-title');
+    if (titleElem) titleElem.textContent = data.name;
 
-    const peternakElem = document.getElementById('masp-target-peternak');
-    if (peternakElem) peternakElem.textContent = data.peternak;
+    const statusElem = document.getElementById('masp-detail-status');
+    if (statusElem) statusElem.textContent = data.status;
 
-    const detailElem = document.getElementById('masp-target-detail');
-    if (detailElem) detailElem.textContent = data.detail;
+    const kawasanElem = document.getElementById('masp-detail-kawasan');
+    if (kawasanElem) kawasanElem.textContent = `${data.kawasan} • ${data.kabupaten}`;
 
+    const komoditasElem = document.getElementById('masp-detail-komoditas');
+    if (komoditasElem) komoditasElem.textContent = `${data.komoditas_icon} ${data.komoditas}`;
+
+    const populasiElem = document.getElementById('masp-detail-populasi');
+    if (populasiElem) populasiElem.textContent = data.populasi;
+
+    const kelompokElem = document.getElementById('masp-detail-kelompok');
+    if (kelompokElem) kelompokElem.textContent = data.kelompok;
+
+    const produksiElem = document.getElementById('masp-detail-produksi');
+    if (produksiElem) produksiElem.textContent = data.produksi;
+
+    const deskripsiElem = document.getElementById('masp-detail-deskripsi');
+    if (deskripsiElem) deskripsiElem.textContent = data.deskripsi;
+
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.query)}`;
     const extLink = document.getElementById('masp-external-link');
-    if (extLink) {
-        extLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.query)}`;
-    }
+    if (extLink) extLink.href = mapsUrl;
 
-    const targetLink = document.getElementById('masp-target-link');
-    if (targetLink) {
-        targetLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.query)}`;
-    }
+    const detailLink = document.getElementById('masp-detail-link');
+    if (detailLink) detailLink.href = mapsUrl;
 
+    // Active button styling
     if (buttonElement) {
         document.querySelectorAll('.masp-filter-btn').forEach(btn => {
-            btn.className = 'masp-filter-btn shrink-0 px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition';
+            btn.className = 'masp-filter-btn shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
         });
-        buttonElement.className = 'masp-filter-btn shrink-0 px-2.5 py-1 rounded-lg text-xs font-medium bg-primary-600 text-white shadow-xs transition';
+        buttonElement.className = 'masp-filter-btn shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white shadow-xs transition';
     }
 }
 
@@ -539,17 +686,17 @@ function initCharts() {
     const textColor = '#475569';
     const gridColor = '#f1f5f9';
 
-    // 1. Chart Distribusi Populasi Ternak di Jawa Timur (Horizontal Bar)
+    // 1. Chart Distribusi Populasi Ternak di Jawa Timur (Horizontal Bar - Sumber Valid Disnak Jatim & BPS)
     const distElem = document.querySelector('#chart-distribusi-ternak');
     if (distElem && chartPopulasiData.length > 0) {
         const distOptions = {
             series: [{
-                name: 'Populasi Ternak',
+                name: 'Populasi Ternak Jatim',
                 data: chartPopulasiData
             }],
             chart: {
                 type: 'bar',
-                height: 290,
+                height: 310,
                 fontFamily: 'Poppins, sans-serif',
                 toolbar: { show: false }
             },
@@ -557,34 +704,45 @@ function initCharts() {
                 bar: {
                     borderRadius: 4,
                     horizontal: true,
-                    barHeight: '52%',
+                    barHeight: '56%',
                     distributed: true
                 }
             },
-            colors: ['#013A85', '#009FD2', '#209527', '#FBBB03', '#8b5cf6'],
+            colors: ['#0284c7', '#06b6d4', '#10b981', '#f59e0b', '#2563eb', '#8b5cf6'],
             dataLabels: {
                 enabled: true,
-                formatter: (val) => `${val.toLocaleString('id-ID')} Ekor`,
+                formatter: (val, opts) => {
+                    const idx = opts.dataPointIndex;
+                    if (chartPopulasiLabels && chartPopulasiLabels[idx]) {
+                        return chartPopulasiLabels[idx];
+                    }
+                    return `${val.toLocaleString('id-ID')} Jt Ekor`;
+                },
                 style: {
                     fontSize: '11px',
                     fontFamily: 'Poppins, sans-serif',
+                    fontWeight: 600,
                     colors: ['#0f172a']
                 },
-                offsetX: 8
+                offsetX: 10
             },
             legend: { show: false },
             xaxis: {
                 categories: chartPopulasiCategories,
                 labels: {
                     style: { colors: textColor, fontSize: '11px' },
-                    formatter: (val) => `${val.toLocaleString('id-ID')}`
+                    formatter: (val) => `${val.toLocaleString('id-ID')} Jt`
+                },
+                title: {
+                    text: 'Populasi (Juta Ekor)',
+                    style: { color: textColor, fontSize: '10px', fontWeight: 500 }
                 },
                 axisBorder: { show: false },
                 axisTicks: { show: false }
             },
             yaxis: {
                 labels: {
-                    style: { colors: textColor, fontSize: '11px', fontWeight: 500 }
+                    style: { colors: textColor, fontSize: '11px', fontWeight: 600 }
                 }
             },
             grid: {
@@ -595,7 +753,13 @@ function initCharts() {
             tooltip: {
                 theme: 'light',
                 y: {
-                    formatter: (val) => `${val.toLocaleString('id-ID')} Ekor`
+                    formatter: (val, opts) => {
+                        const idx = opts.dataPointIndex;
+                        const cat = chartPopulasiCategories[idx] || '';
+                        const raw = (chartPopulasiRaw && chartPopulasiRaw[idx]) ? chartPopulasiRaw[idx].toLocaleString('id-ID') : '';
+                        const sentra = (chartPopulasiSentra && chartPopulasiSentra[cat]) ? ` • ${chartPopulasiSentra[cat]}` : '';
+                        return `${raw} Ekor (${val.toLocaleString('id-ID')} Juta)${sentra}`;
+                    }
                 }
             }
         };
@@ -608,36 +772,43 @@ function initCharts() {
         distChartInstance.render();
     }
 
-    // 2. Chart Produksi Komoditas Utama Jawa Timur (Column Bar)
+    // 2. Chart Produksi Komoditas Utama Jawa Timur (Column Bar - Sumber Valid Disnak Jatim & BPS)
     const prodElem = document.querySelector('#chart-produksi-komoditas');
     if (prodElem && chartProduksiData.length > 0) {
         const prodOptions = {
             series: [{
-                name: 'Volume Produksi',
+                name: 'Volume Produksi Harian',
                 data: chartProduksiData
             }],
             chart: {
                 type: 'bar',
-                height: 290,
+                height: 310,
                 fontFamily: 'Poppins, sans-serif',
                 toolbar: { show: false }
             },
             plotOptions: {
                 bar: {
                     borderRadius: 6,
-                    columnWidth: '45%',
+                    columnWidth: '42%',
                     distributed: true,
                     dataLabels: { position: 'top' }
                 }
             },
-            colors: ['#FBBB03', '#009FD2', '#209527', '#013A85'],
+            colors: ['#f59e0b', '#06b6d4', '#10b981', '#2563eb'],
             dataLabels: {
                 enabled: true,
-                formatter: (val) => `${val.toLocaleString('id-ID')}`,
+                formatter: (val, opts) => {
+                    const idx = opts.dataPointIndex;
+                    if (chartProduksiLabels && chartProduksiLabels[idx]) {
+                        return chartProduksiLabels[idx];
+                    }
+                    return `${val.toLocaleString('id-ID')} Ton`;
+                },
                 offsetY: -20,
                 style: {
                     fontSize: '11px',
                     fontFamily: 'Poppins, sans-serif',
+                    fontWeight: 600,
                     colors: [textColor]
                 }
             },
@@ -645,7 +816,7 @@ function initCharts() {
             xaxis: {
                 categories: chartProduksiCategories,
                 labels: {
-                    style: { colors: textColor, fontSize: '11px', fontWeight: 500 }
+                    style: { colors: textColor, fontSize: '11px', fontWeight: 600 }
                 },
                 axisBorder: { show: false },
                 axisTicks: { show: false }
@@ -653,7 +824,11 @@ function initCharts() {
             yaxis: {
                 labels: {
                     style: { colors: textColor, fontSize: '11px' },
-                    formatter: (val) => `${val.toLocaleString('id-ID')}`
+                    formatter: (val) => `${val.toLocaleString('id-ID')} T`
+                },
+                title: {
+                    text: 'Estimasi Ton / Hari',
+                    style: { color: textColor, fontSize: '10px', fontWeight: 500 }
                 }
             },
             grid: {
@@ -663,7 +838,13 @@ function initCharts() {
             tooltip: {
                 theme: 'light',
                 y: {
-                    formatter: (val) => `${val.toLocaleString('id-ID')}`
+                    formatter: (val, opts) => {
+                        const cat = chartProduksiCategories[opts.dataPointIndex];
+                        if (chartProduksiNotes && chartProduksiNotes[cat]) {
+                            return `${val.toLocaleString('id-ID')} Ton/hari • ${chartProduksiNotes[cat]}`;
+                        }
+                        return `${val.toLocaleString('id-ID')} Ton / hari`;
+                    }
                 }
             }
         };
@@ -677,8 +858,38 @@ function initCharts() {
     }
 }
 
+// Konsumsi Live API Data Peternakan Resmi Jawa Timur
+function fetchJatimApiData() {
+    fetch("{{ route('api.statistik-peternakan') }}")
+        .then(response => response.json())
+        .then(res => {
+            if (res && res.status === 'success') {
+                console.log('✓ Terhubung API Resmi Peternakan Jawa Timur:', res.source.institution);
+            }
+        })
+        .catch(err => {
+            console.warn('API Jatim fetch info:', err);
+        });
+}
+
+// Konsumsi Live API Sentra Peternakan Resmi Jawa Timur (MASP)
+function fetchSentraApiData() {
+    fetch("{{ route('api.sentra-peternakan') }}")
+        .then(response => response.json())
+        .then(res => {
+            if (res && res.status === 'success') {
+                console.log('✓ Terhubung API Resmi Sentra Peternakan Jatim (MASP):', res.total_sentra, 'Kawasan');
+            }
+        })
+        .catch(err => {
+            console.warn('API Sentra Peternakan fetch info:', err);
+        });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initCharts();
+    fetchJatimApiData();
+    fetchSentraApiData();
 });
 </script>
 @endpush

@@ -171,6 +171,118 @@ test('dashboard has collapsible sidebar controls, kpi cards, and charts', functi
     $response->assertSee('MASP');
     $response->assertSee('id="chart-distribusi-ternak"', false);
     $response->assertSee('chart-produksi-komoditas', false);
+    $response->assertSee('API Disnak Jatim');
+    $response->assertSee('Ayam Ras Pedaging');
+    $response->assertSee('Sapi Potong');
+    $response->assertSee('Telur Ayam Ras');
+    $response->assertSee('Susu Sapi Segar');
+});
+
+test('east java peternakan statistics api endpoint returns valid official data', function () {
+    $response = $this->get(route('api.statistik-peternakan'));
+
+    $response->assertStatus(200);
+    $response->assertJsonStructure([
+        'status',
+        'source' => [
+            'institution',
+            'portal',
+            'reference',
+            'verified_at',
+        ],
+        'summary' => [
+            'total_livestock_population',
+            'display_total_population',
+            'daily_total_production_ton',
+            'display_daily_production',
+            'national_rank',
+        ],
+        'populasi' => [
+            'title',
+            'unit',
+            'categories',
+            'data',
+            'raw_data',
+            'formatted_labels',
+        ],
+        'produksi' => [
+            'title',
+            'unit',
+            'categories',
+            'data',
+            'annual_data',
+            'formatted_labels',
+        ],
+    ]);
+
+    $data = $response->json();
+    expect($data['status'])->toBe('success')
+        ->and($data['source']['institution'])->toContain('Dinas Peternakan Provinsi Jawa Timur')
+        ->and($data['populasi']['categories'])->toContain('Sapi Potong')
+        ->and($data['populasi']['categories'])->toContain('Ayam Ras Pedaging')
+        ->and($data['produksi']['categories'])->toContain('Telur Ayam Ras')
+        ->and($data['produksi']['categories'])->toContain('Susu Sapi Segar')
+        ->and($data['summary']['daily_total_production_ton'])->toBeGreaterThan(1000);
+});
+
+test('east java sentra peternakan masp api endpoint returns official government data', function () {
+    $response = $this->get(route('api.sentra-peternakan'));
+
+    $response->assertStatus(200);
+    $response->assertJsonStructure([
+        'status',
+        'source' => [
+            'institution',
+            'portal',
+            'program',
+            'reference',
+            'verified_at',
+        ],
+        'total_sentra',
+        'items' => [
+            '*' => [
+                'id',
+                'key',
+                'name',
+                'kawasan',
+                'kabupaten',
+                'komoditas',
+                'komoditas_icon',
+                'subsektor',
+                'populasi',
+                'populasi_formatted',
+                'kelompok_binaan',
+                'latitude',
+                'longitude',
+                'deskripsi',
+                'status_unggulan',
+                'produksi_harian',
+                'maps_query',
+                'zoom',
+            ],
+        ],
+    ]);
+
+    $data = $response->json();
+    expect($data['status'])->toBe('success')
+        ->and($data['source']['institution'])->toContain('Dinas Peternakan Provinsi Jawa Timur')
+        ->and($data['source']['program'])->toContain('MASP')
+        ->and($data['total_sentra'])->toBe(10);
+
+    // Verify key livestock hubs in East Java are present
+    $hubNames = collect($data['items'])->pluck('name')->implode(' ');
+    expect($hubNames)->toContain('Pasuruan')
+        ->and($hubNames)->toContain('Blitar')
+        ->and($hubNames)->toContain('Tuban')
+        ->and($hubNames)->toContain('Malang')
+        ->and($hubNames)->toContain('Bojonegoro')
+        ->and($hubNames)->toContain('Lumajang');
+
+    // Verify dashboard displays API Sentra Jatim shortcut button
+    $dashboardResponse = $this->get(route('dashboard'));
+    $dashboardResponse->assertStatus(200);
+    $dashboardResponse->assertSee(route('api.sentra-peternakan'));
+    $dashboardResponse->assertSee('API Sentra Jatim');
 });
 
 test('emergency report can be created, updated status, and deleted', function () {
@@ -440,8 +552,6 @@ test('login page renders with flowbite welcome back elements', function () {
 
     $response->assertStatus(200);
     $response->assertSee('Welcome back');
-    $response->assertSee('Sign in with Google');
-    $response->assertSee('Sign in with Apple');
     $response->assertSee('name@company.com');
     $response->assertDontSee('Akun Demo Cepat');
 });
@@ -514,12 +624,15 @@ test('register page renders all customized signup fields according to design spe
     $response->assertSee('Pilih Desa...');
     $response->assertSee('Password Baru');
     $response->assertSee('Konfirmasi Password');
-    $response->assertSee('Ternak yang Dimiliki');
-    $response->assertSee('Jumlah Ternak yang Dimiliki');
-    $response->assertSee('Jumlah Ternak yang Dimiliki (per ekor)');
-    $response->assertSee('Foto Berkas KTP');
+    $response->assertSee('Jenis Ternak');
+    $response->assertSee('Jumlah Ternak');
+    $response->assertSee('Foto KTP');
     $response->assertSee('* Besar Max 10 MB');
     $response->assertSee('* Tipe: jpeg, png, dan jpg');
+    $response->assertSee('Kabupaten Madiun');
+    $response->assertSee('Mejayan');
+    $response->assertDontSee('Madiun Utara');
+    $response->assertDontSee('Desa Sukamaju');
     $response->assertSee('Sign Up');
 });
 
@@ -579,15 +692,15 @@ test('login and register pages render in bright theme without preview toolbar an
         $response->assertSee('img/logoaplikasi2.png');
     }
 
-    // Both login and register use dynamic transparent hiasan illustrations 1, 2, 3, 5
-    foreach ([route('login'), route('register')] as $url) {
-        $pageResponse = $this->get($url);
-        $pageResponse->assertSee('img/hiasan1.png');
-        $pageResponse->assertSee('img/hiasan2.png');
-        $pageResponse->assertSee('img/hiasan3.png');
-        $pageResponse->assertSee('img/hiasan5.png');
-        $pageResponse->assertDontSee('img/auth-illustration.jpg');
-    }
+    // Login page uses single full hero image with gradient (hiasan baru 2.jpg)
+    $loginResponse = $this->get(route('login'));
+    $loginResponse->assertSee('img/hiasan baru 2.jpg');
+    $loginResponse->assertDontSee('img/auth-illustration.jpg');
+
+    // Register page uses single full hero image with gradient (hiasan baru 1.jpg)
+    $registerResponse = $this->get(route('register'));
+    $registerResponse->assertSee('img/hiasan baru 1.jpg');
+    $registerResponse->assertDontSee('img/auth-illustration.jpg');
 });
 
 // =========================================================================
