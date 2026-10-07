@@ -95,6 +95,9 @@ Route::middleware(['role:admin,peternak'])->group(function () {
         Route::delete('/konsultasi/rekam-medis/{record}', [ConsultationController::class, 'destroyHealthRecord'])->name('konsultasi.health-record.destroy');
         Route::post('/konsultasi/diseases', [ConsultationController::class, 'storeDisease'])->name('konsultasi.diseases.store');
         Route::delete('/konsultasi/diseases/{disease}', [ConsultationController::class, 'destroyDisease'])->name('konsultasi.diseases.destroy');
+        Route::post('/konsultasi/veterinarians', [ConsultationController::class, 'storeVeterinarian'])->name('konsultasi.veterinarians.store');
+        Route::put('/konsultasi/veterinarians/{veterinarian}', [ConsultationController::class, 'updateVeterinarian'])->name('konsultasi.veterinarians.update');
+        Route::delete('/konsultasi/veterinarians/{veterinarian}', [ConsultationController::class, 'destroyVeterinarian'])->name('konsultasi.veterinarians.destroy');
     });
 });
 
@@ -106,6 +109,18 @@ Route::middleware(['role:admin,peternak'])->group(function () {
     Route::patch('/pameran/registrations/{registration}/status', [ExhibitionController::class, 'updateStatus'])
         ->middleware('role:admin')
         ->name('pameran.status');
+    Route::post('/pameran/exhibitions', [ExhibitionController::class, 'storeExhibition'])
+        ->middleware('role:admin')
+        ->name('pameran.exhibition.store');
+    Route::put('/pameran/exhibitions/{exhibition}', [ExhibitionController::class, 'updateExhibition'])
+        ->middleware('role:admin')
+        ->name('pameran.exhibition.update');
+    Route::delete('/pameran/exhibitions/{exhibition}', [ExhibitionController::class, 'destroyExhibition'])
+        ->middleware('role:admin')
+        ->name('pameran.exhibition.destroy');
+    Route::post('/pameran/calendar-events', [ExhibitionController::class, 'storeCalendarEvent'])
+        ->middleware('role:admin')
+        ->name('pameran.calendar.store');
 });
 
 // 10. API Data Valid Peternakan Resmi Provinsi Jawa Timur (Disnak Jatim & BPS)

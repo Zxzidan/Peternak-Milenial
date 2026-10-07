@@ -14,6 +14,7 @@ class Exhibition extends Model
         'title',
         'slug',
         'description',
+        'facilities',
         'start_date',
         'end_date',
         'location',

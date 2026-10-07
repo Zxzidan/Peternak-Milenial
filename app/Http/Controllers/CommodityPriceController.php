@@ -35,6 +35,11 @@ class CommodityPriceController extends Controller
 
         $productionCenters = ProductionCenter::with(['region', 'commodity'])->get();
 
+        $activeTab = $request->query('tab', 'tren');
+        if (! in_array($activeTab, ['tren', 'sentra', 'unggulan'])) {
+            $activeTab = 'tren';
+        }
+
         return view('harga-komoditas', [
             'commodityPrices' => $commodityPrices,
             'productionCenters' => $productionCenters,
@@ -42,6 +47,7 @@ class CommodityPriceController extends Controller
             'regions' => $regions,
             'selectedRegion' => $request->wilayah,
             'selectedCommodity' => $request->komoditas,
+            'activeTab' => $activeTab,
         ]);
     }
 

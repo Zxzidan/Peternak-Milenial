@@ -104,7 +104,7 @@ test('new peternak sees clean empty states for consultation and certificates wit
     $consultationResponse->assertSee('Belum ada data rekam medis kesehatan ternak');
 
     // Pelatihan empty state for certificates
-    $trainingResponse = $this->actingAs($newPeternak)->get(route('pelatihan'));
+    $trainingResponse = $this->actingAs($newPeternak)->get(route('pelatihan', ['tab' => 'sertifikat']));
     $trainingResponse->assertOk();
     $trainingResponse->assertSee('Belum ada sertifikat digital yang diterbitkan');
 });

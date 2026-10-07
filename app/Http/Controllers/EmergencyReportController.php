@@ -156,13 +156,24 @@ class EmergencyReportController extends Controller
             'logged_at' => now(),
         ]);
 
+        $targetTab = match ($newStatus) {
+            'received', 'verified' => 'masuk',
+            'in_progress' => 'ditangani',
+            'resolved' => 'riwayat',
+            default => 'masuk',
+        };
+
+        if ($request->has('tab')) {
+            return redirect()->to(route('darurat', ['tab' => $targetTab]))->with('success', "Status laporan {$report->report_code} berhasil diperbarui menjadi {$newStatus}!");
+        }
+
         return redirect()->route('darurat')->with('success', "Status laporan {$report->report_code} berhasil diperbarui menjadi {$newStatus}!");
     }
 
     /**
      * Delete an emergency report with ownership verification.
      */
-    public function destroy(EmergencyReport $report): RedirectResponse
+    public function destroy(Request $request, EmergencyReport $report): RedirectResponse
     {
         $currentUser = auth()->user();
 
@@ -172,6 +183,10 @@ class EmergencyReportController extends Controller
 
         $code = $report->report_code;
         $report->delete();
+
+        if ($request->has('tab')) {
+            return redirect()->to(route('darurat', ['tab' => $request->query('tab')]))->with('success', "Laporan {$code} berhasil dihapus dari sistem.");
+        }
 
         return redirect()->route('darurat')->with('success', "Laporan {$code} berhasil dihapus dari sistem.");
     }

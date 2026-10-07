@@ -16,6 +16,7 @@ use App\Models\Region;
 use App\Models\Training;
 use App\Models\TrainingRegistration;
 use App\Models\User;
+use App\Models\Veterinarian;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -114,6 +115,23 @@ test('harga komoditas page renders successfully', function () {
     $response->assertSee('Sentra Produksi', false);
 });
 
+test('harga komoditas tabs render successfully according to active tab', function () {
+    $respTren = $this->get(route('harga-komoditas', ['tab' => 'tren']));
+    $respTren->assertStatus(200);
+    $respTren->assertSee('Tren Harga Komoditas');
+    $respTren->assertSee('Daftar Pantauan Harga Pasar');
+
+    $respSentra = $this->get(route('harga-komoditas', ['tab' => 'sentra']));
+    $respSentra->assertStatus(200);
+    $respSentra->assertSee('Sentra Produksi Ternak');
+    $respSentra->assertSee('Sentra Produksi Peternakan Jawa Timur');
+
+    $respUnggulan = $this->get(route('harga-komoditas', ['tab' => 'unggulan']));
+    $respUnggulan->assertStatus(200);
+    $respUnggulan->assertSee('Komoditas Unggulan');
+    $respUnggulan->assertSee('Daftar Komoditas Unggulan Jawa Timur');
+});
+
 test('layanan darurat page renders successfully', function () {
     $response = $this->get(route('darurat'));
 
@@ -128,6 +146,14 @@ test('konsultasi dokter page renders successfully', function () {
     $response->assertStatus(200);
     $response->assertSee('Konsultasi', false);
     $response->assertSee('Kesehatan Hewan', false);
+
+    $this->get(route('konsultasi', ['tab' => 'rekam_medis']))
+        ->assertStatus(200)
+        ->assertSee('Rekam Medis &amp; E-Tag Ternak', false);
+
+    $this->get(route('konsultasi', ['tab' => 'penyakit']))
+        ->assertStatus(200)
+        ->assertSee('Pedoman Penyakit Hewan', false);
 });
 
 test('pameran page renders successfully', function () {
@@ -136,6 +162,14 @@ test('pameran page renders successfully', function () {
     $response->assertStatus(200);
     $response->assertSee('Pameran', false);
     $response->assertSee('Kalender Terpadu', false);
+
+    $this->get(route('pameran', ['tab' => 'stand']))
+        ->assertStatus(200)
+        ->assertSee('Daftar Stand &amp; Pengajuan Peserta', false);
+
+    $this->get(route('pameran', ['tab' => 'kalender']))
+        ->assertStatus(200)
+        ->assertSee('Kalender Terpadu Kegiatan', false);
 });
 
 test('flowbite dashboard includes poppins and layout controls', function () {
@@ -498,6 +532,88 @@ test('consultation message and animal health checkup can be stored', function ()
     expect($newLivestock)->not->toBeNull();
 });
 
+test('admin can add, update, and delete veterinarian', function () {
+    $admin = User::where('role', 'admin')->first();
+
+    // 1. Admin adds new veterinarian
+    $storeResponse = $this->actingAs($admin)->post(route('konsultasi.veterinarians.store'), [
+        'name' => 'drh. Kusumo Wardoyo, M.Si',
+        'specialization' => 'Spesialis Bedah Ternak Ruminansia',
+        'puskeswan' => 'Puskeswan Mojosari, Kab. Mojokerto',
+        'strv_number' => 'STRV-35.16.2026.009',
+        'phone_number' => '081299887766',
+        'email' => 'kusumo@disnak.jatimprov.go.id',
+        'status' => 'online',
+        'consultation_hours' => '08.00 - 16.00 WIB',
+    ]);
+
+    $storeResponse->assertRedirect(route('konsultasi', ['tab' => 'dokter']));
+    $storeResponse->assertSessionHas('success');
+
+    $vet = Veterinarian::where('name', 'drh. Kusumo Wardoyo, M.Si')->first();
+    expect($vet)->not->toBeNull();
+    expect($vet->specialization)->toBe('Spesialis Bedah Ternak Ruminansia');
+
+    // 2. Admin updates veterinarian
+    $updateResponse = $this->actingAs($admin)->put(route('konsultasi.veterinarians.update', $vet), [
+        'name' => 'drh. Kusumo Wardoyo, Ph.D',
+        'specialization' => 'Spesialis Bedah & Patologi Ternak',
+        'puskeswan' => 'Puskeswan Mojosari, Kab. Mojokerto',
+        'strv_number' => 'STRV-35.16.2026.009',
+        'phone_number' => '081299887766',
+        'email' => 'kusumo.phd@disnak.jatimprov.go.id',
+        'status' => 'praktik_lapangan',
+        'consultation_hours' => '09.00 - 15.00 WIB',
+    ]);
+
+    $updateResponse->assertRedirect(route('konsultasi', ['tab' => 'dokter']));
+    expect($vet->fresh()->name)->toBe('drh. Kusumo Wardoyo, Ph.D');
+    expect($vet->fresh()->status)->toBe('praktik_lapangan');
+
+    // 3. Admin deletes veterinarian
+    $deleteResponse = $this->actingAs($admin)->delete(route('konsultasi.veterinarians.destroy', $vet));
+    $deleteResponse->assertRedirect(route('konsultasi', ['tab' => 'dokter']));
+    expect(Veterinarian::where('id', $vet->id)->exists())->toBeFalse();
+});
+
+test('peternak can view veterinarians but is forbidden from mutating veterinarians', function () {
+    $peternak = User::where('role', 'peternak')->first();
+
+    // View consultation page
+    $response = $this->actingAs($peternak)->get(route('konsultasi'));
+    $response->assertOk();
+    $response->assertSee('Dokter Hewan Jaga &amp; Telemedisin', false);
+    $response->assertSee('drh. Ratna Kusuma');
+
+    // Forbidden from adding
+    $this->actingAs($peternak)->post(route('konsultasi.veterinarians.store'), [
+        'name' => 'drh. Ilegal',
+        'specialization' => 'Spesialis Palsu',
+        'puskeswan' => 'Puskeswan Palsu',
+        'phone_number' => '0811111111',
+        'status' => 'online',
+    ])->assertStatus(403);
+
+    // Forbidden from deleting
+    $vet = Veterinarian::first();
+    $this->actingAs($peternak)->delete(route('konsultasi.veterinarians.destroy', $vet))
+        ->assertStatus(403);
+});
+
+test('admin consultation page renders veterinarian cards and management modals', function () {
+    $admin = User::where('role', 'admin')->first();
+
+    $response = $this->actingAs($admin)->get(route('konsultasi', ['tab' => 'dokter']));
+    $response->assertOk();
+    $response->assertSee('+ Tambah Dokter Hewan');
+    $response->assertSee('Dokter Hewan Jaga &amp; Telemedisin', false);
+    $response->assertSee('modal-tambah-dokter');
+    $response->assertSee('modal-edit-dokter');
+    $response->assertSee('openEditVetModal');
+    $response->assertSee('drh. Ratna Kusuma');
+    $response->assertSee('drh. Bambang Trihatmojo');
+});
+
 test('exhibition booth can be registered and updated', function () {
     $exhibition = Exhibition::create([
         'title' => 'East Java Livestock Expo Baru',
@@ -527,13 +643,117 @@ test('exhibition booth can be registered and updated', function () {
     expect($registration)->not->toBeNull();
     expect($registration->stand_number)->toStartWith('STD-');
 
-    // Update status
-    $statusResponse = $this->patch(route('pameran.status', $registration), [
-        'status' => 'approved',
+    // Update status to rejected
+    $rejectResponse = $this->patch(route('pameran.status', $registration), [
+        'status' => 'rejected',
     ]);
-    $statusResponse->assertRedirect(route('pameran'));
+    $rejectResponse->assertRedirect(route('pameran'));
     $registration->refresh();
-    expect($registration->status)->toBe('approved');
+    expect($registration->status)->toBe('rejected');
+});
+
+test('admin can create exhibition and calendar event', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $peternak = User::factory()->create(['role' => 'peternak']);
+
+    // Admin creates exhibition
+    $exhibitionResponse = $this->actingAs($admin)->post(route('pameran.exhibition.store'), [
+        'title' => 'Expo Ternak Milenial Jatim 2026',
+        'description' => 'Ajang temu bisnis peternak muda Jawa Timur',
+        'location' => 'Jatim Expo International Surabaya',
+        'start_date' => now()->addDays(30)->toDateString(),
+        'end_date' => now()->addDays(32)->toDateString(),
+        'stand_capacity' => 80,
+        'is_featured' => 1,
+    ]);
+    $exhibitionResponse->assertRedirect(route('pameran'));
+    $this->assertDatabaseHas('exhibitions', [
+        'title' => 'Expo Ternak Milenial Jatim 2026',
+    ]);
+
+    // Admin creates calendar event
+    $calendarResponse = $this->actingAs($admin)->post(route('pameran.calendar.store'), [
+        'title' => 'Vaksinasi Serentak Wilayah Tapal Kuda',
+        'event_type' => 'vaksinasi',
+        'event_date' => now()->addDays(15)->toDateString(),
+        'location' => 'Kabupaten Pasuruan',
+        'description' => 'Vaksinasi massal pencegahan PMK',
+    ]);
+    $calendarResponse->assertRedirect(route('pameran'));
+    $this->assertDatabaseHas('calendar_events', [
+        'title' => 'Vaksinasi Serentak Wilayah Tapal Kuda',
+    ]);
+
+    // Peternak cannot create exhibition
+    $this->actingAs($peternak)->post(route('pameran.exhibition.store'), [
+        'title' => 'Unauthorized Expo',
+        'description' => 'Test',
+        'location' => 'Surabaya',
+        'start_date' => now()->toDateString(),
+        'end_date' => now()->toDateString(),
+        'stand_capacity' => 10,
+    ])->assertStatus(403);
+});
+
+test('admin can update and delete exhibition while peternak cannot', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $peternak = User::factory()->create(['role' => 'peternak']);
+
+    $expo = Exhibition::create([
+        'title' => 'Expo Pangan Ternak 2026',
+        'slug' => 'expo-pangan-ternak-2026',
+        'description' => 'Pameran pangan dan industri ternak Jatim',
+        'facilities' => 'Booth 3x3m, Listrik 900W, Meja Kursi, Sertifikat',
+        'location' => 'Malang Expo Center',
+        'start_date' => now()->addDays(20)->toDateString(),
+        'end_date' => now()->addDays(22)->toDateString(),
+        'stand_capacity' => 50,
+        'registered_stands_count' => 5,
+        'is_featured' => false,
+    ]);
+
+    // Peternak cannot update
+    $this->actingAs($peternak)->put(route('pameran.exhibition.update', $expo), [
+        'title' => 'Hacked Expo',
+        'description' => 'Hacked',
+        'location' => 'Malang',
+        'start_date' => now()->addDays(20)->toDateString(),
+        'end_date' => now()->addDays(22)->toDateString(),
+        'stand_capacity' => 50,
+    ])->assertStatus(403);
+
+    // Admin can update
+    $updateResponse = $this->actingAs($admin)->put(route('pameran.exhibition.update', $expo), [
+        'title' => 'Expo Pangan Ternak Jatim Unggul 2026',
+        'description' => 'Deskripsi kegiatan yang diperbarui oleh Admin Disnak',
+        'facilities' => 'Booth 3x3m, Daya Listrik Chiller, Sertifikat Resmi Disnak Jatim',
+        'location' => 'Graha Cakrawala Malang',
+        'start_date' => now()->addDays(21)->toDateString(),
+        'end_date' => now()->addDays(23)->toDateString(),
+        'stand_capacity' => 60,
+        'is_featured' => 1,
+    ]);
+    $updateResponse->assertRedirect(route('pameran'));
+
+    $expo->refresh();
+    expect($expo->title)->toBe('Expo Pangan Ternak Jatim Unggul 2026');
+    expect($expo->location)->toBe('Graha Cakrawala Malang');
+    expect($expo->stand_capacity)->toBe(60);
+    expect($expo->is_featured)->toBeTrue();
+
+    // Verify grid cards render exhibition with facilities and content
+    $pageResponse = $this->get(route('pameran'));
+    $pageResponse->assertStatus(200);
+    $pageResponse->assertSee('Expo Pangan Ternak Jatim Unggul 2026');
+    $pageResponse->assertSee('Lihat Fasilitas &amp; Isi', false);
+
+    // Peternak cannot delete
+    $this->actingAs($peternak)->delete(route('pameran.exhibition.destroy', $expo))->assertStatus(403);
+
+    // Admin can delete
+    $deleteResponse = $this->actingAs($admin)->delete(route('pameran.exhibition.destroy', $expo));
+    $deleteResponse->assertRedirect(route('pameran'));
+    expect(Exhibition::find($expo->id))->toBeNull();
 });
 
 test('search query redirects correctly to target page', function () {

@@ -8,6 +8,7 @@ use App\Models\Disease;
 use App\Models\HealthRecord;
 use App\Models\Livestock;
 use App\Models\User;
+use App\Models\Veterinarian;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,11 +19,16 @@ class ConsultationController extends Controller
     /**
      * Display veterinary consultations, digital health records, and disease guidance.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
         $currentUser = auth()->user() ?? (app()->runningUnitTests() ? User::where('role', 'peternak')->first() : null);
         if (! $currentUser) {
             abort(403, 'Akses terbatas untuk pengguna terautentikasi.');
+        }
+
+        $activeTab = $request->query('tab', 'dokter');
+        if (! in_array($activeTab, ['dokter', 'rekam_medis', 'penyakit'])) {
+            $activeTab = 'dokter';
         }
 
         $isAdmin = $currentUser->isAdmin();
@@ -46,13 +52,16 @@ class ConsultationController extends Controller
                 ->get();
         }
 
+        $veterinarians = Veterinarian::latest()->get();
         $diseases = Disease::all();
 
         return view('konsultasi', [
+            'activeTab' => $activeTab,
             'consultation' => $consultation,
             'healthRecords' => $healthRecords,
             'livestocks' => $livestocks,
             'diseases' => $diseases,
+            'veterinarians' => $veterinarians,
         ]);
     }
 
@@ -259,5 +268,92 @@ class ConsultationController extends Controller
 
         return redirect()->route('konsultasi')
             ->with('success', "Penyakit '{$name}' berhasil dihapus dari basis data.");
+    }
+
+    /**
+     * Store a new veterinarian (Admin only).
+     */
+    public function storeVeterinarian(Request $request): RedirectResponse
+    {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang menambahkan dokter hewan.');
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'specialization' => ['required', 'string', 'max:255'],
+            'puskeswan' => ['required', 'string', 'max:255'],
+            'strv_number' => ['nullable', 'string', 'max:100'],
+            'phone_number' => ['required', 'string', 'max:30'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'status' => ['required', 'in:online,praktik_lapangan,siaga,offline'],
+            'consultation_hours' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $vet = Veterinarian::create([
+            'name' => $validated['name'],
+            'specialization' => $validated['specialization'],
+            'puskeswan' => $validated['puskeswan'],
+            'strv_number' => $validated['strv_number'] ?? null,
+            'phone_number' => $validated['phone_number'],
+            'email' => $validated['email'] ?? null,
+            'status' => $validated['status'],
+            'consultation_hours' => ! empty($validated['consultation_hours']) ? $validated['consultation_hours'] : '08.00 - 16.00 WIB',
+            'is_active' => true,
+        ]);
+
+        return redirect()->route('konsultasi', ['tab' => 'dokter'])
+            ->with('success', "Dokter hewan '{$vet->name}' berhasil ditambahkan ke direktori.");
+    }
+
+    /**
+     * Update veterinarian details (Admin only).
+     */
+    public function updateVeterinarian(Request $request, Veterinarian $veterinarian): RedirectResponse
+    {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang mengubah data dokter hewan.');
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'specialization' => ['required', 'string', 'max:255'],
+            'puskeswan' => ['required', 'string', 'max:255'],
+            'strv_number' => ['nullable', 'string', 'max:100'],
+            'phone_number' => ['required', 'string', 'max:30'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'status' => ['required', 'in:online,praktik_lapangan,siaga,offline'],
+            'consultation_hours' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $veterinarian->update([
+            'name' => $validated['name'],
+            'specialization' => $validated['specialization'],
+            'puskeswan' => $validated['puskeswan'],
+            'strv_number' => $validated['strv_number'] ?? null,
+            'phone_number' => $validated['phone_number'],
+            'email' => $validated['email'] ?? null,
+            'status' => $validated['status'],
+            'consultation_hours' => ! empty($validated['consultation_hours']) ? $validated['consultation_hours'] : $veterinarian->consultation_hours,
+        ]);
+
+        return redirect()->route('konsultasi', ['tab' => 'dokter'])
+            ->with('success', "Data '{$veterinarian->name}' berhasil diperbarui.");
+    }
+
+    /**
+     * Delete veterinarian (Admin only).
+     */
+    public function destroyVeterinarian(Veterinarian $veterinarian): RedirectResponse
+    {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang menghapus dokter hewan.');
+        }
+
+        $name = $veterinarian->name;
+        $veterinarian->delete();
+
+        return redirect()->route('konsultasi', ['tab' => 'dokter'])
+            ->with('success', "Dokter hewan '{$name}' berhasil dihapus dari direktori.");
     }
 }

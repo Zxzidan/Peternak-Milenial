@@ -129,26 +129,54 @@
                     </a>
                 </li>
 
-                <!-- 2. Siaga Darurat (Hanya Admin & Peternak) -->
+                <!-- 2. Siaga Darurat (Dropdown Collapse - Hanya Admin & Peternak) -->
                 @if(!auth()->check() || auth()->user()->hasRole('admin', 'peternak'))
                 <li>
-                    <a
-                        href="{{ url('/darurat') }}"
-                        class="sidebar-link flex items-center justify-between px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('darurat*') ? 'bg-red-50 text-red-700 border-red-200/80 font-semibold dark:bg-red-950/60 dark:text-red-300 dark:border-red-800/60 shadow-2xs' : 'border-transparent text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30' }}"
+                    <button
+                        type="button"
+                        class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('darurat*') ? 'bg-red-50 text-red-700 border-red-200/80 font-semibold dark:bg-red-950/60 dark:text-red-300 dark:border-red-800/60 shadow-2xs' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-red-700 dark:text-gray-300 dark:hover:bg-gray-700/60 dark:hover:text-white' }}"
+                        aria-controls="dropdown-darurat"
+                        data-collapse-toggle="dropdown-darurat"
                         title="Siaga Darurat"
                     >
-                        <div class="flex items-center min-w-0">
-                            <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                            </svg>
-                            <span class="sidebar-label flex-1 ms-2.5 whitespace-nowrap">
-                                Siaga Darurat
-                            </span>
-                        </div>
-                        <span class="sidebar-badge px-1.5 py-0.5 text-[10px] font-bold text-red-700 bg-red-100 rounded-md dark:bg-red-900/60 dark:text-red-300 leading-none shrink-0">
+                        <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 {{ request()->is('darurat*') ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400' }}" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                        <span class="sidebar-label flex-1 ms-2.5 text-left whitespace-nowrap">
+                            Siaga Darurat
+                        </span>
+                        <span class="sidebar-badge mr-1.5 px-1.5 py-0.5 text-[10px] font-bold text-red-700 bg-red-100 rounded-md dark:bg-red-900/60 dark:text-red-300 leading-none shrink-0">
                             24/7
                         </span>
-                    </a>
+                        <svg class="sidebar-dropdown-icon w-3.5 h-3.5 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <ul id="dropdown-darurat" class="{{ request()->is('darurat*') ? '' : 'hidden' }} py-1 space-y-0.5">
+                        @if(auth()->check() && auth()->user()->isAdmin())
+                        <li>
+                            <a href="{{ url('/darurat?tab=masuk') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('darurat*') && (request('tab') === 'masuk' || !request()->has('tab'))) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                Laporan Masuk
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url('/darurat?tab=ditangani') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('darurat*') && in_array(request('tab'), ['ditangani', 'dijawab'])) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                Laporan Dijawab
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url('/darurat?tab=riwayat') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('darurat*') && in_array(request('tab'), ['riwayat', 'history'])) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                History Laporan
+                            </a>
+                        </li>
+                        @else
+                        <li>
+                            <a href="{{ url('/darurat') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request()->fullUrlIs(url('/darurat')) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                Laporan Darurat
+                            </a>
+                        </li>
+                        @endif
+                    </ul>
                 </li>
                 @endif
 
@@ -174,17 +202,17 @@
                     </button>
                     <ul id="dropdown-pelatihan" class="{{ request()->is('pelatihan*') ? '' : 'hidden' }} py-1 space-y-0.5">
                         <li>
-                            <a href="{{ url('/pelatihan') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-lg transition-colors {{ request()->fullUrlIs(url('/pelatihan')) ? 'text-primary-700 font-medium' : '' }}">
+                            <a href="{{ url('/pelatihan?tab=jadwal') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('pelatihan*') && (request('tab') === 'jadwal' || !request()->has('tab'))) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
                                 Jadwal Bimtek
                             </a>
                         </li>
                         <li>
-                            <a href="{{ url('/pelatihan#modul') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-lg transition-colors">
-                                Modul & Video
+                            <a href="{{ url('/pelatihan?tab=modul') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('pelatihan*') && request('tab') === 'modul') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                Modul &amp; Video
                             </a>
                         </li>
                         <li>
-                            <a href="{{ url('/pelatihan#sertifikat') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-lg transition-colors">
+                            <a href="{{ url('/pelatihan?tab=sertifikat') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('pelatihan*') && request('tab') === 'sertifikat') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
                                 Sertifikat Digital
                             </a>
                         </li>
@@ -192,11 +220,27 @@
                 </li>
                 @endif
 
-                <!-- 4. Marketplace (Dropdown Collapse) -->
+                <!-- 4. Marketplace: Verifikasi Produk (Khusus Admin) / Marketplace (Peternak & Umum) -->
+                @if(auth()->check() && auth()->user()->isAdmin())
+                <li>
+                    <a
+                        href="{{ url('/marketplace') }}"
+                        class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('marketplace*') ? 'bg-gray-100 border-gray-200/80 font-semibold text-gray-900 dark:bg-gray-700/60 dark:text-white dark:border-gray-600' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-primary-700 dark:text-gray-300 dark:hover:bg-gray-700/60 dark:hover:text-white' }}"
+                        title="Verifikasi Produk"
+                    >
+                        <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 text-gray-500 dark:text-gray-400 group-hover:text-primary-700 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+                        </svg>
+                        <span class="sidebar-label flex-1 ms-2.5 text-left whitespace-nowrap">
+                            Verifikasi Produk
+                        </span>
+                    </a>
+                </li>
+                @else
                 <li>
                     <button
                         type="button"
-                        class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('marketplace*') ? 'bg-gray-100 border-gray-200/80 font-semibold text-gray-900 dark:bg-gray-700/60 dark:text-white dark:border-gray-600' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-primary-700 dark:text-gray-300 dark:hover:bg-gray-700/60 dark:hover:text-white' }}"
+                        class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ (request()->is('marketplace*') || request()->is('pesanan*')) ? 'bg-gray-100 border-gray-200/80 font-semibold text-gray-900 dark:bg-gray-700/60 dark:text-white dark:border-gray-600' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-primary-700 dark:text-gray-300 dark:hover:bg-gray-700/60 dark:hover:text-white' }}"
                         aria-controls="dropdown-marketplace"
                         data-collapse-toggle="dropdown-marketplace"
                         title="Marketplace"
@@ -211,32 +255,33 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                         </svg>
                     </button>
-                    <ul id="dropdown-marketplace" class="{{ request()->is('marketplace*') ? '' : 'hidden' }} py-1 space-y-0.5">
+                    <ul id="dropdown-marketplace" class="{{ (request()->is('marketplace*') || request()->is('pesanan*')) ? '' : 'hidden' }} py-1 space-y-0.5">
                         <li>
-                            <a href="{{ url('/marketplace') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-lg transition-colors">
+                            <a href="{{ url('/marketplace?tab=katalog') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('marketplace*') && (request('tab') === 'katalog' || (!request()->has('tab') && (!auth()->check() || auth()->user()->isUmum())))) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
                                 Katalog Produk
                             </a>
                         </li>
+                        @if(auth()->check() && auth()->user()->isPeternak())
                         <li>
-                            <a href="{{ url('/marketplace#toko') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-lg transition-colors">
+                            <a href="{{ url('/marketplace?tab=kelola') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('marketplace*') && (in_array(request('tab'), ['kelola', 'toko']) || (!request()->has('tab') && auth()->user()->isPeternak()))) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
                                 Kelola Produk
                             </a>
                         </li>
+                        @endif
                         <li>
-                            <a href="{{ route('pesanan') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs {{ request()->is('pesanan*') ? 'text-orange-600 font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white' }} hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-lg transition-colors">
-                                {{ auth()->check() && auth()->user()->isAdmin() ? 'Semua Pesanan' : 'Riwayat Pesanan' }}
+                            <a href="{{ route('pesanan') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request()->is('pesanan*') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                Riwayat Pesanan
                             </a>
                         </li>
                     </ul>
                 </li>
+                @endif
 
-                <!-- 5. Harga Komoditas (Dropdown Collapse) -->
+                <!-- 5. Harga Komoditas (Menu Langsung) -->
                 <li>
-                    <button
-                        type="button"
+                    <a
+                        href="{{ url('/harga-komoditas') }}"
                         class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('harga-komoditas*') ? 'bg-gray-100 border-gray-200/80 font-semibold text-gray-900 dark:bg-gray-700/60 dark:text-white dark:border-gray-600' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-primary-700 dark:text-gray-300 dark:hover:bg-gray-700/60 dark:hover:text-white' }}"
-                        aria-controls="dropdown-harga"
-                        data-collapse-toggle="dropdown-harga"
                         title="Harga Komoditas"
                     >
                         <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 text-gray-500 dark:text-gray-400 group-hover:text-primary-700 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -245,27 +290,7 @@
                         <span class="sidebar-label flex-1 ms-2.5 text-left whitespace-nowrap">
                             Harga Komoditas
                         </span>
-                        <svg class="sidebar-dropdown-icon w-3.5 h-3.5 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
-                    <ul id="dropdown-harga" class="{{ request()->is('harga-komoditas*') ? '' : 'hidden' }} py-1 space-y-0.5">
-                        <li>
-                            <a href="{{ url('/harga-komoditas') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-lg transition-colors">
-                                Tren Harga
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ url('/harga-komoditas#peta') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-lg transition-colors">
-                                Peta Sentra
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ url('/harga-komoditas#unggulan') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-lg transition-colors">
-                                Komoditas Unggulan
-                            </a>
-                        </li>
-                    </ul>
+                    </a>
                 </li>
 
                 <!-- 6. Kesehatan Hewan (Dropdown Collapse - Hanya Admin & Peternak) -->
@@ -290,18 +315,18 @@
                     </button>
                     <ul id="dropdown-kesehatan" class="{{ request()->is('konsultasi*') ? '' : 'hidden' }} py-1 space-y-0.5">
                         <li>
-                            <a href="{{ url('/konsultasi') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-lg transition-colors">
+                            <a href="{{ url('/konsultasi?tab=dokter') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('konsultasi*') && (request('tab') === 'dokter' || !request()->has('tab'))) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
                                 Dokter Hewan
                             </a>
                         </li>
                         <li>
-                            <a href="{{ url('/konsultasi#lapor-penyakit') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-lg transition-colors">
-                                Lapor Penyakit
+                            <a href="{{ url('/konsultasi?tab=rekam_medis') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('konsultasi*') && request('tab') === 'rekam_medis') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                Rekam Medis (E-Tag)
                             </a>
                         </li>
                         <li>
-                            <a href="{{ url('/konsultasi#rekam-medis') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-lg transition-colors">
-                                Rekam Medis (E-Tag)
+                            <a href="{{ url('/konsultasi?tab=penyakit') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('konsultasi*') && request('tab') === 'penyakit') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                Pedoman Penyakit
                             </a>
                         </li>
                     </ul>

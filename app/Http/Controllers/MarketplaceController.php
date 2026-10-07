@@ -67,11 +67,35 @@ class MarketplaceController extends Controller
 
         $products = $query->get();
 
+        $totalAllProducts = Product::count();
+        $unverifiedCount = Product::where('is_verified', false)->count();
+        $verifiedCount = Product::where('is_verified', true)->count();
+
         // Orders list & My Products:
-        // Admin sees all orders and can monitor all unverified products
+        // Admin is strictly focused on product verification, so shopping orders are not loaded for Admin.
         if ($currentUser && $currentUser->isAdmin()) {
-            $orders = Order::with(['items.product.category', 'items.product.region', 'items.seller', 'buyer'])->latest()->take(20)->get();
-            $myProducts = Product::with(['category', 'region', 'seller'])->latest()->get();
+            $orders = collect();
+
+            $adminProductsQuery = Product::with(['category', 'region', 'seller'])->latest();
+
+            if ($request->verifikasi === 'pending') {
+                $adminProductsQuery->where('is_verified', false);
+            } elseif ($request->verifikasi === 'verified') {
+                $adminProductsQuery->where('is_verified', true);
+            }
+
+            if ($request->filled('q')) {
+                $search = $request->q;
+                $adminProductsQuery->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhereHas('seller', function ($sq) use ($search) {
+                            $sq->where('name', 'like', "%{$search}%");
+                        });
+                });
+            }
+
+            $myProducts = $adminProductsQuery->get();
         } elseif ($currentUser && $currentUser->isPeternak()) {
             // Peternak sees their own products (including pending verification status)
             $myProducts = Product::with(['category', 'region'])->where('user_id', $currentUser->id)->latest()->get();
@@ -101,6 +125,9 @@ class MarketplaceController extends Controller
             'orders' => $orders,
             'orderCounts' => $orderCounts,
             'myProducts' => $myProducts,
+            'totalAllProducts' => $totalAllProducts,
+            'unverifiedCount' => $unverifiedCount,
+            'verifiedCount' => $verifiedCount,
             'selectedCategory' => $request->kategori,
             'selectedRegion' => $request->wilayah,
             'selectedSort' => $request->sort,
@@ -112,13 +139,15 @@ class MarketplaceController extends Controller
     /**
      * Display dedicated "Pesanan Saya" page.
      */
-    public function ordersIndex(Request $request): View
+    public function ordersIndex(Request $request): View|RedirectResponse
     {
         $currentUser = auth()->user();
 
         if ($currentUser && $currentUser->isAdmin()) {
-            $ordersQuery = Order::with(['items.product.category', 'items.product.region', 'items.seller', 'buyer'])->latest();
-        } elseif ($currentUser && $currentUser->isPeternak()) {
+            return redirect()->route('marketplace');
+        }
+
+        if ($currentUser && $currentUser->isPeternak()) {
             $ordersQuery = Order::whereHas('items', function ($q) use ($currentUser) {
                 $q->where('seller_id', $currentUser->id);
             })->with(['items.product.category', 'items.product.region', 'items.seller', 'buyer'])->latest();
@@ -214,6 +243,10 @@ class MarketplaceController extends Controller
             abort(403, 'Masyarakat Umum tidak memiliki hak akses untuk mengunggah produk peternak.');
         }
 
+        if ($currentUser->isAdmin()) {
+            abort(403, 'Admin Dinas berfungsi sebagai pengawas dan verifikator produk, dan tidak mengunggah produk penjualan.');
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'product_category_id' => ['required', 'exists:product_categories,id'],
@@ -228,7 +261,7 @@ class MarketplaceController extends Controller
         $slug = Str::slug($validated['name']).'-'.time();
 
         // Products uploaded by Peternak must be verified by Admin
-        $isVerified = $currentUser->isAdmin();
+        $isVerified = false;
 
         $product = Product::create([
             'user_id' => $seller->id,
@@ -244,9 +277,11 @@ class MarketplaceController extends Controller
             'status' => 'active',
         ]);
 
-        $msg = $isVerified
-            ? "Produk '{$product->name}' berhasil ditambahkan ke katalog marketplace!"
-            : "Produk '{$product->name}' berhasil diunggah! Menunggu proses verifikasi Admin Dinas sebelum berstatus tervalidasi.";
+        $msg = "Produk '{$product->name}' berhasil diunggah! Menunggu proses verifikasi Admin Dinas sebelum berstatus tervalidasi.";
+
+        if ($request->has('tab')) {
+            return redirect()->to(route('marketplace', ['tab' => $request->tab]))->with('success', $msg);
+        }
 
         return redirect()->route('marketplace')->with('success', $msg);
     }
@@ -263,6 +298,11 @@ class MarketplaceController extends Controller
         $product->update([
             'is_verified' => true,
         ]);
+
+        if ($request->has('tab')) {
+            return redirect()->to(route('marketplace', ['tab' => $request->tab]))
+                ->with('success', "Produk '{$product->name}' berhasil diverifikasi dan mendapatkan lencana tervalidasi Dinas!");
+        }
 
         return redirect()->route('marketplace')
             ->with('success', "Produk '{$product->name}' berhasil diverifikasi dan mendapatkan lencana tervalidasi Dinas!");
@@ -391,6 +431,11 @@ class MarketplaceController extends Controller
 
         $name = $product->name;
         $product->delete();
+
+        if (request()->has('tab')) {
+            return redirect()->to(route('marketplace', ['tab' => request()->query('tab')]))
+                ->with('success', "Produk '{$name}' berhasil dihapus dari marketplace.");
+        }
 
         return redirect()->route('marketplace')
             ->with('success', "Produk '{$name}' berhasil dihapus dari marketplace.");

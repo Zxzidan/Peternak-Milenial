@@ -5,22 +5,30 @@ namespace App\Http\Controllers;
 use App\Models\CalendarEvent;
 use App\Models\Exhibition;
 use App\Models\ExhibitionRegistration;
+use App\Models\Region;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ExhibitionController extends Controller
 {
     /**
      * Display exhibitions, calendar events, and registered booths.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
         $currentUser = auth()->user();
+        $activeTab = $request->query('tab', 'agenda');
+        if (! in_array($activeTab, ['agenda', 'stand', 'kalender'])) {
+            $activeTab = 'agenda';
+        }
+
         $featuredExhibition = Exhibition::where('is_featured', true)->first() ?? Exhibition::first();
-        $exhibitions = Exhibition::all();
+        $exhibitions = Exhibition::orderByDesc('is_featured')->orderBy('start_date')->get();
         $calendarEvents = CalendarEvent::orderBy('event_date')->get();
+        $regions = Region::orderBy('name')->get();
 
         if ($currentUser && $currentUser->isAdmin()) {
             $registrations = ExhibitionRegistration::with(['exhibition', 'user'])->latest()->get();
@@ -34,10 +42,12 @@ class ExhibitionController extends Controller
         }
 
         return view('pameran', [
+            'activeTab' => $activeTab,
             'featuredExhibition' => $featuredExhibition,
             'exhibitions' => $exhibitions,
             'calendarEvents' => $calendarEvents,
             'registrations' => $registrations,
+            'regions' => $regions,
         ]);
     }
 
@@ -149,5 +159,140 @@ class ExhibitionController extends Controller
 
         return redirect()->route('pameran')
             ->with('success', "Pendaftaran stand '{$name}' berhasil dibatalkan.");
+    }
+
+    /**
+     * Store a new exhibition agenda (Admin only).
+     */
+    public function storeExhibition(Request $request): RedirectResponse
+    {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang membuat agenda pameran.');
+        }
+
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'max:1000'],
+            'facilities' => ['nullable', 'string', 'max:1000'],
+            'location' => ['required', 'string', 'max:255'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'stand_capacity' => ['required', 'integer', 'min:1'],
+            'is_featured' => ['nullable', 'boolean'],
+        ]);
+
+        $slug = Str::slug($validated['title']);
+        if (Exhibition::where('slug', $slug)->exists()) {
+            $slug .= '-'.Str::random(5);
+        }
+
+        if (! empty($validated['is_featured'])) {
+            Exhibition::where('is_featured', true)->update(['is_featured' => false]);
+        }
+
+        Exhibition::create([
+            'title' => $validated['title'],
+            'slug' => $slug,
+            'description' => $validated['description'],
+            'facilities' => $validated['facilities'] ?? 'Booth Stand 3x3m, Meja Display Kaca & Kursi, Daya Listrik & Pendingin Chiller, Business Matching Buyer Modern, Sertifikat Resmi Disnak Jatim',
+            'location' => $validated['location'],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'stand_capacity' => $validated['stand_capacity'],
+            'registered_stands_count' => 0,
+            'is_featured' => $validated['is_featured'] ?? false,
+        ]);
+
+        return redirect()->route('pameran')
+            ->with('success', "Agenda pameran '{$validated['title']}' berhasil diterbitkan!");
+    }
+
+    /**
+     * Update an existing exhibition agenda (Admin only).
+     */
+    public function updateExhibition(Request $request, Exhibition $exhibition): RedirectResponse
+    {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang memperbarui agenda pameran.');
+        }
+
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'max:1000'],
+            'facilities' => ['nullable', 'string', 'max:1000'],
+            'location' => ['required', 'string', 'max:255'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'stand_capacity' => ['required', 'integer', 'min:1'],
+            'is_featured' => ['nullable', 'boolean'],
+        ]);
+
+        if (! empty($validated['is_featured'])) {
+            Exhibition::where('id', '!=', $exhibition->id)->where('is_featured', true)->update(['is_featured' => false]);
+        }
+
+        $exhibition->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'facilities' => $validated['facilities'] ?? $exhibition->facilities,
+            'location' => $validated['location'],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'stand_capacity' => $validated['stand_capacity'],
+            'is_featured' => $validated['is_featured'] ?? false,
+        ]);
+
+        return redirect()->route('pameran')
+            ->with('success', "Agenda pameran '{$exhibition->title}' berhasil diperbarui!");
+    }
+
+    /**
+     * Delete an exhibition agenda (Admin only).
+     */
+    public function destroyExhibition(Exhibition $exhibition): RedirectResponse
+    {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang menghapus agenda pameran.');
+        }
+
+        $title = $exhibition->title;
+        $exhibition->registrations()->delete();
+        $exhibition->delete();
+
+        return redirect()->route('pameran')
+            ->with('success', "Agenda pameran '{$title}' berhasil dihapus.");
+    }
+
+    /**
+     * Store a new calendar event (Admin only).
+     */
+    public function storeCalendarEvent(Request $request): RedirectResponse
+    {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang menambahkan agenda kegiatan.');
+        }
+
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'event_type' => ['required', 'in:vaksinasi,pelatihan,pameran,pasar_ternak'],
+            'event_date' => ['required', 'date'],
+            'location' => ['required', 'string', 'max:255'],
+            'region_id' => ['nullable', 'exists:regions,id'],
+            'description' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        CalendarEvent::create([
+            'title' => $validated['title'],
+            'event_type' => $validated['event_type'],
+            'event_date' => $validated['event_date'],
+            'time_info' => '08:00 - 15:00 WIB',
+            'location' => $validated['location'],
+            'region_id' => $validated['region_id'] ?? null,
+            'description' => $validated['description'] ?? 'Agenda kegiatan resmi Dinas Peternakan Jawa Timur.',
+            'is_mandatory' => false,
+        ]);
+
+        return redirect()->route('pameran')
+            ->with('success', "Agenda kegiatan '{$validated['title']}' berhasil ditambahkan ke kalender dinas!");
     }
 }

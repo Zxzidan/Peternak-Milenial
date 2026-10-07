@@ -116,6 +116,11 @@ class TrainingController extends Controller
 
         $training->decrement('remaining_quota');
 
+        if ($request->has('tab')) {
+            return redirect()->to(route('pelatihan', ['tab' => $request->tab]))
+                ->with('success', "Pendaftaran Bimtek '{$training->title}' berhasil! Kode Tiket: {$regCode}. Sisa kuota: {$training->remaining_quota} peserta.");
+        }
+
         return redirect()->route('pelatihan')
             ->with('success', "Pendaftaran Bimtek '{$training->title}' berhasil! Kode Tiket: {$regCode}. Sisa kuota: {$training->remaining_quota} peserta.");
     }
@@ -134,6 +139,11 @@ class TrainingController extends Controller
         ]);
 
         $registration->update(['status' => $validated['status']]);
+
+        if ($request->has('tab')) {
+            return redirect()->to(route('pelatihan', ['tab' => $request->tab]))
+                ->with('success', "Status pendaftaran peserta {$registration->user?->name} ({$registration->registration_code}) berhasil diperbarui menjadi {$validated['status']}.");
+        }
 
         return redirect()->route('pelatihan')
             ->with('success', "Status pendaftaran peserta {$registration->user?->name} ({$registration->registration_code}) berhasil diperbarui menjadi {$validated['status']}.");
@@ -158,6 +168,11 @@ class TrainingController extends Controller
         }
 
         $registration->delete();
+
+        if (request()->has('tab')) {
+            return redirect()->to(route('pelatihan', ['tab' => request()->query('tab')]))
+                ->with('success', "Pendaftaran Bimtek '{$title}' berhasil dibatalkan.");
+        }
 
         return redirect()->route('pelatihan')
             ->with('success', "Pendaftaran Bimtek '{$title}' berhasil dibatalkan.");
@@ -203,6 +218,11 @@ class TrainingController extends Controller
             'status' => 'open',
         ]);
 
+        if ($request->has('tab')) {
+            return redirect()->to(route('pelatihan', ['tab' => $request->tab]))
+                ->with('success', "Program Bimtek '{$validated['title']}' berhasil ditambahkan ke jadwal dinas!");
+        }
+
         return redirect()->route('pelatihan')
             ->with('success', "Program Bimtek '{$validated['title']}' berhasil ditambahkan ke jadwal dinas!");
     }
@@ -219,6 +239,11 @@ class TrainingController extends Controller
         $title = $training->title;
         $training->delete();
 
+        if (request()->has('tab')) {
+            return redirect()->to(route('pelatihan', ['tab' => request()->query('tab')]))
+                ->with('success', "Program Bimtek '{$title}' berhasil dihapus.");
+        }
+
         return redirect()->route('pelatihan')
             ->with('success', "Program Bimtek '{$title}' berhasil dihapus.");
     }
@@ -230,6 +255,20 @@ class TrainingController extends Controller
     {
         if (auth()->check() && ! auth()->user()->isAdmin()) {
             abort(403, 'Hanya Admin Dinas yang berwenang mengunggah materi pembelajaran.');
+        }
+
+        $category = $request->input('category');
+        if (! $category && $request->filled('file_type')) {
+            $category = match ($request->input('file_type')) {
+                'pdf' => 'modul_pdf',
+                'video' => 'video_praktik',
+                default => 'panduan',
+            };
+            $request->merge(['category' => $category]);
+        }
+
+        if (! $request->filled('author_institution')) {
+            $request->merge(['author_institution' => 'Dinas Peternakan Provinsi Jawa Timur']);
         }
 
         $validated = $request->validate([
@@ -251,7 +290,9 @@ class TrainingController extends Controller
             'author_institution' => $validated['author_institution'],
         ]);
 
-        return redirect()->route('pelatihan')
+        $targetTab = $request->input('tab', 'modul');
+
+        return redirect()->to(route('pelatihan', ['tab' => $targetTab]))
             ->with('success', "Materi pembelajaran '{$validated['title']}' berhasil diunggah.");
     }
 
@@ -267,7 +308,9 @@ class TrainingController extends Controller
         $title = $material->title;
         $material->delete();
 
-        return redirect()->route('pelatihan')
+        $targetTab = request()->query('tab', 'modul');
+
+        return redirect()->to(route('pelatihan', ['tab' => $targetTab]))
             ->with('success', "Materi '{$title}' berhasil dihapus.");
     }
 
@@ -283,26 +326,37 @@ class TrainingController extends Controller
         $validated = $request->validate([
             'user_id' => ['required', 'exists:users,id'],
             'training_id' => ['nullable', 'exists:trainings,id'],
-            'title' => ['required', 'string', 'max:255'],
-            'recipient_name' => ['required', 'string', 'max:255'],
-            'issued_date' => ['required', 'date'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'recipient_name' => ['nullable', 'string', 'max:255'],
+            'issued_date' => ['nullable', 'date'],
+            'certificate_number' => ['nullable', 'string', 'max:100'],
         ]);
 
-        $certNum = 'DISNAK-JTM-'.date('Y').'-'.str_pad(Certificate::count() + 1, 4, '0', STR_PAD_LEFT);
+        $recipientUser = User::find($validated['user_id']);
+        $training = ! empty($validated['training_id']) ? Training::find($validated['training_id']) : null;
+
+        $recipientName = $validated['recipient_name'] ?? ($recipientUser?->name ?? 'Peternak Binaan');
+        $title = $validated['title'] ?? ($training ? 'Sertifikasi Pelatihan: '.$training->title : 'Sertifikasi Kompetensi Peternak Milenial');
+        $issuedDate = $validated['issued_date'] ?? now()->toDateString();
+        $certNum = ! empty($validated['certificate_number'])
+            ? $validated['certificate_number']
+            : 'DISNAK-JTM-'.date('Y').'-'.str_pad(Certificate::count() + 1, 4, '0', STR_PAD_LEFT);
 
         Certificate::create([
             'user_id' => $validated['user_id'],
             'training_id' => $validated['training_id'] ?? null,
             'certificate_number' => $certNum,
-            'recipient_name' => $validated['recipient_name'],
+            'recipient_name' => $recipientName,
             'recipient_code' => 'NIK-'.rand(1000, 9999),
-            'title' => $validated['title'],
-            'issued_date' => $validated['issued_date'],
+            'title' => $title,
+            'issued_date' => $issuedDate,
             'verified_by' => 'Dinas Peternakan Provinsi Jawa Timur',
         ]);
 
-        return redirect()->route('pelatihan')
-            ->with('success', "Sertifikat digital '{$certNum}' berhasil diterbitkan untuk {$validated['recipient_name']}.");
+        $targetTab = $request->input('tab', 'sertifikat');
+
+        return redirect()->to(route('pelatihan', ['tab' => $targetTab]))
+            ->with('success', "Sertifikat digital '{$certNum}' berhasil diterbitkan untuk {$recipientName}.");
     }
 
     /**
@@ -317,7 +371,9 @@ class TrainingController extends Controller
         $certNum = $certificate->certificate_number;
         $certificate->delete();
 
-        return redirect()->route('pelatihan')
+        $targetTab = request()->query('tab', 'sertifikat');
+
+        return redirect()->to(route('pelatihan', ['tab' => $targetTab]))
             ->with('success', "Sertifikat digital '{$certNum}' berhasil dihapus.");
     }
 }

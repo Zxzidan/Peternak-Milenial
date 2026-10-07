@@ -4,24 +4,23 @@
 
 @section('content')
 <div class="space-y-8 lg:space-y-10">
-    <!-- Header Dashboard: Bersih, Lega & Ringkas -->
+    <!-- Header Dashboard -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
-            <div class="flex items-center gap-2 mb-1.5">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                    {{ auth()->check() ? auth()->user()->role_label : 'Dinas Peternakan Provinsi Jawa Timur' }}
-                </span>
-            </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
                 @if(auth()->check() && auth()->user()->isAdmin())
-                    Dashboard Pengelola — Dinas Peternakan Jatim
+                    Dashboard Pengelola
                 @elseif(auth()->check() && auth()->user()->isUmum())
-                    Portal Pasar &amp; Informasi Peternakan Jatim
+                    Portal Peternakan Jatim
                 @else
-                    Peternakan Provinsi Jawa Timur
+                    Peternakan Jawa Timur
                 @endif
             </h1>
+            <p class="text-sm text-slate-400 mt-1.5">
+                {{ auth()->check() ? auth()->user()->role_label : 'Dinas Peternakan Provinsi Jawa Timur' }}
+            </p>
         </div>
+
 
         <div class="flex items-center gap-3">
             <span class="inline-flex items-center gap-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-xl px-3.5 py-2 shadow-2xs">
@@ -247,94 +246,59 @@
         @endif
     </div>
     @else
-    <!-- 1. Statistik Utama: 3 Card Lega, Bersih, & Minimalis -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
+    <!-- 1. Statistik Utama -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Card 1: Pengguna Terdaftar -->
-        <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs hover:border-slate-300 transition flex flex-col justify-between h-full">
-            <div class="flex items-center justify-between mb-3.5">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pengguna Terdaftar</span>
-                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                    </svg>
-                </div>
+        <div class="bg-white border-l-4 border-l-blue-500 border border-slate-200/80 rounded-xl p-5 shadow-xs hover:shadow-sm transition-shadow">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3">Pengguna Terdaftar</p>
+            <div class="flex items-end gap-2 mb-1">
+                <span class="text-3xl font-bold text-slate-900 leading-none" id="total-user-count">{{ $displayUserCount ?? $displayPeternakCount }}</span>
+                <span class="text-sm text-slate-500 mb-0.5">pengguna</span>
             </div>
-            <div class="flex items-baseline gap-2">
-                <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900" id="total-user-count">{{ $displayUserCount ?? $displayPeternakCount }}</h3>
-                <span class="text-xs sm:text-sm font-semibold text-slate-500 whitespace-nowrap">User</span>
-            </div>
-            <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
-                Pelaku Usaha Ternak
-            </div>
+            <p class="text-xs text-slate-400 mt-2">Pelaku Usaha Ternak terdaftar</p>
         </div>
 
         <!-- Card 2: Produktivitas Hasil -->
-        <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs hover:border-slate-300 transition flex flex-col justify-between h-full">
-            <div class="flex items-center justify-between mb-3.5">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Produktivitas Hasil</span>
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
-                    </svg>
-                </div>
+        <div class="bg-white border-l-4 border-l-emerald-500 border border-slate-200/80 rounded-xl p-5 shadow-xs hover:shadow-sm transition-shadow">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3">Produktivitas Hasil</p>
+            <div class="flex items-end gap-2 mb-1">
+                <span class="text-3xl font-bold text-slate-900 leading-none">{{ $displayDailyProduction }}</span>
+                <span class="text-sm text-slate-500 mb-0.5">ton/hari</span>
             </div>
-            <div class="flex items-baseline gap-2">
-                <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{{ $displayDailyProduction }}</h3>
-                <span class="text-xs sm:text-sm font-semibold text-slate-500 whitespace-nowrap">Ton / Hari</span>
-            </div>
-            <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
-                Estimasi Harian
-            </div>
+            <p class="text-xs text-slate-400 mt-2">Estimasi produksi harian</p>
         </div>
 
         <!-- Card 3: Struktur Komoditas -->
-        <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs hover:border-slate-300 transition flex flex-col justify-between h-full">
-            <div class="flex items-center justify-between mb-3.5">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Struktur Komoditas</span>
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-                    </svg>
-                </div>
+        <div class="bg-white border-l-4 border-l-amber-400 border border-slate-200/80 rounded-xl p-5 shadow-xs hover:shadow-sm transition-shadow">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3">Struktur Komoditas</p>
+            <div class="flex items-end gap-2 mb-1">
+                <span class="text-3xl font-bold text-slate-900 leading-none">{{ $commodityCount }}</span>
+                <span class="text-sm text-slate-500 mb-0.5">sektor</span>
             </div>
-            <div class="flex items-baseline gap-2">
-                <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{{ $commodityCount }}</h3>
-                <span class="text-xs sm:text-sm font-semibold text-slate-500 whitespace-nowrap">Sektor</span>
-            </div>
-            <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
-                Komoditas Unggulan Jatim
-            </div>
+            <p class="text-xs text-slate-400 mt-2">Komoditas unggulan Jawa Timur</p>
         </div>
     </div>
 
     <!-- Section Utama: MASP -->
     <div id="masp" class="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-7 shadow-xs">
         <!-- MASP Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 mb-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934a1.12 1.12 0 0 1-1.006 0L9.503 3.314a1.12 1.12 0 0 0-1.006 0L3.622 5.75A1.125 1.125 0 0 0 3 6.757v12.423c0 .836.88 1.38 1.628 1.006l3.869-1.934a1.12 1.12 0 0 1 1.006 0l4.994 2.497a1.12 1.12 0 0 0 1.006 0Z" />
-                    </svg>
-                </div>
-                <div>
-                    <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Peta Sentra Peternakan (MASP)</h2>
-                    <p class="text-xs text-slate-500">Sebaran resmi kawasan sentra produksi &amp; perbibitan ternak Dinas Peternakan Jawa Timur</p>
-                </div>
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+            <div>
+                <h2 class="text-sm font-bold text-slate-900">Peta Sentra Peternakan (MASP)</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Sebaran kawasan sentra produksi &amp; perbibitan ternak Jawa Timur</p>
             </div>
 
-            <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                <span id="masp-active-badge" class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100 rounded-lg px-3 py-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span id="masp-active-text">Seluruh Jawa Timur</span>
-                </span>
+            <span id="masp-active-badge" class="hidden">
+                <span id="masp-active-text">Seluruh Jawa Timur</span>
+            </span>
+            <div class="flex items-center gap-2">
                 <a
                     href="{{ route('api.sentra-peternakan') }}"
                     target="_blank"
-                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg px-3 py-1.5 transition shadow-2xs"
-                    title="Buka data JSON API resmi Sentra Peternakan Disnak Jatim"
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition shrink-0"
+                    title="Buka data JSON API resmi Sentra Peternakan Jatim"
                 >
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                     <span>API Sentra Jatim</span>
                 </a>
                 <a
@@ -342,15 +306,17 @@
                     href="https://www.google.com/maps/search/?api=1&query=Jawa+Timur"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 border border-blue-200/80 rounded-lg px-3 py-1.5 transition"
+                    class="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition shrink-0"
                 >
                     <span>Buka Maps</span>
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                     </svg>
                 </a>
             </div>
         </div>
+
+
 
         @php
             $displayItems = $sentraData['items'] ?? [];
@@ -389,144 +355,118 @@
             ></iframe>
         </div>
 
-        <!-- Detail Panel Kawasan Sentra Resmi Dinas Peternakan -->
-        <div class="mt-4 p-4 sm:p-5 bg-gradient-to-br from-slate-50 via-white to-blue-50/40 rounded-xl border border-slate-200">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-200/80">
+        <!-- Detail Panel Kawasan Sentra -->
+        <div class="mt-4 rounded-xl border border-slate-200 overflow-hidden">
+            <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                    <div class="flex flex-wrap items-center gap-2 mb-1">
-                        <span id="masp-detail-status" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                        <span id="masp-detail-status" class="text-[11px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md">
                             Peringkat 1 Nasional Populasi &amp; Produksi Ternak
                         </span>
-                        <span class="text-xs font-semibold text-slate-500" id="masp-detail-kawasan">
-                            38 Kabupaten/Kota Terpadu • Provinsi Jawa Timur
-                        </span>
                     </div>
-                    <h3 id="masp-detail-title" class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
+                    <h3 id="masp-detail-title" class="text-base font-bold text-slate-800">
                         Kawasan Agribisnis Peternakan Terpadu Jawa Timur
                     </h3>
+                    <p id="masp-detail-kawasan" class="text-xs text-slate-500 mt-1">38 Kabupaten/Kota Terpadu • Provinsi Jawa Timur</p>
                 </div>
                 <a
                     id="masp-detail-link"
                     href="https://www.google.com/maps/search/?api=1&query=Jawa+Timur"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 bg-white hover:bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5 transition shadow-2xs shrink-0"
+                    class="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 shrink-0"
                 >
-                    <span>Navigasi Titik Koordinat</span>
+                    <span>Buka di Maps</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                     </svg>
                 </a>
             </div>
 
-            <!-- Grid 4 Parameter Kunci Sentra -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 my-3.5">
-                <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-                    <span class="text-[11px] font-semibold text-slate-500 block mb-0.5 uppercase tracking-wider">Komoditas Utama</span>
-                    <span id="masp-detail-komoditas" class="text-xs sm:text-sm font-extrabold text-slate-900 line-clamp-1">
-                        🏛️ Multi-Komoditas Strategis
-                    </span>
+
+            <!-- 4 Parameter Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-slate-200 border-b border-slate-200">
+                <div class="px-5 py-4">
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Komoditas</p>
+                    <span id="masp-detail-komoditas" class="text-sm font-bold text-slate-800 line-clamp-1">Multi-Komoditas</span>
                 </div>
-                <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-                    <span class="text-[11px] font-semibold text-slate-500 block mb-0.5 uppercase tracking-wider">Populasi Wilayah</span>
-                    <span id="masp-detail-populasi" class="text-xs sm:text-sm font-extrabold text-blue-700">
-                        573,05 Juta Ekor
-                    </span>
+                <div class="px-5 py-4">
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Populasi</p>
+                    <span id="masp-detail-populasi" class="text-sm font-bold text-blue-700">573,05 Juta Ekor</span>
                 </div>
-                <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-                    <span class="text-[11px] font-semibold text-slate-500 block mb-0.5 uppercase tracking-wider">Kelompok / Kemitraan</span>
-                    <span id="masp-detail-kelompok" class="text-xs sm:text-sm font-extrabold text-slate-900 line-clamp-1">
-                        1.200+ Kelompok Ternak
-                    </span>
+                <div class="px-5 py-4">
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Kelompok</p>
+                    <span id="masp-detail-kelompok" class="text-sm font-bold text-slate-800">1.200+ Kelompok</span>
                 </div>
-                <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-                    <span class="text-[11px] font-semibold text-slate-500 block mb-0.5 uppercase tracking-wider">Estimasi Produksi</span>
-                    <span id="masp-detail-produksi" class="text-xs sm:text-sm font-extrabold text-emerald-700">
-                        8.348 Ton / Hari
-                    </span>
+                <div class="px-5 py-4">
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Produksi/Hari</p>
+                    <span id="masp-detail-produksi" class="text-sm font-bold text-emerald-700">8.348 Ton</span>
                 </div>
             </div>
 
-            <p id="masp-detail-deskripsi" class="text-xs text-slate-600 leading-relaxed">
-                Pusat lumbung ternak nasional penyumbang lebih dari 52% sapi perah, 28% sapi potong, dan 30% telur ayam ras di Indonesia dengan tata kelola berbasis digital Satu Data Jatim.
-            </p>
-
-            <div class="mt-3 pt-2.5 border-t border-slate-200/60 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
-                <span class="flex items-center gap-1.5">
-                    <span>🏛️ Sumber: Dinas Peternakan Provinsi Jawa Timur (disnak.jatimprov.go.id)</span>
-                </span>
-                <span class="font-medium text-slate-700 bg-white border border-slate-200 px-2 py-0.5 rounded-md shadow-2xs">
-                    Program MASP (Masterplan Agribisnis Sentra Peternakan)
-                </span>
+            <div class="px-5 py-4 flex flex-wrap items-start justify-between gap-2">
+                <p id="masp-detail-deskripsi" class="text-xs text-slate-500 leading-relaxed max-w-2xl">
+                    Pusat lumbung ternak nasional penyumbang lebih dari 52% sapi perah, 28% sapi potong, dan 30% telur ayam ras di Indonesia dengan tata kelola berbasis digital Satu Data Jatim.
+                </p>
+                <span class="text-xs text-slate-400 shrink-0">Sumber: disnak.jatimprov.go.id</span>
             </div>
         </div>
     </div>
    
-    <!-- 2. Visualisasi Grafik: 2 Kolom Bersih & Lega -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+    <!-- 2. Visualisasi Grafik -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <!-- Chart 1: Distribusi Populasi Ternak -->
-        <div class="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-7 shadow-xs flex flex-col justify-between">
-            <div>
-                <div class="flex items-start justify-between pb-3 border-b border-slate-100 mb-4 gap-3">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900">
-                            Distribusi Populasi Ternak
-                        </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Komposisi populasi hewan ternak resmi Jawa Timur</p>
-                    </div>
-                    <a href="{{ route('api.statistik-peternakan') }}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-2xs transition shrink-0" title="Buka data JSON API resmi Satu Data Jatim">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span>API Disnak Jatim</span>
-                    </a>
+        <div class="bg-white border border-slate-200/80 rounded-xl shadow-xs flex flex-col">
+            <div class="px-5 pt-5 pb-4 border-b border-slate-100 flex items-start justify-between gap-3">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800">Distribusi Populasi Ternak</h3>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Komposisi populasi hewan ternak resmi Jawa Timur</p>
                 </div>
+                <a href="{{ route('api.statistik-peternakan') }}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition shrink-0" title="Buka data JSON API resmi Satu Data Jatim">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span>API Disnak Jatim</span>
+                </a>
+            </div>
 
+            <div class="p-5 flex-1">
                 @if(empty($chartPopulasi['data']))
-                <div class="min-h-[290px] flex flex-col items-center justify-center text-center p-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                    <h4 class="text-xs sm:text-sm font-semibold text-slate-600">Belum ada data populasi</h4>
+                <div class="min-h-[260px] flex items-center justify-center text-xs text-slate-400 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                    Belum ada data populasi
                 </div>
                 @else
-                <div id="chart-distribusi-ternak" class="w-full min-h-[290px]"></div>
+                <div id="chart-distribusi-ternak" class="w-full min-h-[260px]"></div>
                 @endif
             </div>
 
-            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
-                <span class="flex items-center gap-1">
-                    <span>🏛️ Sumber: Disnak Jatim &amp; BPS (ST2023)</span>
-                </span>
-                <span class="font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">Satuan: Juta Ekor</span>
+            <div class="px-5 pb-4 flex items-center justify-between text-[11px] text-slate-400">
+                <span>Sumber: Disnak Jatim &amp; BPS (ST2023)</span>
+                <span class="font-medium text-slate-500">Satuan: Juta Ekor</span>
             </div>
         </div>
 
-        <!-- Chart 2: Volume Produksi Komoditas -->
-        <div class="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-7 shadow-xs flex flex-col justify-between">
-            <div>
-                <div class="flex items-start justify-between pb-3 border-b border-slate-100 mb-4 gap-3">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900">
-                            Produksi Komoditas Utama
-                        </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Volume produksi harian komoditas unggulan Jawa Timur</p>
-                    </div>
-                    <a href="{{ route('api.statistik-peternakan') }}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 shadow-2xs transition shrink-0" title="Buka data JSON API resmi Satu Data Jatim">
-                        <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                        <span>API Disnak Jatim</span>
-                    </a>
+        <!-- Chart 2: Produksi Komoditas Utama -->
+        <div class="bg-white border border-slate-200/80 rounded-xl shadow-xs flex flex-col">
+            <div class="px-5 pt-5 pb-4 border-b border-slate-100 flex items-start justify-between gap-3">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800">Produksi Komoditas Utama</h3>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Volume produksi harian komoditas unggulan Jawa Timur</p>
                 </div>
+                
+            </div>
 
+            <div class="p-5 flex-1">
                 @if(empty($chartProduksi['data']))
-                <div class="min-h-[290px] flex flex-col items-center justify-center text-center p-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                    <h4 class="text-xs sm:text-sm font-semibold text-slate-600">Belum ada data produksi</h4>
+                <div class="min-h-[260px] flex items-center justify-center text-xs text-slate-400 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                    Belum ada data produksi
                 </div>
                 @else
-                <div id="chart-produksi-komoditas" class="w-full min-h-[290px]"></div>
+                <div id="chart-produksi-komoditas" class="w-full min-h-[260px]"></div>
                 @endif
             </div>
 
-            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
-                <span class="flex items-center gap-1">
-                    <span>🏛️ Sumber: Statistik Peternakan Jawa Timur</span>
-                </span>
-                <span class="font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">Satuan: Ton / Hari</span>
+            <div class="px-5 pb-4 flex items-center justify-between text-[11px] text-slate-400">
+                <span>Sumber: Statistik Peternakan Jawa Timur</span>
+                <span class="font-medium text-slate-500">Satuan: Ton / Hari</span>
             </div>
         </div>
     </div>
@@ -627,7 +567,7 @@ function selectSentra(key, buttonElement) {
     if (kawasanElem) kawasanElem.textContent = `${data.kawasan} • ${data.kabupaten}`;
 
     const komoditasElem = document.getElementById('masp-detail-komoditas');
-    if (komoditasElem) komoditasElem.textContent = `${data.komoditas_icon} ${data.komoditas}`;
+    if (komoditasElem) komoditasElem.textContent = data.komoditas;
 
     const populasiElem = document.getElementById('masp-detail-populasi');
     if (populasiElem) populasiElem.textContent = data.populasi;
