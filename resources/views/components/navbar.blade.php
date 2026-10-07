@@ -1,9 +1,9 @@
 <!-- Top Navbar Component (Flowbite Fixed Top Navbar) -->
-<nav class="fixed top-0 z-50 w-full bg-neutral-primary-soft bg-white border-b border-default border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-    <div class="px-3 py-3 lg:px-5 lg:pl-3">
-        <div class="flex items-center justify-between">
-            <!-- Left: Sidebar Triggers & Brand Logo -->
-            <div class="flex items-center justify-start rtl:justify-end">
+<nav id="top-navbar" class="fixed top-0 z-30 left-0 sm:left-64 right-0 h-14 bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700 transition-all duration-300">
+    <div class="px-3 sm:px-4 lg:px-6 h-full">
+        <div class="flex items-center justify-between h-full">
+            <!-- Left: Sidebar Triggers & Search -->
+            <div class="flex items-center justify-start rtl:justify-end gap-1.5 sm:gap-2">
                 <!-- Mobile Sidebar Drawer Trigger -->
                 <button
                     id="mobile-sidebar-toggle"
@@ -11,15 +11,14 @@
                     data-drawer-toggle="top-bar-sidebar"
                     aria-controls="top-bar-sidebar"
                     type="button"
-                    class="sm:hidden text-heading bg-transparent box-border border border-transparent hover:bg-neutral-secondary-medium hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400 dark:hover:text-white focus:ring-4 focus:ring-neutral-tertiary focus:ring-gray-200 dark:focus:ring-gray-700 font-medium leading-5 rounded-base rounded-lg text-sm p-2 focus:outline-none transition-colors"
+                    class="sm:hidden text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400 dark:hover:text-white font-medium rounded-lg text-sm p-1.5 focus:outline-none transition-colors"
+                    aria-label="Buka navigasi sidebar"
                 >
                     <span class="sr-only">Open sidebar</span>
                     <svg
-                        class="w-6 h-6"
+                        class="w-5 h-5"
                         aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
                         fill="none"
                         viewBox="0 0 24 24"
                     >
@@ -32,11 +31,21 @@
                     </svg>
                 </button>
 
+                <!-- Mobile Brand Logo (Visible only on mobile topbar when drawer is closed) -->
+                <a href="{{ auth()->check() ? route('dashboard') : route('landing') }}" class="sm:hidden flex items-center ms-1 group" title="Peternak Milenial Jawa Timur">
+                    <img
+                        src="{{ asset('img/logoaplikasi2.png') }}"
+                        alt="Peternak Milenial Logo"
+                        class="h-7 w-auto object-contain dark:brightness-110 group-hover:opacity-90 transition-opacity"
+                    />
+                    <span class="sr-only">Peternak Milenial</span>
+                </a>
+
                 <!-- Desktop Sidebar Collapse Toggle -->
                 <button
                     id="desktop-sidebar-toggle"
                     type="button"
-                    class="hidden sm:inline-flex p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-700 transition-colors mr-1"
+                    class="hidden sm:inline-flex p-1.5 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-700 transition-colors mr-1"
                     title="Buka / Tutup Sidebar"
                     aria-label="Toggle sidebar collapse"
                 >
@@ -45,19 +54,9 @@
                     </svg>
                 </button>
 
-                <!-- Brand Logo (Image contains official styled text) -->
-                <a href="{{ auth()->check() ? route('dashboard') : route('landing') }}" class="flex ms-1 sm:ms-2 md:me-16 items-center group" title="Peternak Milenial Jawa Timur">
-                    <img
-                        src="{{ asset('img/logoaplikasi2.png') }}"
-                        alt="Peternak Milenial Logo"
-                        class="h-8 sm:h-9 w-auto object-contain dark:brightness-110 group-hover:opacity-90 transition-opacity"
-                    />
-                    <span class="sr-only">Peternak Milenial</span>
-                </a>
-
                 <!-- Topbar Search Bar (Desktop) -->
-                <form action="{{ route('search') }}" method="GET" class="hidden md:block md:pl-2">
-                    <div class="relative w-60 lg:w-72">
+                <form action="{{ route('search') }}" method="GET" class="hidden md:block md:pl-1">
+                    <div class="relative w-56 lg:w-72">
                         <div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none text-gray-400 dark:text-gray-500">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
@@ -67,7 +66,7 @@
                             type="text"
                             name="query"
                             id="topbar-search"
-                            class="bg-gray-50 border border-gray-200 text-gray-900 text-xs rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-9 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                            class="bg-gray-50 border border-gray-200 text-gray-900 text-xs rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-9 py-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                             placeholder="Cari harga, bimtek, layanan..."
                         />
                     </div>
@@ -75,7 +74,7 @@
             </div>
 
             <!-- Right: Actions & User Dropdown -->
-            <div class="flex items-center gap-1 sm:gap-2">
+            <div class="flex items-center gap-1.5 sm:gap-2">
                 <!-- Emergency Action Button -->
                 @if(auth()->check() && auth()->user()->isAdmin())
                 <a
@@ -118,13 +117,13 @@
                 <button
                     type="button"
                     data-dropdown-toggle="notification-dropdown"
-                    class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 relative transition-colors"
+                    class="p-1.5 sm:p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 relative transition-colors"
                     aria-label="Lihat notifikasi"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                     </svg>
-                    <div class="flex absolute top-2 right-2 w-2 h-2 bg-red-600 rounded-full"></div>
+                    <div class="flex absolute top-1.5 right-1.5 w-2 h-2 bg-red-600 rounded-full"></div>
                 </button>
 
                 <!-- Notifications Dropdown Menu -->
@@ -158,7 +157,7 @@
                 </div>
 
                 <!-- User Profile & Dropdown -->
-                <div class="flex items-center ms-2 sm:ms-3">
+                <div class="flex items-center ms-1 sm:ms-2">
                     @guest
                         <a
                             href="{{ route('login') }}"
@@ -256,7 +255,7 @@
                                 <li>
                                     <a href="{{ route('dashboard') }}" class="inline-flex items-center w-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors">
                                         <svg class="w-4 h-4 mr-2.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25-2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25-2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25-2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
                                         </svg>
                                         Panel Pengawasan Dinas
                                     </a>

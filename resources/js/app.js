@@ -21,6 +21,7 @@ const initTheme = () => {
 const initSidebar = () => {
     const sidebar = document.getElementById('top-bar-sidebar');
     const mainContent = document.getElementById('main-content');
+    const topNavbar = document.getElementById('top-navbar');
     const desktopToggle = document.getElementById('desktop-sidebar-toggle');
     const drawerToggle = document.querySelector('[data-drawer-toggle="top-bar-sidebar"]');
     const drawerHides = document.querySelectorAll('[data-drawer-hide="top-bar-sidebar"]');
@@ -36,16 +37,21 @@ const initSidebar = () => {
                 sidebar.classList.remove('w-64');
                 mainContent?.classList.add('sm:ml-16');
                 mainContent?.classList.remove('sm:ml-64');
+                topNavbar?.classList.add('sm:left-16');
+                topNavbar?.classList.remove('sm:left-64');
             } else {
                 sidebar.classList.remove('is-collapsed', 'w-16');
                 sidebar.classList.add('w-64');
                 mainContent?.classList.add('sm:ml-64');
                 mainContent?.classList.remove('sm:ml-16');
+                topNavbar?.classList.add('sm:left-64');
+                topNavbar?.classList.remove('sm:left-16');
             }
         } else {
             // Reset desktop classes on mobile
             sidebar.classList.remove('w-16');
             sidebar.classList.add('w-64');
+            topNavbar?.classList.remove('sm:left-16', 'sm:left-64');
         }
     };
 
