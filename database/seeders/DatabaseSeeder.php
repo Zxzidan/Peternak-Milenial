@@ -263,23 +263,71 @@ class DatabaseSeeder extends Seeder
             'status' => 'active',
         ]);
 
-        $order = Order::create([
+        $order1 = Order::create([
             'order_code' => 'ORD-202610-001',
             'buyer_id' => $pembeliBudi->id,
             'total_amount' => 54000,
             'status' => 'completed',
             'shipping_address' => 'Jl. Pemuda No. 45, Kota Surabaya',
             'buyer_phone' => '085712345678',
-            'notes' => 'Tolong packing sterofoam dingin.',
+            'notes' => 'Metode: Transfer Bank BCA • Catatan: Tolong packing sterofoam dingin.',
         ]);
 
         OrderItem::create([
-            'order_id' => $order->id,
+            'order_id' => $order1->id,
             'product_id' => $p1->id,
             'seller_id' => $peternakSlamet->id,
             'quantity' => 3,
             'price_per_unit' => 18000,
             'subtotal' => 54000,
+        ]);
+
+        $order2 = Order::create([
+            'order_code' => 'ORD-202610-002',
+            'buyer_id' => $pembeliBudi->id,
+            'total_amount' => 290000,
+            'status' => 'processing',
+            'shipping_address' => 'Jl. Dharmawangsa No. 12, Gubeng, Kota Surabaya',
+            'buyer_phone' => '085712345678',
+            'notes' => 'Metode: QRIS Instan • Catatan: Pastikan segel daging beku tetap rapat.',
+        ]);
+
+        OrderItem::create([
+            'order_id' => $order2->id,
+            'product_id' => $p2->id,
+            'seller_id' => $peternakSlamet->id,
+            'quantity' => 2,
+            'price_per_unit' => 145000,
+            'subtotal' => 290000,
+        ]);
+
+        // Multi-item order: Susu Segar + Silase Pakan Komplit
+        $order3 = Order::create([
+            'order_code' => 'ORD-202610-003',
+            'buyer_id' => $pembeliBudi->id,
+            'total_amount' => 157000,
+            'status' => 'shipped',
+            'shipping_address' => 'Jl. Basuki Rahmat No. 88, Tegalsari, Kota Surabaya',
+            'buyer_phone' => '085712345678',
+            'notes' => 'Metode: Transfer Bank Mandiri • Catatan: Tolong kirim pagi sebelum jam 10.',
+        ]);
+
+        OrderItem::create([
+            'order_id' => $order3->id,
+            'product_id' => $p1->id,
+            'seller_id' => $peternakSlamet->id,
+            'quantity' => 4,
+            'price_per_unit' => 18000,
+            'subtotal' => 72000,
+        ]);
+
+        OrderItem::create([
+            'order_id' => $order3->id,
+            'product_id' => $p3->id,
+            'seller_id' => $peternakSlamet->id,
+            'quantity' => 1,
+            'price_per_unit' => 85000,
+            'subtotal' => 85000,
         ]);
 
         // 5. Modul Harga Komoditas & Sentra Produksi

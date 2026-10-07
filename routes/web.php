@@ -56,8 +56,11 @@ Route::middleware(['role:admin,peternak'])->group(function () {
     });
 });
 
-// 6. Marketplace Peternak Milenial
+// 6. Marketplace & Pesanan Peternak Milenial
 Route::get('/marketplace', [MarketplaceController::class, 'index'])->name('marketplace');
+Route::get('/pesanan', [MarketplaceController::class, 'ordersIndex'])->name('pesanan');
+Route::get('/pesanan/{order}', [MarketplaceController::class, 'showOrder'])->name('pesanan.show');
+Route::get('/marketplace/orders/{order}', [MarketplaceController::class, 'showOrder'])->name('marketplace.orders.show');
 Route::post('/marketplace/products/{product}/buy', [MarketplaceController::class, 'buyProduct'])->name('marketplace.products.buy');
 Route::patch('/marketplace/orders/{order}/status', [MarketplaceController::class, 'updateOrderStatus'])->name('marketplace.orders.status');
 

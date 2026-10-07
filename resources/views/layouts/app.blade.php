@@ -6,12 +6,12 @@
     <title>@yield('title', 'Dashboard Peternak Milenial — Dinas Peternakan Jawa Timur')</title>
     <meta name="description" content="Platform digital terintegrasi Dinas Peternakan Provinsi Jawa Timur untuk pelatihan, pasar digital, pantauan harga, dan penanganan darurat ternak.">
 
-    <!-- Typography: Plus Jakarta Sans -->
+    <!-- Typography: Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=poppins:300,400,500,600,700,800" rel="stylesheet" />
 
     <!-- Theme Init Script: Always enforce bright/light theme -->
     <script>
@@ -39,8 +39,8 @@
         <div id="sidebar-backdrop" class="fixed inset-0 z-30 bg-gray-900/50 backdrop-blur-xs hidden transition-opacity" data-drawer-hide="top-bar-sidebar" aria-hidden="true"></div>
 
         <!-- Main Content Area (Flowbite Responsive Main Content) -->
-        <main id="main-content" class="p-4 sm:ml-64 mt-14 min-h-screen">
-            <div class="p-2 sm:p-4">
+        <main id="main-content" class="p-3.5 sm:p-5 sm:ml-64 mt-14 min-h-screen">
+            <div class="max-w-7xl mx-auto">
                 @if (session('success'))
                     <div id="alert-success" class="flex items-center p-4 mb-4 text-xs sm:text-sm text-emerald-800 rounded-xl bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800 shadow-xs" role="alert">
                         <svg class="shrink-0 inline w-4 h-4 me-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

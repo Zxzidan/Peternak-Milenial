@@ -138,11 +138,11 @@ test('pameran page renders successfully', function () {
     $response->assertSee('Kalender Terpadu', false);
 });
 
-test('flowbite dashboard includes plus jakarta sans and layout controls', function () {
+test('flowbite dashboard includes poppins and layout controls', function () {
     $response = $this->get(route('dashboard'));
 
     $response->assertStatus(200);
-    $response->assertSee('Plus Jakarta Sans');
+    $response->assertSee('Poppins');
     $response->assertDontSee('id="theme-toggle"', false);
     $response->assertSee('data-drawer-target="top-bar-sidebar"', false);
     $response->assertSee('data-drawer-toggle="top-bar-sidebar"', false);

@@ -90,11 +90,11 @@
                 </a>
                 @elseif(auth()->check() && auth()->user()->isUmum())
                 <a
-                    href="{{ url('/marketplace#pesanan') }}"
-                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 px-3 py-1.5 rounded-lg transition shadow-2xs"
+                    href="{{ route('pesanan') }}"
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold {{ request()->is('pesanan*') ? 'text-white bg-orange-600 shadow-xs' : 'text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200' }} px-3 py-1.5 rounded-lg transition shadow-2xs"
                     title="Pantau Pesanan Saya"
                 >
-                    <svg class="w-3.5 h-3.5 text-orange-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <svg class="w-3.5 h-3.5 {{ request()->is('pesanan*') ? 'text-white' : 'text-orange-600' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                     </svg>
                     <span class="hidden sm:inline">Pesanan Saya</span>
@@ -245,7 +245,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ url('/marketplace#pesanan') }}" class="inline-flex items-center w-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors">
+                                    <a href="{{ route('pesanan') }}" class="inline-flex items-center w-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors">
                                         <svg class="w-4 h-4 mr-2.5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>

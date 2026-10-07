@@ -9,6 +9,7 @@ use App\Models\ProductCategory;
 use App\Models\Region;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -69,18 +70,18 @@ class MarketplaceController extends Controller
         // Orders list & My Products:
         // Admin sees all orders and can monitor all unverified products
         if ($currentUser && $currentUser->isAdmin()) {
-            $orders = Order::with(['items.product.category', 'items.seller', 'buyer'])->latest()->take(20)->get();
+            $orders = Order::with(['items.product.category', 'items.product.region', 'items.seller', 'buyer'])->latest()->take(20)->get();
             $myProducts = Product::with(['category', 'region', 'seller'])->latest()->get();
         } elseif ($currentUser && $currentUser->isPeternak()) {
             // Peternak sees their own products (including pending verification status)
             $myProducts = Product::with(['category', 'region'])->where('user_id', $currentUser->id)->latest()->get();
             $orders = Order::whereHas('items', function ($q) use ($currentUser) {
                 $q->where('seller_id', $currentUser->id);
-            })->with(['items.product.category', 'items.seller', 'buyer'])->latest()->take(20)->get();
+            })->with(['items.product.category', 'items.product.region', 'items.seller', 'buyer'])->latest()->take(20)->get();
         } else {
             $myProducts = collect();
             $orders = $currentUser
-                ? Order::where('buyer_id', $currentUser->id)->with(['items.product.category', 'items.seller', 'buyer'])->latest()->get()
+                ? Order::where('buyer_id', $currentUser->id)->with(['items.product.category', 'items.product.region', 'items.seller', 'buyer'])->latest()->get()
                 : collect();
         }
 
@@ -104,7 +105,98 @@ class MarketplaceController extends Controller
             'selectedRegion' => $request->wilayah,
             'selectedSort' => $request->sort,
             'searchQuery' => $request->q,
+            'activeOrderCode' => $request->order,
         ]);
+    }
+
+    /**
+     * Display dedicated "Pesanan Saya" page.
+     */
+    public function ordersIndex(Request $request): View
+    {
+        $currentUser = auth()->user();
+
+        if ($currentUser && $currentUser->isAdmin()) {
+            $ordersQuery = Order::with(['items.product.category', 'items.product.region', 'items.seller', 'buyer'])->latest();
+        } elseif ($currentUser && $currentUser->isPeternak()) {
+            $ordersQuery = Order::whereHas('items', function ($q) use ($currentUser) {
+                $q->where('seller_id', $currentUser->id);
+            })->with(['items.product.category', 'items.product.region', 'items.seller', 'buyer'])->latest();
+        } else {
+            $ordersQuery = $currentUser
+                ? Order::where('buyer_id', $currentUser->id)->with(['items.product.category', 'items.product.region', 'items.seller', 'buyer'])->latest()
+                : Order::whereNull('id');
+        }
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $ordersQuery->where(function ($q) use ($search) {
+                $q->where('order_code', 'like', "%{$search}%")
+                    ->orWhereHas('items.product', function ($itemQ) use ($search) {
+                        $itemQ->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $orders = $ordersQuery->get();
+
+        $allOrdersForCounts = $currentUser
+            ? ($currentUser->isAdmin()
+                ? Order::all()
+                : ($currentUser->isPeternak()
+                    ? Order::whereHas('items', function ($q) use ($currentUser) {
+                        $q->where('seller_id', $currentUser->id);
+                    })->get()
+                    : Order::where('buyer_id', $currentUser->id)->get()))
+            : collect();
+
+        $orderCounts = [
+            'all' => $allOrdersForCounts->count(),
+            'pending' => $allOrdersForCounts->where('status', 'pending')->count(),
+            'processing' => $allOrdersForCounts->whereIn('status', ['confirmed', 'processing'])->count(),
+            'shipped' => $allOrdersForCounts->where('status', 'shipped')->count(),
+            'completed' => $allOrdersForCounts->where('status', 'completed')->count(),
+            'cancelled' => $allOrdersForCounts->where('status', 'cancelled')->count(),
+        ];
+
+        $totalSpent = $allOrdersForCounts->where('status', 'completed')->sum('total_amount');
+        $activeCount = $allOrdersForCounts->whereIn('status', ['pending', 'confirmed', 'processing', 'shipped'])->count();
+
+        return view('pesanan', [
+            'orders' => $orders,
+            'orderCounts' => $orderCounts,
+            'totalSpent' => $totalSpent,
+            'activeCount' => $activeCount,
+            'activeOrderCode' => $request->order,
+            'searchQuery' => $request->q,
+        ]);
+    }
+
+    /**
+     * Display or fetch detail for a specific order.
+     */
+    public function showOrder(Request $request, Order $order): JsonResponse|RedirectResponse
+    {
+        $currentUser = auth()->user();
+
+        if ($currentUser && ! $currentUser->isAdmin()) {
+            $isSellerOfOrder = $order->items()->where('seller_id', $currentUser->id)->exists();
+            $isBuyerOfOrder = (int) $order->buyer_id === (int) $currentUser->id;
+
+            if (! $isSellerOfOrder && ! $isBuyerOfOrder) {
+                abort(403, 'Anda tidak memiliki hak akses untuk melihat pesanan ini.');
+            }
+        }
+
+        $order->load(['items.product.category', 'items.product.region', 'items.seller', 'buyer']);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'order' => $order,
+            ]);
+        }
+
+        return redirect()->route('marketplace', ['order' => $order->order_code]).'#pesanan';
     }
 
     /**
@@ -278,7 +370,11 @@ class MarketplaceController extends Controller
         ];
         $label = $statusLabels[$validated['status']] ?? $validated['status'];
 
-        return redirect()->route('marketplace')
+        $targetRoute = ($request->input('from') === 'pesanan' || ($request->header('referer') && str_contains($request->header('referer'), 'pesanan')))
+            ? 'pesanan'
+            : 'marketplace';
+
+        return redirect()->route($targetRoute)
             ->with('success', "Status pesanan {$order->order_code} berhasil diperbarui: {$label}!");
     }
 

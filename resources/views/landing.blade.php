@@ -6,17 +6,17 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Peternak Milenial Jatim - Portal Resmi Dinas Peternakan Provinsi Jawa Timur</title>
 
-    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <!-- Google Fonts: Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
 
     <!-- Flowbite & Vite Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
         body {
-            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
     </style>
 </head>
@@ -432,7 +432,7 @@
     </section>
 
     <!-- 6. Footer -->
-    <footer id="kontak" class="bg-gray-900 text-gray-400 text-xs py-12 border-t border-gray-800">
+    <footer id="kontak" class="bg-white text-gray-600 text-xs py-12 border-t border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
                 
@@ -441,43 +441,43 @@
                         <img
                             src="{{ asset('img/logoaplikasi2.png') }}"
                             alt="Peternak Milenial Logo"
-                            class="h-8 w-auto object-contain brightness-0 invert"
+                            class="h-9 w-auto object-contain"
                         />
                     </div>
-                    <p class="text-gray-400 max-w-md leading-relaxed mb-4">
+                    <p class="text-gray-600 max-w-md leading-relaxed mb-4">
                         Platform digital resmi Pemerintah Provinsi Jawa Timur melalui Dinas Peternakan dalam membina wirausaha muda peternakan dan menjamin ketahanan pangan hewani.
                     </p>
-                    <p class="text-gray-500">
+                    <p class="text-gray-500 text-xs">
                         Jl. Jenderal Ahmad Yani No. 202, Gayungan, Surabaya, Jawa Timur 60235
                     </p>
                 </div>
 
                 <div>
-                    <h4 class="text-xs uppercase font-bold tracking-wider text-white mb-3">Navigasi Cepat</h4>
-                    <ul class="space-y-2">
-                        <li><a href="{{ route('landing') }}" class="hover:text-white transition">Halaman Utama</a></li>
-                        <li><a href="{{ route('login') }}" class="hover:text-white transition">Halaman Masuk (Login)</a></li>
-                        <li><a href="{{ route('register') }}" class="hover:text-white transition">Pendaftaran Akun</a></li>
-                        <li><a href="{{ route('dashboard') }}" class="hover:text-white transition">Dashboard Sistem</a></li>
+                    <h4 class="text-xs uppercase font-bold tracking-wider text-gray-900 mb-3">Navigasi Cepat</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="{{ route('landing') }}" class="text-gray-600 hover:text-blue-600 transition">Halaman Utama</a></li>
+                        <li><a href="{{ route('login') }}" class="text-gray-600 hover:text-blue-600 transition">Halaman Masuk (Login)</a></li>
+                        <li><a href="{{ route('register') }}" class="text-gray-600 hover:text-blue-600 transition">Pendaftaran Akun</a></li>
+                        <li><a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-600 transition">Dashboard Sistem</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h4 class="text-xs uppercase font-bold tracking-wider text-white mb-3">Kontak &amp; Siaga</h4>
-                    <ul class="space-y-2">
-                        <li>Kesmavet Siaga: <span class="text-white">0800-1-DARURAT</span></li>
-                        <li>Email: <span class="text-white">disnak@jatimprov.go.id</span></li>
-                        <li>Jam Layanan: <span class="text-white">Senin - Jumat (07.30 - 16.00 WIB)</span></li>
+                    <h4 class="text-xs uppercase font-bold tracking-wider text-gray-900 mb-3">Kontak &amp; Siaga</h4>
+                    <ul class="space-y-2.5">
+                        <li>Kesmavet Siaga: <span class="text-gray-900 font-bold">0800-1-DARURAT</span></li>
+                        <li>Email: <a href="mailto:disnak@jatimprov.go.id" class="text-blue-600 hover:underline">disnak@jatimprov.go.id</a></li>
+                        <li>Jam Layanan: <span class="text-gray-800 font-medium">Senin - Jumat (07.30 - 16.00 WIB)</span></li>
                     </ul>
                 </div>
 
             </div>
 
-            <div class="pt-8 border-t border-gray-800 text-center text-gray-500 text-[11px] flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="pt-8 border-t border-gray-100 text-center text-gray-500 text-[11px] flex flex-col sm:flex-row items-center justify-between gap-3">
                 <p>&copy; {{ date('Y') }} Dinas Peternakan Provinsi Jawa Timur. Seluruh Hak Cipta Dilindungi.</p>
                 <div class="flex gap-4">
-                    <a href="#" class="hover:text-gray-300">Kebijakan Privasi</a>
-                    <a href="#" class="hover:text-gray-300">Syarat &amp; Ketentuan</a>
+                    <a href="#" class="hover:text-blue-600 transition">Kebijakan Privasi</a>
+                    <a href="#" class="hover:text-blue-600 transition">Syarat &amp; Ketentuan</a>
                 </div>
             </div>
         </div>

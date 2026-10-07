@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
 @import 'tailwindcss';
 
 @source '../views/**/*.blade.php';
@@ -8,7 +9,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-sans: 'Poppins', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
     /* Brand Primary: Royal Navy Blue (Word "Peternak" & Bull Silhouette: #013A85) */
     --color-primary-50: #eff6fc;
@@ -108,6 +109,11 @@
     --radius-base: 0.5rem;
 }
 
+html,
+body {
+    font-family: var(--font-sans);
+}
+
 .dark {
     --color-neutral-primary-soft: #1f2937;
     --color-neutral-primary-medium: #1f2937;
@@ -183,5 +189,32 @@
     background: #1f2937 !important;
     border-color: #374151 !important;
     color: #f3f4f6 !important;
+}
+
+/* Order Drawer Print Styles */
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+    #order-drawer,
+    #order-drawer * {
+        visibility: visible !important;
+    }
+    #order-drawer {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        transform: none !important;
+        background: #ffffff !important;
+        display: block !important;
+    }
+    #order-drawer-backdrop,
+    .no-print {
+        display: none !important;
+    }
 }
 

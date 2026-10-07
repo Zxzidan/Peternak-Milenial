@@ -90,7 +90,7 @@
                     <a href="{{ route('marketplace') }}" class="px-5 py-3 bg-white text-orange-700 font-bold rounded-xl text-xs hover:bg-orange-50 shadow-xs transition text-center">
                         Mulai Belanja Sekarang →
                     </a>
-                    <a href="{{ url('/marketplace#pesanan') }}" class="px-5 py-3 bg-white/20 text-white font-semibold rounded-xl text-xs hover:bg-white/30 border border-white/30 transition text-center">
+                    <a href="{{ route('pesanan') }}" class="px-5 py-3 bg-white/20 text-white font-semibold rounded-xl text-xs hover:bg-white/30 border border-white/30 transition text-center">
                         Pantau Pesanan Saya
                     </a>
                 </div>
@@ -196,25 +196,48 @@
                     <h3 class="text-base font-extrabold text-slate-900">Pesanan Terakhir Saya</h3>
                     <p class="text-xs text-slate-500">Pantau transaksi belanja terkini</p>
                 </div>
-                <a href="{{ url('/marketplace#pesanan') }}" class="text-xs font-bold text-orange-600 hover:text-orange-700">
+                <a href="{{ route('pesanan') }}" class="text-xs font-bold text-orange-600 hover:text-orange-700">
                     Lihat Semua Pesanan →
                 </a>
             </div>
-            <div class="space-y-3">
+            <div class="space-y-2.5">
                 @foreach($buyerOrders as $bo)
-                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                @php
+                    $boStatusBadge = match($bo->status) {
+                        'pending' => 'bg-amber-50 text-amber-700 border-amber-200/70',
+                        'confirmed', 'processing' => 'bg-sky-50 text-sky-700 border-sky-200/70',
+                        'shipped' => 'bg-indigo-50 text-indigo-700 border-indigo-200/70',
+                        'completed' => 'bg-emerald-50 text-emerald-700 border-emerald-200/70',
+                        'cancelled' => 'bg-slate-100 text-slate-600 border-slate-200',
+                        default => 'bg-slate-100 text-slate-700 border-slate-200'
+                    };
+                    $boStatusLabel = match($bo->status) {
+                        'pending' => 'Menunggu',
+                        'confirmed', 'processing' => 'Diproses',
+                        'shipped' => 'Dikirim',
+                        'completed' => 'Selesai',
+                        'cancelled' => 'Dibatalkan',
+                        default => ucfirst($bo->status)
+                    };
+                @endphp
+                <div class="p-3.5 bg-white rounded-xl border border-slate-200 hover:border-slate-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                     <div>
-                        <div class="font-extrabold text-slate-900">{{ $bo->order_code }} • {{ $bo->items->first()?->product?->name }}</div>
-                        <div class="text-[11px] text-slate-500 mt-0.5">
-                            {{ $bo->created_at->format('d M Y, H:i') }} WIB • Total: <strong>Rp {{ number_format($bo->total_amount, 0, ',', '.') }}</strong>
+                        <div class="font-semibold text-slate-900 flex items-center gap-2">
+                            <span class="font-mono text-xs font-bold text-slate-700">{{ $bo->order_code }}</span>
+                            <span class="text-slate-300">·</span>
+                            <span>{{ $bo->items->first()?->product?->name }}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-500 mt-1">
+                            {{ $bo->created_at->format('d M Y, H:i') }} WIB · Total: <strong class="text-slate-800 tabular-nums">Rp {{ number_format($bo->total_amount, 0, ',', '.') }}</strong>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
-                        <span class="px-3 py-1 rounded-full text-xs font-bold {{ $bo->status === 'completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800' }}">
-                            {{ ucfirst($bo->status) }}
+                        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border {{ $boStatusBadge }}">
+                            {{ $boStatusLabel }}
                         </span>
-                        <a href="{{ url('/marketplace#pesanan') }}" class="text-xs font-bold text-orange-600 hover:text-orange-700">
-                            Lacak Status →
+                        <a href="{{ route('pesanan') }}#order-{{ $bo->id }}" class="text-xs font-semibold text-primary-700 hover:text-primary-800 transition inline-flex items-center gap-1">
+                            <span>Lacak Detail</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
                         </a>
                     </div>
                 </div>
@@ -527,7 +550,7 @@ function initCharts() {
             chart: {
                 type: 'bar',
                 height: 290,
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
+                fontFamily: 'Poppins, sans-serif',
                 toolbar: { show: false }
             },
             plotOptions: {
@@ -544,7 +567,7 @@ function initCharts() {
                 formatter: (val) => `${val.toLocaleString('id-ID')} Ekor`,
                 style: {
                     fontSize: '11px',
-                    fontFamily: 'Plus Jakarta Sans, sans-serif',
+                    fontFamily: 'Poppins, sans-serif',
                     colors: ['#0f172a']
                 },
                 offsetX: 8
@@ -596,7 +619,7 @@ function initCharts() {
             chart: {
                 type: 'bar',
                 height: 290,
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
+                fontFamily: 'Poppins, sans-serif',
                 toolbar: { show: false }
             },
             plotOptions: {
@@ -614,7 +637,7 @@ function initCharts() {
                 offsetY: -20,
                 style: {
                     fontSize: '11px',
-                    fontFamily: 'Plus Jakarta Sans, sans-serif',
+                    fontFamily: 'Poppins, sans-serif',
                     colors: [textColor]
                 }
             },
