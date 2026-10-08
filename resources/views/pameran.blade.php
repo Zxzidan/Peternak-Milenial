@@ -73,15 +73,20 @@
                             + Buat Agenda Kegiatan
                         </button>
                     @endif
-                @elseif($isPeternak)
-                    @if($activeTab === 'agenda' || $activeTab === 'stand')
-                    <button
-                        type="button"
-                        onclick="document.getElementById('form-daftar-pameran').classList.toggle('hidden')"
-                        class="inline-flex items-center text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 px-3.5 py-2 rounded-lg transition shadow-xs"
-                    >
-                        + Ajukan Stand Pameran
-                    </button>
+                @else
+                    {{-- Peternak & Publik: Hanya info badge di header, pendaftaran langsung via kartu pameran --}}
+                    @if($activeTab === 'agenda')
+                        <span class="inline-flex items-center text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                            {{ $exhibitions->count() }} Agenda Expo Terbuka
+                        </span>
+                    @elseif($activeTab === 'stand' && $isPeternak)
+                        <span class="inline-flex items-center text-xs font-medium text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-3 py-2 rounded-lg border border-primary-200 dark:border-primary-800">
+                            {{ $registrations->count() }} Stand Terdaftar Saya
+                        </span>
+                    @elseif($activeTab === 'kalender')
+                        <span class="inline-flex items-center text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                            {{ $calendarEvents->count() }} Jadwal Kegiatan Jatim
+                        </span>
                     @endif
                 @endif
             </div>
@@ -246,9 +251,10 @@
         <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700 mb-3.5">
             <div>
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">
-                    {{ $isAdmin ? 'Daftarkan Peserta Stand Baru' : 'Pengajuan Stand Pameran Peternak' }}
+                    {{ $isAdmin ? 'Daftarkan Peserta Stand Baru' : 'Pendaftaran Stand Pameran Peternak' }}
+                    <span id="form-target-expo-name" class="text-primary-700 dark:text-primary-400 font-semibold"></span>
                 </h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Fasilitas stand pameran binaan Dinas Peternakan Provinsi Jawa Timur.</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Fasilitas stand pameran binaan Dinas Peternakan Provinsi Jawa Timur (Subsidi 100%).</p>
             </div>
             <button type="button" onclick="document.getElementById('form-daftar-pameran').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-xs">Batal</button>
         </div>
@@ -257,7 +263,7 @@
             @csrf
             <div>
                 <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Usaha / Kelompok Ternak <span class="text-red-500">*</span></label>
-                <input type="text" name="business_name" required value="{{ $isPeternak ? (auth()->user()?->name ?? '') : '' }}" placeholder="Nama usaha atau kelompok ternak" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
+                <input type="text" name="business_name" required value="{{ $isPeternak ? (auth()->user()?->peternakProfile?->farm_name ?? auth()->user()?->name ?? '') : '' }}" placeholder="Nama usaha atau kelompok ternak" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
             </div>
             <div>
                 <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Pilihan Pameran <span class="text-red-500">*</span></label>
@@ -277,7 +283,7 @@
             </div>
             <div class="md:col-span-3 flex justify-end gap-2 pt-1">
                 <button type="submit" class="bg-primary-700 hover:bg-primary-800 text-white font-semibold px-4 py-2 rounded-lg shadow-xs transition">
-                    {{ $isAdmin ? 'Simpan Peserta Stand' : 'Kirim Pengajuan Stand' }}
+                    {{ $isAdmin ? 'Simpan Peserta Stand' : 'Kirim Pendaftaran Stand' }}
                 </button>
             </div>
         </form>
@@ -291,6 +297,9 @@
     <div class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             @forelse ($exhibitions as $expo)
+            @php
+                $myReg = $isPeternak ? $registrations->firstWhere('exhibition_id', $expo->id) : null;
+            @endphp
             <div class="bg-white dark:bg-gray-800 rounded-2xl border {{ $expo->is_featured ? 'border-primary-300 dark:border-primary-700/80 ring-1 ring-primary-500/20 shadow-xs' : 'border-gray-200 dark:border-gray-700 shadow-2xs' }} p-4 sm:p-5 flex flex-col justify-between hover:shadow-md transition">
                 <div>
                     <!-- Header Card: Badge & Admin Action Buttons (Edit & Hapus) -->
@@ -310,6 +319,24 @@
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
                                 Subsidi 100%
                             </span>
+
+                            @if($myReg)
+                                @if($myReg->status === 'approved')
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                                    <svg class="w-3 h-3 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                                    Terdaftar (Stand: {{ $myReg->stand_number ?? 'Binaan' }})
+                                </span>
+                                @elseif($myReg->status === 'pending')
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                                    <svg class="w-3 h-3 text-amber-600 dark:text-amber-400 animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Menunggu Verifikasi
+                                </span>
+                                @else
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-700">
+                                    Pengajuan Ditolak
+                                </span>
+                                @endif
+                            @endif
                         </div>
 
                         @if ($isAdmin)
@@ -408,13 +435,59 @@
                         Stand ({{ $expo->registered_stands_count }})
                     </a>
                     @elseif ($isPeternak)
-                    <button
-                        type="button"
-                        onclick="openDaftarStandModal({{ $expo->id }})"
+                        @if ($myReg)
+                            @if ($myReg->status === 'approved')
+                            <a
+                                href="{{ url('/pameran?tab=stand') }}"
+                                class="py-2 px-3 text-center bg-emerald-50 hover:bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 text-xs font-semibold rounded-lg transition shadow-2xs inline-flex items-center gap-1"
+                                title="Stand pameran Anda telah disetujui dinas. Klik untuk cek rincian stand."
+                            >
+                                <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                                <span>Stand: {{ $myReg->stand_number ?? 'Disetujui' }}</span>
+                            </a>
+                            @elseif ($myReg->status === 'pending')
+                            <a
+                                href="{{ url('/pameran?tab=stand') }}"
+                                class="py-2 px-3 text-center bg-amber-50 hover:bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:hover:bg-amber-900/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800 text-xs font-semibold rounded-lg transition shadow-2xs inline-flex items-center gap-1"
+                                title="Pengajuan stand sedang diverifikasi admin dinas. Klik untuk cek status."
+                            >
+                                <svg class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span>Menunggu Verifikasi</span>
+                            </a>
+                            @else
+                            <button
+                                type="button"
+                                onclick="openDaftarStandModal({{ $expo->id }}, '{{ addslashes($expo->title) }}')"
+                                class="py-2 px-3 text-center bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-semibold rounded-lg transition"
+                                title="Pengajuan sebelumnya ditolak. Klik untuk mendaftar ulang."
+                            >
+                                Daftar Ulang
+                            </button>
+                            @endif
+                        @elseif ($expo->stand_capacity > $expo->registered_stands_count)
+                        <button
+                            type="button"
+                            onclick="openDaftarStandModal({{ $expo->id }}, '{{ addslashes($expo->title) }}')"
+                            class="py-2 px-3 text-center bg-primary-700 hover:bg-primary-800 text-white text-xs font-semibold rounded-lg transition shadow-2xs"
+                        >
+                            Daftar Stand
+                        </button>
+                        @else
+                        <button
+                            type="button"
+                            disabled
+                            class="py-2 px-3 text-center bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 text-xs font-semibold rounded-lg cursor-not-allowed"
+                        >
+                            Stand Penuh
+                        </button>
+                        @endif
+                    @elseif (!auth()->check())
+                    <a
+                        href="{{ route('login') }}"
                         class="py-2 px-3 text-center bg-primary-700 hover:bg-primary-800 text-white text-xs font-semibold rounded-lg transition shadow-2xs"
                     >
-                        Ajukan Stand
-                    </button>
+                        Masuk untuk Daftar
+                    </a>
                     @endif
                 </div>
             </div>
@@ -490,13 +563,49 @@
                             Tutup
                         </button>
                         @if ($isPeternak)
-                        <button
-                            type="button"
-                            onclick="document.getElementById('modal-detail-expo-{{ $expo->id }}').classList.add('hidden'); openDaftarStandModal({{ $expo->id }});"
-                            class="px-4 py-2 text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 rounded-lg shadow-xs transition"
-                        >
-                            Ajukan Stand Sekarang
-                        </button>
+                            @if ($myReg)
+                                @if ($myReg->status === 'approved')
+                                <a
+                                    href="{{ url('/pameran?tab=stand') }}"
+                                    class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition inline-flex items-center gap-1.5"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                                    <span>Sudah Terdaftar (Stand: {{ $myReg->stand_number ?? 'Disetujui' }})</span>
+                                </a>
+                                @elseif ($myReg->status === 'pending')
+                                <a
+                                    href="{{ url('/pameran?tab=stand') }}"
+                                    class="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-xs transition inline-flex items-center gap-1.5"
+                                >
+                                    <svg class="w-3.5 h-3.5 animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    <span>Pengajuan Sedang Diverifikasi</span>
+                                </a>
+                                @else
+                                <button
+                                    type="button"
+                                    onclick="document.getElementById('modal-detail-expo-{{ $expo->id }}').classList.add('hidden'); openDaftarStandModal({{ $expo->id }}, '{{ addslashes($expo->title) }}');"
+                                    class="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-xs transition"
+                                >
+                                    Daftar Ulang Stand
+                                </button>
+                                @endif
+                            @elseif ($expo->stand_capacity > $expo->registered_stands_count)
+                            <button
+                                type="button"
+                                onclick="document.getElementById('modal-detail-expo-{{ $expo->id }}').classList.add('hidden'); openDaftarStandModal({{ $expo->id }}, '{{ addslashes($expo->title) }}');"
+                                class="px-4 py-2 text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 rounded-lg shadow-xs transition"
+                            >
+                                Daftar Stand Sekarang
+                            </button>
+                            @else
+                            <button
+                                type="button"
+                                disabled
+                                class="px-4 py-2 text-xs font-semibold text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-not-allowed"
+                            >
+                                Kuota Stand Penuh
+                            </button>
+                            @endif
                         @elseif ($isAdmin)
                         <button
                             type="button"
@@ -604,19 +713,21 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-2xs flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Total Pengajuan Stand</span>
+                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                        {{ $isAdmin ? 'Total Pengajuan Stand' : 'Stand Yang Saya Ajukan' }}
+                    </span>
                     <span class="p-1 rounded-md bg-blue-50 dark:bg-blue-950/60 text-primary-700 dark:text-primary-300">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
                     </span>
                 </div>
                 <div class="mt-2 flex items-baseline gap-2">
                     <span class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-                        {{ $registrations->count() }} Pelaku Usaha
+                        {{ $registrations->count() }} {{ $isAdmin ? 'Pelaku Usaha' : 'Pendaftaran' }}
                     </span>
                 </div>
             </div>
             <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-2">
-                Peternak &amp; UMKM Binaan Terdaftar
+                {{ $isAdmin ? 'Peternak & UMKM Binaan Terdaftar' : 'Pendaftaran Stand Pameran Aktif' }}
             </p>
         </div>
 
@@ -624,7 +735,9 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-2xs flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Stand Terverifikasi</span>
+                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                        {{ $isAdmin ? 'Stand Terverifikasi' : 'Stand Disetujui' }}
+                    </span>
                     <span class="p-1 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </span>
@@ -636,7 +749,7 @@
                 </div>
             </div>
             <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-2">
-                Memperoleh Nomor Booth Resmi
+                {{ $isAdmin ? 'Memperoleh Nomor Booth Resmi' : 'Nomor Stand Resmi Telah Terbit' }}
             </p>
         </div>
 
@@ -661,7 +774,7 @@
                 </div>
             </div>
             <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-2">
-                Verifikasi Dokumen Oleh Admin Dinas
+                {{ $isAdmin ? 'Verifikasi Dokumen Oleh Admin Dinas' : 'Sedang Ditinjau Petugas Disnak' }}
             </p>
         </div>
     </div>
@@ -671,10 +784,10 @@
         <div class="pb-3 border-b border-gray-100 dark:border-gray-700 mb-3.5 flex items-center justify-between">
             <div>
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">
-                    {{ $isAdmin ? 'Panel Verifikasi Peserta Stand Pameran' : 'Daftar Pengajuan Stand Pameran' }}
+                    {{ $isAdmin ? 'Panel Verifikasi Peserta Stand Pameran' : 'Daftar Stand Pameran Saya' }}
                 </h2>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    {{ $isAdmin ? 'Kelola persetujuan, tolak permohonan, atau alokasikan nomor stand pameran binaan.' : 'Daftar peserta terdaftar dan status fasilitas stand pameran dinas.' }}
+                    {{ $isAdmin ? 'Kelola persetujuan, tolak permohonan, atau alokasikan nomor stand pameran binaan.' : 'Status pengajuan stand dan nomor booth binaan Dinas Peternakan Anda.' }}
                 </p>
             </div>
             <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
@@ -766,7 +879,13 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-3.5 py-8 text-center text-gray-400 text-xs">Belum ada pengajuan stand pameran terdaftar.</td>
+                        <td colspan="6" class="px-3.5 py-8 text-center text-gray-400 text-xs">
+                            @if($isAdmin)
+                                Belum ada pengajuan stand pameran terdaftar.
+                            @else
+                                Anda belum memiliki pendaftaran stand pameran. Silakan pilih pameran di tab <a href="{{ url('/pameran?tab=agenda') }}" class="text-primary-700 dark:text-primary-400 font-semibold underline">Agenda Pameran</a> untuk mendaftar stand.
+                            @endif
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -883,13 +1002,17 @@
 </div>
 
 <script>
-function openDaftarStandModal(exhibitionId) {
+function openDaftarStandModal(exhibitionId, exhibitionTitle) {
     const form = document.getElementById('form-daftar-pameran');
     if (form) {
         form.classList.remove('hidden');
         const select = document.getElementById('select-exhibition-id');
         if (select && exhibitionId) {
             select.value = exhibitionId;
+        }
+        const titleSpan = document.getElementById('form-target-expo-name');
+        if (titleSpan) {
+            titleSpan.textContent = exhibitionTitle ? ' — ' + exhibitionTitle : '';
         }
         form.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }

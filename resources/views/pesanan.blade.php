@@ -12,43 +12,73 @@
                 <span class="text-slate-300">/</span>
                 <a href="{{ route('marketplace') }}" class="hover:text-slate-900 transition">Marketplace</a>
                 <span class="text-slate-300">/</span>
-                <span class="text-slate-900 font-semibold">Pesanan Saya</span>
+                <span class="text-slate-900 font-semibold">
+                    {{ auth()->check() && auth()->user()->isPeternak() ? 'Pesanan Masuk' : 'Pesanan Saya' }}
+                </span>
             </nav>
             <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-                {{ auth()->check() && auth()->user()->isUmum() ? 'Pesanan Saya' : (auth()->check() && auth()->user()->isPeternak() ? 'Kelola Transaksi Pesanan' : 'Semua Transaksi Pesanan') }}
+                @if(auth()->check() && auth()->user()->isPeternak())
+                    Pesanan Masuk dari Masyarakat
+                @elseif(auth()->check() && auth()->user()->isUmum())
+                    Pesanan Saya
+                @else
+                    Semua Transaksi Pesanan
+                @endif
             </h1>
             <p class="text-xs text-slate-500 mt-0.5">
-                {{ auth()->check() && auth()->user()->isUmum()
-                    ? 'Pantau status pengiriman, rincian biaya, dan riwayat belanja produk peternakan Anda secara real-time.'
-                    : 'Kelola alur pemrosesan pesanan dan pantau seluruh transaksi langsung dari masyarakat pembeli.' }}
+                @if(auth()->check() && auth()->user()->isPeternak())
+                    Kelola alur pemrosesan pesanan dan pantau seluruh transaksi pembelian komoditas ternak yang masuk dari masyarakat.
+                @elseif(auth()->check() && auth()->user()->isUmum())
+                    Pantau status pengiriman, rincian biaya, dan riwayat belanja produk peternakan Anda secara real-time.
+                @else
+                    Kelola alur pemrosesan pesanan dan pantau seluruh transaksi langsung dari masyarakat pembeli.
+                @endif
             </p>
         </div>
 
         <div class="flex items-center gap-2 shrink-0">
-            <a
-                href="{{ route('marketplace') }}"
-                class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200/80 px-3 py-1.5 rounded-lg transition shadow-2xs"
-            >
-                <svg class="w-3.5 h-3.5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                </svg>
-                <span>Belanja Produk Ternak</span>
-            </a>
+            @if(auth()->check() && auth()->user()->isPeternak())
+                <a
+                    href="{{ route('marketplace') }}"
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200/80 px-3 py-1.5 rounded-lg transition shadow-2xs"
+                >
+                    <svg class="w-3.5 h-3.5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                    </svg>
+                    <span>Kelola Produk Peternakan</span>
+                </a>
+            @else
+                <a
+                    href="{{ route('marketplace') }}"
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200/80 px-3 py-1.5 rounded-lg transition shadow-2xs"
+                >
+                    <svg class="w-3.5 h-3.5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                    </svg>
+                    <span>Belanja Produk Ternak</span>
+                </a>
+            @endif
         </div>
     </div>
 
     <!-- Quick Metrics Overview -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
         <div class="p-3 sm:p-3.5 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Pesanan</span>
+            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                {{ auth()->check() && auth()->user()->isPeternak() ? 'Total Pesanan Masuk' : 'Total Pesanan' }}
+            </span>
             <div class="mt-1 flex items-baseline justify-between">
                 <span class="text-lg sm:text-xl font-bold text-slate-900 tabular-nums">{{ $orderCounts['all'] }}</span>
-                <span class="text-[11px] text-slate-400">Semua riwayat</span>
+                <span class="text-[11px] text-slate-400">
+                    {{ auth()->check() && auth()->user()->isPeternak() ? 'Dari masyarakat' : 'Semua riwayat' }}
+                </span>
             </div>
         </div>
 
         <div class="p-3 sm:p-3.5 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Sedang Diproses</span>
+            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                {{ auth()->check() && auth()->user()->isPeternak() ? 'Perlu Diproses' : 'Sedang Diproses' }}
+            </span>
             <div class="mt-1 flex items-baseline justify-between">
                 <span class="text-lg sm:text-xl font-bold text-sky-700 tabular-nums">{{ $orderCounts['processing'] + $orderCounts['pending'] }}</span>
                 <span class="text-[11px] text-sky-600 font-medium">Pengemasan</span>
@@ -64,7 +94,9 @@
         </div>
 
         <div class="p-3 sm:p-3.5 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Selesai Diterima</span>
+            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                {{ auth()->check() && auth()->user()->isPeternak() ? 'Selesai Terkirim' : 'Selesai Diterima' }}
+            </span>
             <div class="mt-1 flex items-baseline justify-between">
                 <span class="text-lg sm:text-xl font-bold text-emerald-700 tabular-nums">{{ $orderCounts['completed'] }}</span>
                 <span class="text-[11px] text-emerald-600 font-medium">Transaksi tuntas</span>
@@ -175,14 +207,20 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
                         </svg>
                     </div>
-                    <h3 class="text-sm font-bold text-slate-900">Belum Ada Riwayat Pesanan</h3>
+                    <h3 class="text-sm font-bold text-slate-900">
+                        {{ auth()->check() && auth()->user()->isPeternak() ? 'Belum Ada Pesanan Masuk' : 'Belum Ada Riwayat Pesanan' }}
+                    </h3>
                     <p class="text-xs text-slate-500 mt-1 mb-4">
-                        {{ auth()->user()->isUmum()
-                            ? 'Pesanan produk peternakan yang Anda beli langsung dari peternak Jawa Timur akan tercatat dan dapat dipantau di sini.'
-                            : 'Belum ada transaksi pesanan yang masuk ke akun Anda saat ini.' }}
+                        @if(auth()->check() && auth()->user()->isPeternak())
+                            Pesanan komoditas hasil ternak yang dibeli oleh masyarakat akan masuk dan dapat Anda proses di sini.
+                        @elseif(auth()->check() && auth()->user()->isUmum())
+                            Pesanan produk peternakan yang Anda beli langsung dari peternak Jawa Timur akan tercatat dan dapat dipantau di sini.
+                        @else
+                            Belum ada transaksi pesanan yang masuk ke akun Anda saat ini.
+                        @endif
                     </p>
                     <a href="{{ route('marketplace') }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-lg transition">
-                        <span>Jelajahi Katalog Marketplace</span>
+                        <span>{{ auth()->check() && auth()->user()->isPeternak() ? 'Kelola Produk Peternakan' : 'Jelajahi Katalog Marketplace' }}</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
                     </a>
                 </div>
@@ -225,8 +263,21 @@
                                 </span>
                             </div>
 
-                            <div class="text-[11px] text-slate-500 font-medium">
-                                {{ $firstItem?->seller?->name ?? 'Peternak Binaan Jatim' }}
+                            <div class="text-[11px] font-medium">
+                                @if(auth()->check() && auth()->user()->isPeternak())
+                                    <span class="inline-flex items-center gap-1.5 text-slate-800 font-semibold bg-emerald-50 text-emerald-900 px-2.5 py-1 rounded-md border border-emerald-200/80">
+                                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                                        <span>Pemesan: <strong class="text-slate-900 font-bold">{{ $order->buyer?->name ?? 'Masyarakat Pembeli' }}</strong></span>
+                                        <span class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded">Masyarakat</span>
+                                        @if($order->buyer_phone)
+                                            <span class="text-emerald-700 bg-white px-1.5 py-0.2 rounded border border-emerald-200/80 font-mono text-[10px]">📱 {{ $order->buyer_phone }}</span>
+                                        @endif
+                                    </span>
+                                @else
+                                    <span class="text-slate-500">
+                                        {{ $firstItem?->seller?->name ?? 'Peternak Binaan Jatim' }}
+                                    </span>
+                                @endif
                             </div>
                         </div>
 
@@ -257,12 +308,20 @@
                                     <p class="text-[11px] text-slate-500 mt-0.5">
                                         {{ $totalItemCount }} produk · <span class="font-medium text-slate-700 tabular-nums">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
                                     </p>
+                                    @if(auth()->check() && auth()->user()->isPeternak() && $order->shipping_address)
+                                        <p class="text-[11px] text-slate-500 mt-1 flex items-center gap-1 truncate">
+                                            <span class="text-slate-400">📍 Kirim:</span>
+                                            <span class="text-slate-700 font-medium truncate">{{ $order->shipping_address }}</span>
+                                        </p>
+                                    @endif
                                 </div>
                             </div>
 
                             <!-- Total Payment Box -->
                             <div class="sm:text-right shrink-0">
-                                <span class="text-[10px] text-slate-400 block font-medium">Total Pembayaran</span>
+                                <span class="text-[10px] text-slate-400 block font-medium">
+                                    {{ auth()->check() && auth()->user()->isPeternak() ? 'Nilai Pesanan' : 'Total Pembayaran' }}
+                                </span>
                                 <span class="text-xs sm:text-sm font-bold text-slate-900 tabular-nums">
                                     Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                                 </span>
@@ -280,35 +339,88 @@
 
                             <!-- Direct Status Action Buttons -->
                             <div class="flex items-center gap-1.5" onclick="event.stopPropagation()">
-                                @if($order->status !== 'completed' && $order->status !== 'cancelled')
-                                    <!-- Konfirmasi Pesanan Diterima (Untuk Pembeli Masyarakat & Seller) -->
-                                    <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="inline" onsubmit="return confirm('Konfirmasi bahwa pesanan nomor {{ $order->order_code }} sudah Anda terima dengan baik?')">
-                                        @csrf
-                                        @method('PATCH')
-                                        <input type="hidden" name="status" value="completed">
-                                        <input type="hidden" name="from" value="pesanan">
-                                        <button type="submit" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition shadow-2xs">
-                                            Pesanan Diterima
-                                        </button>
-                                    </form>
+                                @if(auth()->check() && auth()->user()->isPeternak())
+                                    @if($order->status === 'pending')
+                                        <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="processing">
+                                            <input type="hidden" name="from" value="pesanan">
+                                            <button type="submit" class="px-2.5 py-1 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-lg transition shadow-2xs">
+                                                Proses &amp; Kemas
+                                            </button>
+                                        </form>
+                                    @elseif($order->status === 'confirmed' || $order->status === 'processing')
+                                        <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="shipped">
+                                            <input type="hidden" name="from" value="pesanan">
+                                            <button type="submit" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg transition shadow-2xs">
+                                                Kirim Pesanan
+                                            </button>
+                                        </form>
+                                    @elseif($order->status === 'shipped')
+                                        <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="inline" onsubmit="return confirm('Konfirmasi bahwa pesanan nomor {{ $order->order_code }} sudah sampai ke pembeli?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="completed">
+                                            <input type="hidden" name="from" value="pesanan">
+                                            <button type="submit" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition shadow-2xs">
+                                                Tandai Selesai
+                                            </button>
+                                        </form>
+                                    @elseif($order->status === 'completed')
+                                        <span class="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-md">
+                                            <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                            Pesanan Selesai
+                                        </span>
+                                    @else
+                                        <span class="text-xs text-slate-400 font-medium">Dibatalkan</span>
+                                    @endif
 
-                                    <!-- Batalkan Pesanan (Jika belum dikirim/selesai) -->
-                                    <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan nomor {{ $order->order_code }}?')">
-                                        @csrf
-                                        @method('PATCH')
-                                        <input type="hidden" name="status" value="cancelled">
-                                        <input type="hidden" name="from" value="pesanan">
-                                        <button type="submit" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg transition">
-                                            Batal
-                                        </button>
-                                    </form>
-                                @elseif($order->status === 'completed')
-                                    <span class="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-md">
-                                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                                        Pesanan Selesai
-                                    </span>
+                                    @if(!in_array($order->status, ['completed', 'cancelled']))
+                                        <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan nomor {{ $order->order_code }}?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="cancelled">
+                                            <input type="hidden" name="from" value="pesanan">
+                                            <button type="submit" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg transition">
+                                                Batal
+                                            </button>
+                                        </form>
+                                    @endif
                                 @else
-                                    <span class="text-xs text-slate-400 font-medium">Dibatalkan</span>
+                                    @if($order->status !== 'completed' && $order->status !== 'cancelled')
+                                        <!-- Konfirmasi Pesanan Diterima (Untuk Pembeli Masyarakat) -->
+                                        <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="inline" onsubmit="return confirm('Konfirmasi bahwa pesanan nomor {{ $order->order_code }} sudah Anda terima dengan baik?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="completed">
+                                            <input type="hidden" name="from" value="pesanan">
+                                            <button type="submit" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition shadow-2xs">
+                                                Pesanan Diterima
+                                            </button>
+                                        </form>
+
+                                        <!-- Batalkan Pesanan (Jika belum dikirim/selesai) -->
+                                        <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan nomor {{ $order->order_code }}?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="cancelled">
+                                            <input type="hidden" name="from" value="pesanan">
+                                            <button type="submit" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg transition">
+                                                Batal
+                                            </button>
+                                        </form>
+                                    @elseif($order->status === 'completed')
+                                        <span class="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-md">
+                                            <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                            Pesanan Selesai
+                                        </span>
+                                    @else
+                                        <span class="text-xs text-slate-400 font-medium">Dibatalkan</span>
+                                    @endif
                                 @endif
                             </div>
                         </div>
@@ -412,7 +524,11 @@
                                                     @endif
                                                 </div>
                                                 <div class="text-[10px] text-slate-400 mt-0.5">
-                                                    Peternak: {{ $item->seller?->name ?? 'Mitra Binaan Jatim' }}
+                                                    @if(auth()->check() && auth()->user()->isPeternak())
+                                                        <span class="text-emerald-700 font-medium">✓ Produk dari Peternakan Anda</span>
+                                                    @else
+                                                        Peternak: {{ $item->seller?->name ?? 'Mitra Binaan Jatim' }}
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -511,47 +627,96 @@
                                 </div>
                             </div>
 
-                            <!-- Informasi Penjual & Verifikasi Dinas -->
+                            <!-- Informasi Pihak Terkait & Verifikasi -->
                             <div class="p-3 rounded-xl border border-slate-200/90 bg-slate-50/50 flex items-center justify-between gap-3 text-xs">
                                 <div>
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Penjual / Peternak Binaan</span>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                        {{ auth()->check() && auth()->user()->isPeternak() ? 'Masyarakat Pembeli' : 'Penjual / Peternak Binaan' }}
+                                    </span>
                                     <span class="font-bold text-slate-900 text-xs">
-                                        {{ $firstItem?->seller?->name ?? 'Peternak Milenial Jatim' }}
+                                        {{ auth()->check() && auth()->user()->isPeternak() ? ($order->buyer?->name ?? 'Masyarakat Pembeli') : ($firstItem?->seller?->name ?? 'Peternak Milenial Jatim') }}
                                     </span>
                                     <span class="text-[11px] text-slate-500 block">
-                                        {{ $firstItem?->product?->region?->name ?? 'Jawa Timur' }}
+                                        {{ auth()->check() && auth()->user()->isPeternak() ? ($order->buyer_phone ?: ($order->buyer?->phone_number ?: 'Jawa Timur')) : ($firstItem?->product?->region?->name ?? 'Jawa Timur') }}
                                     </span>
                                 </div>
                                 <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold shrink-0">
-                                    ✓ Binaan Resmi
+                                    {{ auth()->check() && auth()->user()->isPeternak() ? '👤 Pemesan Terdaftar' : '✓ Binaan Resmi' }}
                                 </span>
                             </div>
 
                             <!-- Drawer Contextual Action Buttons in Source -->
                             <div class="pt-1.5 border-t border-slate-200 flex flex-col sm:flex-row items-center gap-2">
-                                @if($order->status !== 'completed' && $order->status !== 'cancelled')
-                                    <!-- Konfirmasi Pesanan Diterima Form -->
-                                    <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="w-full sm:flex-1" onsubmit="return confirm('Konfirmasi bahwa pesanan ini sudah Anda terima dengan baik?')">
-                                        @csrf
-                                        @method('PATCH')
-                                        <input type="hidden" name="status" value="completed">
-                                        <input type="hidden" name="from" value="pesanan">
-                                        <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition shadow-xs flex items-center justify-center gap-1.5">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                                            <span>Konfirmasi Pesanan Diterima</span>
-                                        </button>
-                                    </form>
+                                @if(auth()->check() && auth()->user()->isPeternak())
+                                    @if($order->status === 'pending')
+                                        <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="w-full sm:flex-1">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="processing">
+                                            <input type="hidden" name="from" value="pesanan">
+                                            <button type="submit" class="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg transition shadow-xs flex items-center justify-center gap-1.5">
+                                                <span>Proses &amp; Kemas Pesanan</span>
+                                            </button>
+                                        </form>
+                                    @elseif($order->status === 'confirmed' || $order->status === 'processing')
+                                        <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="w-full sm:flex-1">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="shipped">
+                                            <input type="hidden" name="from" value="pesanan">
+                                            <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition shadow-xs flex items-center justify-center gap-1.5">
+                                                <span>Kirim Pesanan ke Kurir</span>
+                                            </button>
+                                        </form>
+                                    @elseif($order->status === 'shipped')
+                                        <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="w-full sm:flex-1" onsubmit="return confirm('Konfirmasi bahwa pesanan sudah sampai ke pembeli?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="completed">
+                                            <input type="hidden" name="from" value="pesanan">
+                                            <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition shadow-xs flex items-center justify-center gap-1.5">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                                <span>Konfirmasi Pesanan Telah Diterima</span>
+                                            </button>
+                                        </form>
+                                    @endif
 
-                                    <!-- Batalkan Pesanan Form -->
-                                    <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="w-full sm:w-auto" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')">
-                                        @csrf
-                                        @method('PATCH')
-                                        <input type="hidden" name="status" value="cancelled">
-                                        <input type="hidden" name="from" value="pesanan">
-                                        <button type="submit" class="w-full sm:w-auto px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition">
-                                            Batalkan
-                                        </button>
-                                    </form>
+                                    @if(!in_array($order->status, ['completed', 'cancelled']))
+                                        <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="w-full sm:w-auto" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="cancelled">
+                                            <input type="hidden" name="from" value="pesanan">
+                                            <button type="submit" class="w-full sm:w-auto px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition">
+                                                Batalkan
+                                            </button>
+                                        </form>
+                                    @endif
+                                @else
+                                    @if($order->status !== 'completed' && $order->status !== 'cancelled')
+                                        <!-- Konfirmasi Pesanan Diterima Form -->
+                                        <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="w-full sm:flex-1" onsubmit="return confirm('Konfirmasi bahwa pesanan ini sudah Anda terima dengan baik?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="completed">
+                                            <input type="hidden" name="from" value="pesanan">
+                                            <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition shadow-xs flex items-center justify-center gap-1.5">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                                <span>Konfirmasi Pesanan Diterima</span>
+                                            </button>
+                                        </form>
+
+                                        <!-- Batalkan Pesanan Form -->
+                                        <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="w-full sm:w-auto" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="cancelled">
+                                            <input type="hidden" name="from" value="pesanan">
+                                            <button type="submit" class="w-full sm:w-auto px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition">
+                                                Batalkan
+                                            </button>
+                                        </form>
+                                    @endif
                                 @endif
 
                                 <button

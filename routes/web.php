@@ -67,6 +67,7 @@ Route::patch('/marketplace/orders/{order}/status', [MarketplaceController::class
 // Kelola Produk (Peternak & Admin)
 Route::middleware(['role:admin,peternak'])->group(function () {
     Route::post('/marketplace/products', [MarketplaceController::class, 'storeProduct'])->name('marketplace.products.store');
+    Route::match(['put', 'patch'], '/marketplace/products/{product}', [MarketplaceController::class, 'updateProduct'])->name('marketplace.products.update');
     Route::delete('/marketplace/products/{product}', [MarketplaceController::class, 'destroyProduct'])->name('marketplace.products.destroy');
 
     // Verifikasi Produk oleh Admin

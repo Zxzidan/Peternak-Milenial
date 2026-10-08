@@ -756,6 +756,51 @@ test('admin can update and delete exhibition while peternak cannot', function ()
     expect(Exhibition::find($expo->id))->toBeNull();
 });
 
+test('peternak registers directly via card and sees dynamic registration status without header button', function () {
+    $peternak = User::factory()->create(['role' => 'peternak']);
+    $expo1 = Exhibition::create([
+        'title' => 'Expo Sapi Perah Malang 2026',
+        'slug' => 'expo-sapi-perah-malang-2026',
+        'description' => 'Pameran sapi perah unggulan',
+        'facilities' => 'Booth Stand 3x3m, Chiller, Listrik',
+        'location' => 'Batu Malang',
+        'start_date' => now()->addDays(10)->toDateString(),
+        'end_date' => now()->addDays(12)->toDateString(),
+        'stand_capacity' => 20,
+        'registered_stands_count' => 0,
+        'is_featured' => true,
+    ]);
+
+    // Initial view: Peternak sees 'Daftar Stand', does NOT see '+ Ajukan Stand Pameran' header button
+    $response = $this->actingAs($peternak)->get(route('pameran'));
+    $response->assertStatus(200);
+    $response->assertDontSee('+ Ajukan Stand Pameran');
+    $response->assertSee('Daftar Stand');
+
+    // Peternak registers for expo
+    $reg = ExhibitionRegistration::create([
+        'exhibition_id' => $expo1->id,
+        'user_id' => $peternak->id,
+        'business_name' => 'Kandang Sapi Mandiri',
+        'exhibited_products' => 'Susu Segar',
+        'status' => 'pending',
+        'stand_number' => 'STD-EXP-01',
+    ]);
+
+    // View after register: Button changes to 'Menunggu Verifikasi'
+    $responseAfter = $this->actingAs($peternak)->get(route('pameran'));
+    $responseAfter->assertStatus(200);
+    $responseAfter->assertSee('Menunggu Verifikasi');
+
+    // Admin approves
+    $reg->update(['status' => 'approved']);
+
+    // View after approval: Button changes to show approved stand number
+    $responseApproved = $this->actingAs($peternak)->get(route('pameran'));
+    $responseApproved->assertStatus(200);
+    $responseApproved->assertSee('Stand: STD-EXP-01');
+});
+
 test('search query redirects correctly to target page', function () {
     $response = $this->get(route('search', ['query' => 'wabah']));
     $response->assertRedirect(route('darurat'));

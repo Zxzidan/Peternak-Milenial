@@ -12,6 +12,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class MarketplaceController extends Controller
@@ -255,6 +256,7 @@ class MarketplaceController extends Controller
             'stock' => ['required', 'integer', 'min:1'],
             'unit' => ['required', 'string', 'max:50'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
         ]);
 
         $seller = $currentUser;
@@ -262,6 +264,11 @@ class MarketplaceController extends Controller
 
         // Products uploaded by Peternak must be verified by Admin
         $isVerified = false;
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('products', 'public');
+        }
 
         $product = Product::create([
             'user_id' => $seller->id,
@@ -273,11 +280,66 @@ class MarketplaceController extends Controller
             'price' => $validated['price'],
             'stock' => $validated['stock'],
             'unit' => $validated['unit'],
+            'image_path' => $imagePath,
             'is_verified' => $isVerified,
             'status' => 'active',
         ]);
 
         $msg = "Produk '{$product->name}' berhasil diunggah! Menunggu proses verifikasi Admin Dinas sebelum berstatus tervalidasi.";
+
+        if ($request->has('tab')) {
+            return redirect()->to(route('marketplace', ['tab' => $request->tab]))->with('success', $msg);
+        }
+
+        return redirect()->route('marketplace')->with('success', $msg);
+    }
+
+    /**
+     * Update product details & image (Owner Peternak or Admin).
+     */
+    public function updateProduct(Request $request, Product $product): RedirectResponse
+    {
+        $currentUser = auth()->user() ?? (app()->runningUnitTests() ? User::where('role', 'peternak')->first() : null);
+
+        if (! $currentUser) {
+            return redirect()->route('login')->with('error', 'Silakan masuk ke akun Anda untuk memperbarui produk.');
+        }
+
+        if (! $currentUser->isAdmin() && $product->user_id !== $currentUser->id) {
+            abort(403, 'Anda hanya dapat memperbarui produk milik Anda sendiri.');
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'product_category_id' => ['required', 'exists:product_categories,id'],
+            'region_id' => ['nullable', 'exists:regions,id'],
+            'price' => ['required', 'numeric', 'min:100'],
+            'stock' => ['required', 'integer', 'min:0'],
+            'unit' => ['required', 'string', 'max:50'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+        ]);
+
+        $updateData = [
+            'name' => $validated['name'],
+            'product_category_id' => $validated['product_category_id'],
+            'region_id' => $validated['region_id'] ?? $product->region_id,
+            'price' => $validated['price'],
+            'stock' => $validated['stock'],
+            'unit' => $validated['unit'],
+            'description' => $validated['description'],
+        ];
+
+        if ($request->hasFile('image')) {
+            if ($product->image_path && Storage::disk('public')->exists($product->image_path)) {
+                Storage::disk('public')->delete($product->image_path);
+            }
+            $updateData['image_path'] = $request->file('image')->store('products', 'public');
+        }
+
+        $product->update($updateData);
+
+        $msg = "Produk '{$product->name}' berhasil diperbarui!";
 
         if ($request->has('tab')) {
             return redirect()->to(route('marketplace', ['tab' => $request->tab]))->with('success', $msg);
@@ -323,6 +385,12 @@ class MarketplaceController extends Controller
         if ($currentUser->isAdmin()) {
             return redirect()->route('marketplace')
                 ->with('error', 'Akun Admin Dinas berfungsi sebagai pengelola sistem dan tidak melakukan transaksi pembelian produk.');
+        }
+
+        // Peternak is dedicated to selling products
+        if ($currentUser->isPeternak()) {
+            return redirect()->route('marketplace')
+                ->with('error', 'Akun Peternak difokuskan untuk penjualan produk hasil peternakan.');
         }
 
         $validated = $request->validate([
