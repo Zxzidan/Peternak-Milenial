@@ -7,11 +7,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Masuk ke Akun — Peternak Milenial Jawa Timur</title>
 
-    <!-- Google Fonts: Poppins -->
+    <!-- Typography: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&display=swap"
         rel="stylesheet">
 
     <!-- Flowbite & Vite Scripts -->
@@ -19,7 +19,7 @@
 
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #f8fafc;
         }
     </style>
@@ -61,7 +61,7 @@
                     <div class="relative z-10 space-y-5">
                         <div>
                             <h2
-                                class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight drop-shadow-sm">
+                                class="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-snug drop-shadow-sm">
                                 Manajemen Kandang &amp; Sapi Perah Modern
                             </h2>
                             <p
@@ -117,7 +117,7 @@
                     <!-- Top: Brand Header with Official Logo -->
                     <div class="flex items-center justify-between pb-5 border-b border-slate-100">
                         <a href="{{ route('landing') }}" class="flex items-center group" title="Kembali ke Beranda">
-                            <img src="{{ asset('img/logoaplikasi2.png') }}" alt="Peternak Milenial Jawa Timur"
+                            <img src="{{ asset('img/Peternak Milenial.png') }}" alt="Peternak Milenial Jawa Timur"
                                 class="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105" />
                         </a>
                         <a href="{{ route('landing') }}"
@@ -139,7 +139,7 @@
                                 class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/70 mb-3 sm:mb-3.5">
                                 Portal Masuk Akun
                             </span>
-                            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                                 Welcome back
                             </h1>
                             <p class="text-xs sm:text-sm text-slate-500 mt-2.5 sm:mt-3 leading-relaxed">

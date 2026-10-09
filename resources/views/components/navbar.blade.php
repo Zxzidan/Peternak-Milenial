@@ -34,7 +34,7 @@
                 <!-- Mobile Brand Logo (Visible only on mobile topbar when drawer is closed) -->
                 <a href="{{ auth()->check() ? route('dashboard') : route('landing') }}" class="sm:hidden flex items-center ms-1 group" title="Peternak Milenial Jawa Timur">
                     <img
-                        src="{{ asset('img/logoaplikasi2.png') }}"
+                        src="{{ asset('img/Peternak Milenial.png') }}"
                         alt="Peternak Milenial Logo"
                         class="h-7 w-auto object-contain dark:brightness-110 group-hover:opacity-90 transition-opacity"
                     />

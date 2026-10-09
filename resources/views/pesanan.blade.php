@@ -620,7 +620,7 @@
                                             <span class="text-xs font-bold text-slate-900 block">Total Pembayaran</span>
                                             <span class="text-[10px] text-slate-400">Termasuk PPN &amp; subsidi logistik</span>
                                         </div>
-                                        <span class="text-sm sm:text-base font-extrabold text-slate-900 tabular-nums">
+                                        <span class="text-sm sm:text-base font-bold text-slate-900 tabular-nums">
                                             Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                                         </span>
                                     </div>

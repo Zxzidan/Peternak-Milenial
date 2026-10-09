@@ -64,7 +64,7 @@
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/20 text-white border border-white/30 mb-2">
                         🛒 Portal Belanja Ternak Jatim
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-extrabold text-white leading-tight">
+                    <h2 class="text-xl sm:text-2xl font-bold text-white leading-tight">
                         Selamat Datang, {{ auth()->user()->name }}!
                     </h2>
                     <p class="text-xs sm:text-sm text-orange-50/90 mt-1.5 leading-relaxed">
@@ -101,7 +101,7 @@
             <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs flex items-center justify-between">
                 <div>
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Produk Tersedia</span>
-                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">{{ $activeProductCount }}</h3>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-slate-900">{{ $activeProductCount }}</h3>
                     <span class="text-xs text-slate-500 mt-1 block">Produk Terverifikasi Dinas</span>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center text-2xl">
@@ -112,7 +112,7 @@
             <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs flex items-center justify-between">
                 <div>
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Pesanan Saya</span>
-                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">{{ $umumMetrics['myOrdersCount'] }}</h3>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-slate-900">{{ $umumMetrics['myOrdersCount'] }}</h3>
                     <span class="text-xs text-slate-500 mt-1 block">Transaksi Aktif / Berjalan</span>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">
@@ -123,7 +123,7 @@
             <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs flex items-center justify-between">
                 <div>
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Komoditas Unggulan</span>
-                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">{{ $commodityCount }}</h3>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-slate-900">{{ $commodityCount }}</h3>
                     <span class="text-xs text-slate-500 mt-1 block">Sektor Pangan &amp; Peternakan</span>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl">
@@ -136,7 +136,7 @@
         <div class="bg-white rounded-2xl border border-slate-200/90 p-6 lg:p-7 shadow-xs">
             <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
                 <div>
-                    <h3 class="text-base font-extrabold text-slate-900">Rekomendasi Produk Pilihan Hari Ini</h3>
+                    <h3 class="text-base font-semibold text-slate-900">Rekomendasi Produk Pilihan Hari Ini</h3>
                     <p class="text-xs text-slate-500">Produk peternakan terverifikasi langsung dari kelompok peternak Jawa Timur</p>
                 </div>
                 <a href="{{ route('marketplace') }}" class="text-xs font-bold text-orange-600 hover:text-orange-700">
@@ -174,7 +174,7 @@
                     <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                         <div>
                             <span class="text-[10px] text-slate-400 block">Harga</span>
-                            <span class="font-extrabold text-orange-600 text-sm">Rp {{ number_format($fp->price, 0, ',', '.') }}</span>
+                            <span class="font-bold text-orange-600 text-sm">Rp {{ number_format($fp->price, 0, ',', '.') }}</span>
                         </div>
                         <a href="{{ route('marketplace') }}" class="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs transition shadow-2xs">
                             Beli Sekarang
@@ -192,7 +192,7 @@
         <div class="bg-white rounded-2xl border border-slate-200/90 p-6 lg:p-7 shadow-xs">
             <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
                 <div>
-                    <h3 class="text-base font-extrabold text-slate-900">Pesanan Terakhir Saya</h3>
+                    <h3 class="text-base font-semibold text-slate-900">Pesanan Terakhir Saya</h3>
                     <p class="text-xs text-slate-500">Pantau transaksi belanja terkini</p>
                 </div>
                 <a href="{{ route('pesanan') }}" class="text-xs font-bold text-orange-600 hover:text-orange-700">
@@ -637,7 +637,7 @@ function initCharts() {
             chart: {
                 type: 'bar',
                 height: 310,
-                fontFamily: 'Poppins, sans-serif',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
                 toolbar: { show: false }
             },
             plotOptions: {
@@ -660,7 +660,7 @@ function initCharts() {
                 },
                 style: {
                     fontSize: '11px',
-                    fontFamily: 'Poppins, sans-serif',
+                    fontFamily: 'Plus Jakarta Sans, sans-serif',
                     fontWeight: 600,
                     colors: ['#0f172a']
                 },
@@ -723,7 +723,7 @@ function initCharts() {
             chart: {
                 type: 'bar',
                 height: 310,
-                fontFamily: 'Poppins, sans-serif',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
                 toolbar: { show: false }
             },
             plotOptions: {
@@ -747,7 +747,7 @@ function initCharts() {
                 offsetY: -20,
                 style: {
                     fontSize: '11px',
-                    fontFamily: 'Poppins, sans-serif',
+                    fontFamily: 'Plus Jakarta Sans, sans-serif',
                     fontWeight: 600,
                     colors: [textColor]
                 }

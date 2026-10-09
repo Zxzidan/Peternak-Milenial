@@ -10,6 +10,10 @@
     }
     $isAdmin = auth()->check() && auth()->user()->isAdmin();
     $isPeternak = auth()->check() && auth()->user()->isPeternak();
+    $isUmum = auth()->check() && auth()->user()->isUmum();
+    if ($isUmum && $activeTab === 'stand') {
+        $activeTab = 'agenda';
+    }
 @endphp
 
 <div class="space-y-6 sm:space-y-8 pt-1 sm:pt-2">
@@ -30,7 +34,11 @@
                 </h1>
                 <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed">
                     @if($activeTab === 'agenda')
-                        Temu bisnis, promosi komoditas unggulan peternak, dan pameran teknologi peternakan Jawa Timur.
+                        @if($isUmum)
+                            Katalog agenda pameran &amp; expo peternakan Jawa Timur. Terbuka untuk masyarakat umum tanpa perlu mendaftar.
+                        @else
+                            Temu bisnis, promosi komoditas unggulan peternak, dan pameran teknologi peternakan Jawa Timur.
+                        @endif
                     @elseif($activeTab === 'stand')
                         {{ $isAdmin ? 'Verifikasi pengajuan kepesertaan stand pameran dinas dan alokasi booth peternak.' : 'Status pengajuan stand pameran dan fasilitas booth binaan Dinas Peternakan Jawa Timur.' }}
                     @elseif($activeTab === 'kalender')
@@ -76,9 +84,16 @@
                 @else
                     {{-- Peternak & Publik: Hanya info badge di header, pendaftaran langsung via kartu pameran --}}
                     @if($activeTab === 'agenda')
+                        @if($isUmum)
+                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                            <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span>Bebas Kunjungan Pengunjung</span>
+                        </span>
+                        @else
                         <span class="inline-flex items-center text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
                             {{ $exhibitions->count() }} Agenda Expo Terbuka
                         </span>
+                        @endif
                     @elseif($activeTab === 'stand' && $isPeternak)
                         <span class="inline-flex items-center text-xs font-medium text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-3 py-2 rounded-lg border border-primary-200 dark:border-primary-800">
                             {{ $registrations->count() }} Stand Terdaftar Saya
@@ -101,12 +116,14 @@
                 >
                     Agenda Pameran
                 </a>
+                @if(!$isUmum)
                 <a
                     href="{{ url('/pameran?tab=stand') }}"
                     class="px-3.5 py-1.5 rounded-md font-medium transition {{ $activeTab === 'stand' ? 'bg-primary-700 text-white font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }}"
                 >
                     {{ $isAdmin ? 'Verifikasi Peserta (' . $registrations->count() . ')' : 'Stand Terdaftar (' . $registrations->count() . ')' }}
                 </a>
+                @endif
                 <a
                     href="{{ url('/pameran?tab=kalender') }}"
                     class="px-3.5 py-1.5 rounded-md font-medium transition {{ $activeTab === 'kalender' ? 'bg-primary-700 text-white font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }}"
@@ -135,6 +152,26 @@
             <span>{{ session('error') }}</span>
         </div>
         <button type="button" onclick="this.parentElement.remove()" class="text-red-600 hover:text-red-900 dark:hover:text-white">✕</button>
+    </div>
+    @endif
+
+    {{-- Info Card Khusus Masyarakat Umum --}}
+    @if($isUmum && $activeTab === 'agenda')
+    <div class="p-3.5 sm:p-4 bg-emerald-50/90 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200/90 dark:border-emerald-800/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+        <div class="flex items-start sm:items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
+            </div>
+            <div>
+                <h4 class="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">Informasi Kunjungan Pameran untuk Masyarakat</h4>
+                <p class="text-xs text-gray-600 dark:text-gray-300 mt-0.5 leading-relaxed">
+                    Masyarakat umum dapat melihat agenda pameran di bawah ini dan langsung hadir di lokasi secara <strong>gratis tanpa perlu mendaftar</strong>.
+                </p>
+            </div>
+        </div>
+        <span class="inline-flex shrink-0 items-center text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 bg-white dark:bg-gray-800 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-full shadow-2xs">
+            ✓ Bebas Masuk Langsung
+        </span>
     </div>
     @endif
 
@@ -246,6 +283,7 @@
     </div>
     @endif
 
+    @if($isAdmin || $isPeternak)
     <!-- Form Pengajuan Stand (Collapsible) -->
     <div id="form-daftar-pameran" class="hidden bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-4 sm:p-5 shadow-xs">
         <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700 mb-3.5">
@@ -288,6 +326,7 @@
             </div>
         </form>
     </div>
+    @endif
 
     {{-- ======================================================== --}}
     {{-- TAB 1: AGENDA PAMERAN & EXPO                             --}}
@@ -316,9 +355,15 @@
                             </span>
                             @endif
 
+                            @if($isUmum)
+                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+                                Bebas Masuk (Tanpa Daftar)
+                            </span>
+                            @else
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
                                 Subsidi 100%
                             </span>
+                            @endif
 
                             @if($myReg)
                                 @if($myReg->status === 'approved')
@@ -386,17 +431,24 @@
                             <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
                             <span class="truncate">{{ $expo->location }}</span>
                         </div>
+                        @if($isUmum)
+                        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                            <svg class="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span>Kunjungan: <strong class="text-emerald-700 dark:text-emerald-400">Terbuka Untuk Umum</strong> (Gratis &amp; Tanpa Pendaftaran)</span>
+                        </div>
+                        @else
                         <div class="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                             <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.651V9.35m0 0a3.001 3.001 0 003.75-.614A2.993 2.993 0 009 9.35c.704 0 1.352-.243 1.868-.654a3.004 3.004 0 004.264 0A2.993 2.993 0 0017 9.35a3.001 3.001 0 003.75-.614M3.75 9.349L3 3h18l-.75 6.349" /></svg>
                             <span>Stand: <strong class="text-gray-900 dark:text-white">{{ $expo->registered_stands_count }} / {{ $expo->stand_capacity }}</strong> ({{ max(0, $expo->stand_capacity - $expo->registered_stands_count) }} Tersedia)</span>
                         </div>
+                        @endif
                     </div>
 
                     <!-- Highlight Fasilitas Stand & Peserta -->
                     <div class="mt-3.5 pt-3 border-t border-gray-100 dark:border-gray-700">
                         <div class="text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>
-                            <span>Fasilitas Stand Binaan:</span>
+                            <span>{{ $isUmum ? 'Daya Tarik & Fasilitas Pameran:' : 'Fasilitas Stand Binaan:' }}</span>
                         </div>
                         <div class="flex flex-wrap gap-1.5">
                             @php
@@ -418,6 +470,16 @@
 
                 <!-- Footer Card Action Buttons -->
                 <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center gap-2">
+                    @if($isUmum)
+                    <button
+                        type="button"
+                        onclick="document.getElementById('modal-detail-expo-{{ $expo->id }}').classList.remove('hidden')"
+                        class="w-full py-2.5 px-3 text-center bg-primary-50 hover:bg-primary-100 text-primary-700 dark:bg-primary-950/60 dark:hover:bg-primary-900/60 dark:text-primary-300 border border-primary-200 dark:border-primary-800 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 shadow-2xs"
+                    >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        <span>Lihat Detail Pameran</span>
+                    </button>
+                    @else
                     <button
                         type="button"
                         onclick="document.getElementById('modal-detail-expo-{{ $expo->id }}').classList.remove('hidden')"
@@ -489,6 +551,7 @@
                         Masuk untuk Daftar
                     </a>
                     @endif
+                    @endif
                 </div>
             </div>
 
@@ -503,9 +566,15 @@
                             ★ Agenda Utama Dinas
                         </span>
                         @endif
+                        @if($isUmum)
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+                            Terbuka untuk Umum (Gratis)
+                        </span>
+                        @else
                         <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
                             Fasilitas Subsidi 100%
                         </span>
+                        @endif
                     </div>
 
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white leading-snug">
@@ -513,9 +582,22 @@
                     </h3>
 
                     <div class="mt-4 space-y-3.5 text-xs">
+                        @if($isUmum)
+                        <!-- Alert Reassurance Masyarakat -->
+                        <div class="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800/40 flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <div>
+                                <span class="text-xs font-bold text-emerald-900 dark:text-emerald-200 block">Kunjungan Terbuka untuk Masyarakat Umum</span>
+                                <p class="text-[11px] text-emerald-700 dark:text-emerald-300 mt-0.5 leading-relaxed">
+                                    Masyarakat umum dapat langsung hadir di lokasi secara <strong>gratis tanpa perlu mendaftar</strong>. Pendaftaran stand hanya diperuntukkan bagi pelaku usaha peternak binaan yang ingin membuka booth pameran produk.
+                                </p>
+                            </div>
+                        </div>
+                        @endif
+
                         <!-- Rincian Isi & Kegiatan -->
                         <div class="p-3 bg-gray-50 dark:bg-gray-750/40 rounded-xl border border-gray-100 dark:border-gray-700">
-                            <span class="font-bold text-gray-900 dark:text-white block mb-1">📋 Isi &amp; Fokus Rangkaian Acara:</span>
+                            <span class="font-bold text-gray-900 dark:text-white block mb-1">📋 Isi &amp; Rangkaian Acara:</span>
                             <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-[11px] whitespace-pre-line">
                                 {{ $expo->description }}
                             </p>
@@ -525,7 +607,7 @@
                         <div class="p-3 bg-cyan-50/50 dark:bg-cyan-950/30 rounded-xl border border-cyan-100 dark:border-cyan-800/40">
                             <span class="font-bold text-cyan-900 dark:text-cyan-200 block mb-1.5 flex items-center gap-1.5">
                                 <svg class="w-4 h-4 text-cyan-700 dark:text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>
-                                Fasilitas yang Disediakan Untuk Peserta:
+                                {{ $isUmum ? 'Daya Tarik & Fasilitas yang Disajikan:' : 'Fasilitas yang Disediakan Untuk Peserta:' }}
                             </span>
                             <ul class="space-y-1.5 text-[11px] text-gray-700 dark:text-gray-300">
                                 @foreach ($facilityList as $facItem)
@@ -547,10 +629,17 @@
                                 <span class="text-gray-400 block text-[10px]">Lokasi Gedung / Tempat</span>
                                 <strong class="text-gray-800 dark:text-gray-200">{{ $expo->location }}</strong>
                             </div>
+                            @if($isUmum)
+                            <div class="p-2.5 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-lg border border-emerald-100 dark:border-emerald-800/30 col-span-2">
+                                <span class="text-emerald-600 dark:text-emerald-400 block text-[10px] font-medium">Akses Kunjungan</span>
+                                <strong class="text-emerald-800 dark:text-emerald-300">Gratis Masuk untuk Seluruh Pengunjung Umum (Tanpa Perlu Mendaftar)</strong>
+                            </div>
+                            @else
                             <div class="p-2.5 bg-gray-50 dark:bg-gray-750/30 rounded-lg border border-gray-100 dark:border-gray-700 col-span-2">
                                 <span class="text-gray-400 block text-[10px]">Alokasi Stand Booth</span>
                                 <strong class="text-gray-800 dark:text-gray-200">{{ $expo->registered_stands_count }} Terdaftar dari {{ $expo->stand_capacity }} Kuota (Tersedia: {{ max(0, $expo->stand_capacity - $expo->registered_stands_count) }} Stand)</strong>
                             </div>
+                            @endif
                         </div>
                     </div>
 
@@ -558,9 +647,9 @@
                         <button
                             type="button"
                             onclick="document.getElementById('modal-detail-expo-{{ $expo->id }}').classList.add('hidden')"
-                            class="px-3.5 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
+                            class="px-4 py-2 text-xs font-semibold {{ $isUmum ? 'text-white bg-primary-700 hover:bg-primary-800 shadow-xs' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }} rounded-lg transition"
                         >
-                            Tutup
+                            {{ $isUmum ? 'Tutup Detail' : 'Tutup' }}
                         </button>
                         @if ($isPeternak)
                             @if ($myReg)

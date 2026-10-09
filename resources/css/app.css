@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&display=swap');
 @import 'tailwindcss';
 
 @source '../views/**/*.blade.php';
@@ -9,7 +9,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans: 'Poppins', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
     /* Brand Primary: Royal Navy Blue (Word "Peternak" & Bull Silhouette: #013A85) */
     --color-primary-50: #eff6fc;
@@ -112,6 +112,17 @@
 html,
 body {
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+    font-family: inherit;
 }
 
 .dark {
@@ -194,7 +205,15 @@ body {
     margin-left: 0;
 }
 
-/* ApexCharts dark mode override */
+/* ApexCharts typography and dark mode overrides */
+.apexcharts-canvas,
+.apexcharts-canvas text,
+.apexcharts-tooltip,
+.apexcharts-legend-text,
+.apexcharts-datalabel {
+    font-family: var(--font-sans) !important;
+}
+
 .dark .apexcharts-text tspan {
     fill: #9ca3af !important;
 }

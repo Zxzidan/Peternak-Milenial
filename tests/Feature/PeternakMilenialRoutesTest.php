@@ -35,7 +35,7 @@ test('landing page renders as initial route with cta and login buttons', functio
     $response->assertSee('Peternak Muda');
     $response->assertSee('nav-login-btn', false);
     $response->assertSee('nav-masuk-btn', false);
-    $response->assertSee('hero-masuk-btn', false);
+    $response->assertDontSee('hero-masuk-btn', false);
     $response->assertSee('hero-daftar-btn', false);
     $response->assertSee('Dinas Peternakan Provinsi Jawa Timur');
     $response->assertSee(route('login'));
@@ -172,11 +172,11 @@ test('pameran page renders successfully', function () {
         ->assertSee('Kalender Terpadu Kegiatan', false);
 });
 
-test('flowbite dashboard includes poppins and layout controls', function () {
+test('flowbite dashboard includes plus jakarta sans and layout controls', function () {
     $response = $this->get(route('dashboard'));
 
     $response->assertStatus(200);
-    $response->assertSee('Poppins');
+    $response->assertSee('Plus Jakarta Sans');
     $response->assertDontSee('id="theme-toggle"', false);
     $response->assertSee('data-drawer-target="top-bar-sidebar"', false);
     $response->assertSee('data-drawer-toggle="top-bar-sidebar"', false);
@@ -954,7 +954,7 @@ test('login and register pages render in bright theme without preview toolbar an
         $response->assertDontSee('<html lang="id" class="dark">');
 
         // References logo in img folder
-        $response->assertSee('img/logoaplikasi2.png');
+        $response->assertSee('img/Peternak Milenial.png');
     }
 
     // Login page uses single full hero image with gradient (hiasan baru 2.jpg)
@@ -1112,4 +1112,66 @@ test('masyarakat umum is restricted to public features and blocked with 403 on p
     $order = Order::where('buyer_id', $umum->id)->latest()->first();
     expect($order)->not->toBeNull();
     expect($order->buyer?->name)->toBe($umum->name);
+});
+
+test('masyarakat umum can view pameran without needing to register stand and cannot register stand', function () {
+    $umum = User::where('role', 'umum')->first() ?? User::factory()->create(['role' => 'umum']);
+    $exhibition = Exhibition::first();
+
+    $response = $this->actingAs($umum)->get(route('pameran'));
+    $response->assertStatus(200);
+    $response->assertSee('Informasi Kunjungan Pameran untuk Masyarakat');
+    $response->assertSee('Bebas Masuk (Tanpa Daftar)');
+    $response->assertSee('Lihat Detail Pameran');
+    $response->assertDontSee('Stand Terdaftar');
+    $response->assertDontSee('Daftar Stand');
+
+    // Trying to access stand tab as umum defaults to agenda
+    $standTabResponse = $this->actingAs($umum)->get(route('pameran', ['tab' => 'stand']));
+    $standTabResponse->assertStatus(200);
+    $standTabResponse->assertDontSee('Stand Terdaftar');
+
+    // Registering stand as umum is blocked with 403
+    $this->actingAs($umum)->post(route('pameran.register'), [
+        'exhibition_id' => $exhibition->id,
+        'business_name' => 'Usaha Umum',
+        'exhibited_products' => 'Produk',
+    ])->assertStatus(403);
+});
+
+test('landing page renders dedicated registration section and cta for masyarakat umum', function () {
+    $response = $this->get(route('landing'));
+
+    $response->assertStatus(200);
+    $response->assertSee('Pendaftaran Akun Masyarakat Umum & Konsumen');
+    $response->assertSee('Tanpa Syarat Kepemilikan Ternak');
+    $response->assertSee('Daftar Akun Masyarakat');
+    $response->assertSee(route('register', ['role' => 'umum']));
+});
+
+test('user can register as masyarakat umum without livestock fields and is redirected to marketplace', function () {
+    $data = [
+        'name' => 'Budi Santoso Warga',
+        'email' => 'budisantoso.warga@example.com',
+        'phone_number' => '081234567890',
+        'kabupaten' => 'Kabupaten Malang',
+        'kecamatan' => 'Kepanjen',
+        'desa' => 'Kepanjen',
+        'password' => 'password123',
+        'password_confirmation' => 'password123',
+        'role' => 'umum',
+    ];
+
+    $response = $this->post(route('register.submit'), $data);
+
+    $response->assertRedirect(route('marketplace'));
+    $this->assertAuthenticated();
+
+    $created = User::where('email', 'budisantoso.warga@example.com')->first();
+    expect($created)->not->toBeNull();
+    expect($created->name)->toBe('Budi Santoso Warga');
+    expect($created->role)->toBe('umum');
+    expect($created->isUmum())->toBeTrue();
+    expect($created->livestock_type)->toBeNull();
+    expect($created->livestock_count)->toBeNull();
 });

@@ -8,14 +8,14 @@
     <div class="sidebar-brand-container h-14 flex items-center justify-between px-3.5 sm:px-4 border-b border-gray-200 dark:border-gray-700 shrink-0 bg-white dark:bg-gray-800">
         <a href="{{ auth()->check() ? route('dashboard') : route('landing') }}" class="flex items-center gap-2 group overflow-hidden" title="Peternak Milenial Jawa Timur">
             <img
-                src="{{ asset('img/logoaplikasi2.png') }}"
+                src="{{ asset('img/Peternak Milenial.png') }}"
                 alt="Peternak Milenial Logo"
                 class="h-8 w-auto max-w-[170px] object-contain sidebar-brand-full group-hover:opacity-90 transition-opacity"
             />
             <img
-                src="{{ asset('img/logoaplikasi2.png') }}"
+                src="{{ asset('img/logoaplikasi1.png') }}"
                 alt="Peternak Milenial"
-                class="h-7.5 w-7.5 object-cover object-left hidden sidebar-brand-collapsed rounded"
+                class="h-7.5 w-7.5 object-contain hidden sidebar-brand-collapsed rounded"
             />
             <span class="sr-only">Peternak Milenial</span>
         </a>

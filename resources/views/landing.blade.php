@@ -1,80 +1,99 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id" class="scroll-smooth overflow-x-hidden">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Peternak Milenial Jatim — Portal Resmi Dinas Peternakan Provinsi Jawa Timur</title>
 
-    <!-- Google Fonts: Outfit (Editorial Grotesque) -->
+    <!-- Typography: Plus Jakarta Sans & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:300,400,500,600,700,800" rel="stylesheet" />
 
     <!-- Vite Styles & Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
         :root {
-            --font-primary: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --brand-navy: #013a85;
-            --brand-cyan: #009fd2;
-            --brand-green: #209527;
-            --brand-gold: #fbbb03;
+            --font-primary: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --font-inter: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        }
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
         body {
             font-family: var(--font-primary);
-            background-color: #f8fafc;
-            color: #0f172a;
+            background-color: #faf8ff;
+            color: #131b2e;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
 
-        /* Subtle tactile grain overlay */
-        .bg-grain {
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+        /* Seamless Horizontal Marquee Ticker with Hover-Pause */
+        @keyframes marquee-scroll {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+            100% {
+                transform: translate3d(-50%, 0, 0);
+            }
         }
 
-        /* Double-bezel haptic container technique */
-        .double-bezel {
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03), 0 10px 25px -5px rgba(1, 58, 133, 0.04);
+        .marquee-track {
+            display: flex;
+            width: max-content;
+            animation: marquee-scroll 28s linear infinite;
+            will-change: transform;
         }
 
-        .double-bezel:hover {
-            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 20px 35px -10px rgba(1, 58, 133, 0.08);
+        .marquee-container:hover .marquee-track {
+            animation-play-state: paused;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .marquee-track {
+                animation: none;
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 selection:bg-[#013a85] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden bg-grain">
+<body class="bg-[#faf8ff] text-[#131b2e] selection:bg-indigo-700 selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
 
-    <!-- 1. Floating Fluid Navigation Bar -->
-    <div class="fixed top-3 sm:top-5 left-0 right-0 z-50 px-3 sm:px-6 flex justify-center pointer-events-none">
-        <header class="w-full max-w-6xl bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl sm:rounded-full px-4 sm:px-6 py-2.5 shadow-sm shadow-slate-900/5 flex items-center justify-between pointer-events-auto transition-all">
+    <!-- 1. Floating Fluid Navigation Bar (Responsive Across Mobile, Tablet, Laptop, Desktop) -->
+    <div class="fixed top-2 sm:top-3.5 lg:top-4 left-0 right-0 z-50 px-3 sm:px-5 lg:px-6 flex justify-center pointer-events-none pt-[env(safe-area-inset-top,0px)]">
+        <header class="w-full max-w-6xl bg-white/95 backdrop-blur-[12px] [-webkit-backdrop-filter:blur(12px)] border border-indigo-100/80 rounded-2xl sm:rounded-full px-3.5 sm:px-5 lg:px-6 py-2 sm:py-2.5 shadow-[0px_4px_16px_rgba(42,20,180,0.06)] flex items-center justify-between pointer-events-auto transition-all">
             
-            <!-- Left: Official Logo with Provincial Context -->
-            <a href="{{ route('landing') }}" class="flex items-center gap-3 shrink-0 group" title="Peternak Milenial Jawa Timur">
+            <!-- Left: Official Logo -->
+            <a href="{{ route('landing') }}" class="flex items-center gap-2 shrink-0 group min-w-0" title="Peternak Milenial Jawa Timur">
                 <img
-                    src="{{ asset('img/logoaplikasi2.png') }}"
+                    src="{{ asset('img/Peternak Milenial.png') }}"
                     alt="Peternak Milenial Jawa Timur Logo"
-                    class="h-11 sm:h-12 md:h-[50px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                    class="h-7 sm:h-8 md:h-9 lg:h-10 w-auto max-w-[120px] sm:max-w-none object-contain transition-transform duration-300 group-hover:scale-[1.02]"
                 />
             </a>
 
-            <!-- Center: Editorial Navigation Links (Desktop) -->
-            <nav class="hidden md:flex items-center gap-8 text-[13.5px] font-medium tracking-tight text-slate-600">
-                <a href="#tentang" class="hover:text-[#013a85] transition-colors py-1">Tentang Platform</a>
-                <a href="#layanan" class="hover:text-[#013a85] transition-colors py-1">Ekosistem Layanan</a>
-                <a href="#dampak" class="hover:text-[#013a85] transition-colors py-1">Kisah Sukses</a>
-                <a href="#faq" class="hover:text-[#013a85] transition-colors py-1">Pusat Informasi</a>
+            <!-- Center: Editorial Navigation Links (Desktop & Laptop: >= 1024px) -->
+            <nav class="hidden lg:flex items-center gap-5 xl:gap-7 text-xs lg:text-[13px] font-medium tracking-tight text-[#464554]">
+                <a href="#tentang" class="hover:text-[#2a14b4] transition-colors py-1">Tentang Platform</a>
+                <a href="#layanan" class="hover:text-[#2a14b4] transition-colors py-1">Ekosistem Layanan</a>
+                <a href="#testimoni" class="hover:text-[#2a14b4] transition-colors py-1">Kisah Sukses</a>
+                <a href="#faq" class="hover:text-[#2a14b4] transition-colors py-1">Pusat Informasi</a>
             </nav>
 
-            <!-- Right: Action Buttons (Desktop & Tablet) -->
-            <div class="hidden sm:flex items-center gap-2.5">
+            <!-- Right: Action Buttons (Desktop, Laptop & Tablet: >= 640px) -->
+            <div class="hidden sm:flex items-center gap-2 lg:gap-2.5 shrink-0">
                 @auth
                     <a
                         href="{{ route('dashboard') }}"
-                        class="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs sm:text-sm font-semibold bg-[#013a85] hover:bg-blue-900 text-white shadow-xs transition-all duration-200 active:scale-[0.98]"
+                        class="inline-flex items-center gap-1.5 px-3.5 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 text-white shadow-sm shadow-indigo-950/20 transition-all duration-200 active:scale-[0.98]"
                     >
                         <span>Buka Dashboard</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -85,31 +104,31 @@
                     <a
                         href="{{ route('login') }}"
                         id="nav-masuk-btn"
-                        class="inline-flex items-center px-4 py-2 rounded-full text-xs sm:text-sm font-medium text-slate-700 hover:text-[#013a85] hover:bg-slate-100/70 transition-all duration-200"
+                        class="inline-flex items-center px-3 lg:px-3.5 py-1.5 rounded-full text-xs font-medium text-[#464554] hover:text-[#2a14b4] hover:bg-[#eaedff]/60 transition-all duration-200"
                     >
                         Masuk
                     </a>
                     <a
                         href="{{ route('register') }}"
                         id="nav-login-btn"
-                        class="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs sm:text-sm font-semibold bg-[#013a85] hover:bg-blue-900 text-white shadow-xs shadow-blue-950/20 transition-all duration-200 active:scale-[0.98]"
+                        class="inline-flex items-center gap-1.5 px-3.5 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 text-white shadow-sm shadow-indigo-950/20 transition-all duration-200 active:scale-[0.98]"
                     >
                         <span>Daftar Akun</span>
-                        <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg class="w-3.5 h-3.5 opacity-90" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                         </svg>
                     </a>
                 @endauth
             </div>
 
-            <!-- Mobile Hamburger Toggle -->
-            <div class="flex sm:hidden items-center gap-2">
+            <!-- Mobile & Tablet Hamburger Toggle (< 1024px) -->
+            <div class="flex lg:hidden items-center gap-1.5 sm:gap-2 shrink-0">
                 @auth
-                    <a href="{{ route('dashboard') }}" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-[#013a85] text-white">
+                    <a href="{{ route('dashboard') }}" class="sm:hidden px-2.5 py-1.5 rounded-full text-[11px] font-semibold bg-indigo-700 text-white shadow-xs">
                         Dashboard
                     </a>
                 @else
-                    <a href="{{ route('login') }}" class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-700 border border-slate-200">
+                    <a href="{{ route('login') }}" class="sm:hidden px-2.5 py-1.5 rounded-full text-[11px] font-semibold text-[#464554] border border-slate-200 hover:bg-slate-50 transition-colors">
                         Masuk
                     </a>
                 @endauth
@@ -117,655 +136,1145 @@
                     type="button"
                     onclick="toggleMobileMenu()"
                     aria-label="Buka Menu Navigasi"
-                    class="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none"
+                    aria-expanded="false"
+                    aria-controls="mobile-menu"
+                    id="mobile-menu-btn"
+                    class="p-1.5 sm:p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-700 transition-colors"
                 >
                     <svg id="hamburger-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                    <svg id="close-icon" class="hidden w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
 
         </header>
 
-        <!-- Mobile Drawer Menu Dropdown -->
-        <div id="mobile-menu" class="hidden absolute top-16 left-3 right-3 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl pointer-events-auto space-y-3 sm:hidden transition-all duration-300">
-            <nav class="flex flex-col space-y-2 text-sm font-medium text-slate-700">
-                <a href="#tentang" onclick="closeMobileMenu()" class="px-3 py-2 rounded-lg hover:bg-slate-50 hover:text-[#013a85]">Tentang Platform</a>
-                <a href="#layanan" onclick="closeMobileMenu()" class="px-3 py-2 rounded-lg hover:bg-slate-50 hover:text-[#013a85]">Ekosistem Layanan</a>
-                <a href="#dampak" onclick="closeMobileMenu()" class="px-3 py-2 rounded-lg hover:bg-slate-50 hover:text-[#013a85]">Kisah Sukses</a>
-                <a href="#faq" onclick="closeMobileMenu()" class="px-3 py-2 rounded-lg hover:bg-slate-50 hover:text-[#013a85]">Pusat Informasi</a>
+        <!-- Mobile & Tablet Drawer Menu Dropdown -->
+        <div id="mobile-menu" class="hidden absolute top-13 sm:top-15 left-3 right-3 sm:left-5 sm:right-5 bg-white/98 backdrop-blur-xl border border-indigo-100 rounded-2xl p-4 shadow-2xl pointer-events-auto space-y-2.5 lg:hidden max-h-[calc(100vh-5rem)] overflow-y-auto transition-all duration-300">
+            <nav class="flex flex-col space-y-1 text-sm font-medium text-[#464554]">
+                <a href="#tentang" onclick="closeMobileMenu()" class="px-3 py-2 rounded-xl hover:bg-[#faf8ff] hover:text-[#2a14b4] transition-colors flex items-center justify-between">
+                    <span>Tentang Platform</span>
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                </a>
+                <a href="#layanan" onclick="closeMobileMenu()" class="px-3 py-2 rounded-xl hover:bg-[#faf8ff] hover:text-[#2a14b4] transition-colors flex items-center justify-between">
+                    <span>Ekosistem Layanan</span>
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                </a>
+                <a href="#testimoni" onclick="closeMobileMenu()" class="px-3 py-2 rounded-xl hover:bg-[#faf8ff] hover:text-[#2a14b4] transition-colors flex items-center justify-between">
+                    <span>Kisah Sukses</span>
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                </a>
+                <a href="#faq" onclick="closeMobileMenu()" class="px-3 py-2 rounded-xl hover:bg-[#faf8ff] hover:text-[#2a14b4] transition-colors flex items-center justify-between">
+                    <span>Pusat Informasi</span>
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                </a>
             </nav>
-            <div class="pt-3 border-t border-slate-100 flex flex-col gap-2">
+            <div class="pt-2.5 border-t border-slate-100 flex flex-col gap-2 sm:hidden">
                 @auth
-                    <a href="{{ route('dashboard') }}" class="w-full text-center py-2.5 rounded-xl text-xs font-bold bg-[#013a85] text-white">
+                    <a href="{{ route('dashboard') }}" class="w-full text-center py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-indigo-700 text-white shadow-sm">
                         Buka Dashboard
                     </a>
                 @else
-                    <a href="{{ route('register') }}" class="w-full text-center py-2.5 rounded-xl text-xs font-bold bg-[#013a85] text-white">
-                        Daftar Akun Peternak
-                    </a>
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="{{ route('login') }}" class="w-full text-center py-2 rounded-xl text-xs sm:text-sm font-medium text-[#464554] border border-slate-200 hover:bg-slate-50 transition-colors">
+                            Masuk
+                        </a>
+                        <a href="{{ route('register') }}" class="w-full text-center py-2 rounded-xl text-xs sm:text-sm font-bold bg-indigo-700 text-white shadow-sm">
+                            Daftar Akun
+                        </a>
+                    </div>
                 @endauth
             </div>
         </div>
     </div>
 
-    <!-- 2. Hero Section: Editorial Split with Macro Spacing & Grounded Photography -->
-    <section id="tentang" class="relative pt-32 pb-16 sm:pt-40 sm:pb-24 border-b border-slate-200/70 overflow-hidden bg-white">
-        
-        <!-- Architectural ambient glow (Strict brand colors, non-distracting) -->
-        <div class="absolute top-0 right-1/4 w-[500px] h-[350px] bg-blue-50/70 rounded-full blur-3xl pointer-events-none -z-10"></div>
-        <div class="absolute top-32 left-1/3 w-[300px] h-[300px] bg-emerald-50/50 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <!-- Mobile Drawer Backdrop Overlay -->
+    <div id="mobile-menu-backdrop" class="hidden fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-40 lg:hidden" onclick="closeMobileMenu()"></div>
 
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+    <!-- 2. Hero Section: Full Background with gradasi.png (Ultra Responsive Mobile, Tablet, Laptop, Desktop) -->
+    <section
+        id="tentang"
+        aria-labelledby="hero-heading"
+        class="relative flex flex-col justify-center w-full min-h-[500px] sm:min-h-[560px] md:min-h-[620px] lg:min-h-[660px] xl:min-h-[700px] pt-20 sm:pt-28 md:pt-32 lg:pt-36 pb-16 sm:pb-20 md:pb-24 lg:pb-28 px-4 sm:px-6 md:px-8 lg:px-12 overflow-hidden bg-cover bg-no-repeat border-b border-indigo-100/60"
+        style="background-image: url('{{ asset('img/gradasi.png') }}'); background-position: right bottom;"
+    >
+        <!-- Adaptive Legibility Scrim (Protects text contrast on phones & portrait tablets while blending to transparent on desktop) -->
+        <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-white/50 sm:from-white/90 sm:via-white/70 sm:to-transparent lg:from-white/30 lg:via-transparent lg:to-transparent pointer-events-none"></div>
+
+        <div class="max-w-[1120px] mx-auto w-full relative z-10">
+            <!-- Left: Headline & Actions -->
+            <div class="max-w-xl flex flex-col items-start gap-3.5 sm:gap-5">
                 
-                <!-- Left: Focused Editorial Narrative -->
-                <div class="lg:col-span-7">
-                    
-                    <!-- Official Institutional Tag -->
-                   
+                <!-- Official Institutional Tag -->
+                <div class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 bg-[#e2e7ff] rounded-full shadow-[0px_1px_2px_#0000000d]">
+                    <p class="[font-family:'Inter',sans-serif] font-semibold text-[#2a14b4] text-[10px] sm:text-[11px] tracking-[0.40px] sm:tracking-[0.50px] leading-4 whitespace-nowrap">
+                        Dinas Peternakan Provinsi Jawa Timur
+                    </p>
+                </div>
 
-                    <!-- 2-Line High-Impact Headline (No messy cursive, pure editorial confidence) -->
-                    <h1 class="text-3xl sm:text-5xl lg:text-5.5xl font-extrabold text-slate-900 tracking-tight leading-[1.12] mb-6">
-                        Pemberdayaan Digital 
-                        <span class="text-[#013a85] inline-block">Peternak Muda</span>
-                        Jawa Timur
+                <!-- 3-Line High-Impact Headline (Fluid Typography) -->
+                <div class="w-full">
+                    <h1
+                        id="hero-heading"
+                        class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-extrabold text-[#131b2e] text-[26px] xs:text-[28px] sm:text-3xl md:text-4xl lg:text-[44px] xl:text-[48px] tracking-[-1px] leading-[1.16] break-words"
+                    >
+                        Pemberdayaan Digital
+                        <br class="hidden sm:inline" />
+                        <span class="text-indigo-700">Peternak Muda</span> Jawa
+                        <br class="hidden sm:inline" />
+                        Timur
                     </h1>
+                </div>
 
-                    <!-- Concise, Meaningful Value Proposition -->
-                    <p class="text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed mb-8 font-normal">
+                <!-- Narrative Lead -->
+                <div class="max-w-lg">
+                    <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-sm md:text-[15px] tracking-[0] leading-relaxed">
                         Ekosistem satu pintu untuk memetakan sentra ternak, siaga tanggap darurat kesmavet 24 jam, standardisasi mutu pakan modern, dan transparansi harga pasar di 38 kabupaten/kota.
                     </p>
+                </div>
 
-                    <!-- Primary & Secondary CTAs with Button-in-Button Architecture -->
-                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 mb-10">
-                        @auth
-                            <a
-                                href="{{ route('dashboard') }}"
-                                class="inline-flex items-center justify-center gap-3 px-7 py-3.5 rounded-full font-semibold text-sm text-white bg-[#013a85] hover:bg-blue-900 shadow-md shadow-blue-950/15 transition-all duration-200 active:scale-[0.98] group"
-                            >
-                                <span>Menuju Dashboard Sistem</span>
-                                <span class="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                    </svg>
-                                </span>
-                            </a>
-                        @else
-                            <a
-                                href="{{ route('register') }}"
-                                id="hero-daftar-btn"
-                                class="inline-flex items-center justify-center gap-3 px-7 py-3.5 rounded-full font-semibold text-sm text-white bg-[#013a85] hover:bg-blue-900 shadow-md shadow-blue-950/15 transition-all duration-200 active:scale-[0.98] group"
-                            >
-                                <span>Daftar Akun Peternak</span>
-                                <span class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                    </svg>
-                                </span>
-                            </a>
+                <!-- Primary & Secondary Action CTAs -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3.5 w-full sm:w-auto pt-1">
+                    @auth
+                        <a
+                            href="{{ route('dashboard') }}"
+                            class="inline-flex items-center justify-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 bg-indigo-700 hover:bg-indigo-800 text-white rounded-lg sm:rounded-xl shadow-[0px_6px_8px_-4px_#0000001a,0px_16px_20px_-4px_#0000001a] transition-all duration-200 active:scale-[0.98] group text-center"
+                        >
+                            <span class="[font-family:'Inter',sans-serif] font-semibold text-white text-xs sm:text-sm sm:whitespace-nowrap">
+                                Buka Dashboard Sistem
+                            </span>
+                            <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                        </a>
+                    @else
+                        <a
+                            href="{{ route('register') }}"
+                            id="hero-daftar-btn"
+                            class="inline-flex items-center justify-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 bg-indigo-700 hover:bg-indigo-800 text-white rounded-lg sm:rounded-xl shadow-[0px_6px_8px_-4px_#0000001a,0px_16px_20px_-4px_#0000001a] transition-all duration-200 active:scale-[0.98] group text-center"
+                        >
+                            <span class="[font-family:'Inter',sans-serif] font-semibold text-white text-xs sm:text-sm sm:whitespace-nowrap">
+                                Daftar Akun Peternak
+                            </span>
+                            <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                        </a>
 
-                            <a
-                                href="{{ route('login') }}"
-                                id="hero-masuk-btn"
-                                class="inline-flex items-center justify-center px-6 py-3.5 rounded-full font-semibold text-sm text-slate-700 bg-white border border-slate-200/90 hover:bg-slate-50 hover:text-[#013a85] hover:border-slate-300 transition-all duration-200 active:scale-[0.98]"
-                            >
-                                <span>Masuk ke Portal</span>
-                            </a>
-                        @endauth
+                        <a
+                            href="{{ route('register', ['role' => 'umum']) }}"
+                            class="inline-flex items-center justify-center px-4.5 sm:px-6 py-3 sm:py-3.5 bg-white/90 hover:bg-white text-emerald-800 border border-emerald-200/80 rounded-lg sm:rounded-xl shadow-xs transition-all duration-200 active:scale-[0.98] text-center"
+                        >
+                            <span class="[font-family:'Inter',sans-serif] font-semibold text-xs sm:text-[13px] sm:whitespace-nowrap">
+                                Daftar Masyarakat Umum
+                            </span>
+                        </a>
+                    @endauth
+                </div>
+
+                <!-- Social Proof / Farmer Community Avatars -->
+                <div class="flex flex-wrap items-center gap-2.5 sm:gap-3.5 pt-1">
+                    <div aria-label="Peternak terdaftar" class="inline-flex items-center shrink-0">
+                        <div class="flex w-7 sm:w-8 h-7 sm:h-8 items-center justify-center bg-[#e2e7ff] text-[#2a14b4] rounded-full border-2 border-[#faf8ff] shadow-xs [font-family:'Plus_Jakarta_Sans',sans-serif] font-bold text-[11px]">
+                            JD
+                        </div>
+                        <div class="flex w-7 sm:w-8 h-7 sm:h-8 items-center justify-center bg-[#eaddff] text-[#25005a] rounded-full border-2 border-[#faf8ff] shadow-xs [font-family:'Plus_Jakarta_Sans',sans-serif] font-bold text-[11px] -ml-2">
+                            KL
+                        </div>
+                        <div class="flex w-7 sm:w-8 h-7 sm:h-8 items-center justify-center bg-[#acedff] text-[#001f26] rounded-full border-2 border-[#faf8ff] shadow-xs [font-family:'Plus_Jakarta_Sans',sans-serif] font-bold text-[11px] -ml-2">
+                            SR
+                        </div>
+                    </div>
+                    <div class="inline-flex flex-col items-start">
+                        <p class="[font-family:'Inter',sans-serif] font-semibold text-[#131b2e] text-xs leading-tight">
+                            100+ Peternak Terdaftar
+                        </p>
+                        <span class="text-[10px] text-[#464554]">Aktif di 38 Kabupaten / Kota se-Jatim</span>
                     </div>
                 </div>
 
-                <!-- Right: Double-Bezel Framing of Real Regional Farm Production -->
-                <div class="lg:col-span-5">
-                    <div class="relative mx-auto max-w-md lg:max-w-none">
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Mitra & Kolaborasi Resmi (Standalone Partner Marquee Section Outside Jumbotron) -->
+    @php
+        $partners = [
+            [
+                'name' => 'Pemerintah Provinsi Jawa Timur',
+                'logo' => asset('img/logo-jatim.png'),
+            ],
+            [
+                'name' => 'Kementerian Peternakan RI',
+                'logo' => asset('img/logo-kementan.png'),
+            ],
+            [
+                'name' => 'Universitas Brawijaya',
+                'logo' => asset('img/logo-ub.png'),
+            ],
+            [
+                'name' => 'UPN "Veteran" Jawa Timur',
+                'logo' => asset('img/logo-upn.png'),
+            ],
+        ];
+        $tickerSequence = array_merge($partners, $partners, $partners);
+    @endphp
+    <section class="py-6 sm:py-8 lg:py-10 bg-white border-b border-indigo-100/60 overflow-hidden">
+        <div class="max-w-[1120px] mx-auto px-4 sm:px-6 mb-3 sm:mb-5 text-center">
+            <p class="[font-family:'Inter',sans-serif] text-[10px] sm:text-[11px] font-semibold tracking-[0.60px] text-[#2a14b4] uppercase">
+                Mitra Kolaborasi Strategis
+            </p>
+            <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] text-xs sm:text-base md:text-lg font-bold text-[#131b2e] tracking-tight mt-1">
+                Sinergi Pemerintah Daerah, Kementerian &amp; Perguruan Tinggi
+            </h3>
+        </div>
+
+        <div class="relative w-full overflow-hidden marquee-container py-1.5">
+            <!-- Left Gradient Edge Fade (Adaptive Width) -->
+            <div class="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-16 md:w-28 lg:w-36 bg-gradient-to-r from-white via-white/80 to-transparent z-10"></div>
+            
+            <!-- Right Gradient Edge Fade (Adaptive Width) -->
+            <div class="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-16 md:w-28 lg:w-36 bg-gradient-to-l from-white via-white/80 to-transparent z-10"></div>
+
+            <!-- Scrolling Track (Infinite Loop) -->
+            <div class="marquee-track flex items-center gap-3 sm:gap-4 md:gap-5">
+                {{-- First Half --}}
+                @foreach($tickerSequence as $partner)
+                    <div class="flex items-center justify-center px-3 sm:px-5 md:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-[#faf8ff] border border-indigo-100/80 shadow-[0px_1px_2px_#0000000d] hover:shadow-md hover:border-indigo-300 hover:-translate-y-0.5 transition-all duration-300 w-24 sm:w-32 md:w-36 h-12 sm:h-16 md:h-18 shrink-0 select-none group/card cursor-pointer">
+                        <img
+                            src="{{ $partner['logo'] }}"
+                            alt="{{ $partner['name'] }}"
+                            class="max-h-full max-w-full object-contain group-hover/card:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                        />
+                    </div>
+                @endforeach
+
+                {{-- Second Half for loop --}}
+                @foreach($tickerSequence as $partner)
+                    <div class="flex items-center justify-center px-3 sm:px-5 md:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-[#faf8ff] border border-indigo-100/80 shadow-[0px_1px_2px_#0000000d] hover:shadow-md hover:border-indigo-300 hover:-translate-y-0.5 transition-all duration-300 w-24 sm:w-32 md:w-36 h-12 sm:h-16 md:h-18 shrink-0 select-none group/card cursor-pointer" aria-hidden="true">
+                        <img
+                            src="{{ $partner['logo'] }}"
+                            alt="{{ $partner['name'] }}"
+                            class="max-h-full max-w-full object-contain group-hover/card:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                        />
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. RemoteTeamFeaturesSection: CORE CAPABILITIES (Responsive Grid Layout) -->
+    <section id="layanan" class="flex flex-col w-full items-start px-4 sm:px-6 md:px-8 lg:px-12 py-12 sm:py-16 lg:py-20 bg-white border-b border-indigo-100/60 shadow-[0px_1px_2px_#0000000d]">
+        <div class="flex flex-col max-w-[1120px] mx-auto items-center gap-8 sm:gap-10 lg:gap-12 w-full">
+            
+            <header class="flex flex-col max-w-2xl items-center gap-1.5 sm:gap-2 text-center px-2">
+                <div class="[font-family:'Inter',sans-serif] font-semibold text-[#2a14b4] text-[11px] text-center tracking-[0.60px] leading-4 uppercase whitespace-nowrap">
+                    CORE CAPABILITIES
+                </div>
+                <div class="w-full">
+                    <h2 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-bold text-[#131b2e] text-xl sm:text-2xl md:text-3xl lg:text-4xl text-center tracking-[-0.8px] leading-tight sm:leading-[1.2]">
+                        Semua Kebutuhan Peternak Muda
+                        <br class="hidden sm:inline" />
+                        dalam Satu Ekosistem
+                    </h2>
+                </div>
+                <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-sm md:text-[15px] leading-relaxed">
+                    Empat modul terintegrasi untuk mendampingi siklus usaha peternakan rakyat dari hulu ke hilir.
+                </p>
+            </header>
+
+            <!-- Grid of Cards (Single col on phone, 2 cols on tablet, 3 cols on desktop) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-7 w-full">
+                
+                <!-- Feature 1: Posko Darurat Kesmavet -->
+                <article class="flex flex-col items-start justify-between p-5 sm:p-6 lg:p-7 bg-[#faf8ff] rounded-2xl border border-indigo-100/60 shadow-[0px_1px_2px_#0000000d] hover:shadow-md hover:border-indigo-300 hover:-translate-y-1 transition-all duration-300">
+                    <div>
+                        <div class="w-10 sm:w-11 h-10 sm:h-11 items-center justify-center bg-[#e2e7ff] rounded-xl flex mb-4 sm:mb-5 text-[#2a14b4]">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                            </svg>
+                        </div>
+                        <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-[#131b2e] text-base sm:text-lg tracking-[0] leading-snug mb-2 sm:mb-2.5">
+                            Posko Darurat Kesmavet 24 Jam
+                        </h3>
+                        <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-[13.5px] tracking-[0] leading-relaxed mb-4 sm:mb-5">
+                            Sistem pelaporan siaga gejala klinis ternak dan konsultasi cepat bersama dokter hewan dinas terdekat di tingkat 38 kabupaten/kota.
+                        </p>
+                    </div>
+                    <div class="pt-3.5 border-t border-indigo-100/60 w-full">
+                        <a
+                            href="{{ route('darurat') }}"
+                            class="inline-flex items-center gap-1.5 [font-family:'Inter',sans-serif] font-semibold text-[#2a14b4] text-xs tracking-[0] leading-5 hover:underline group"
+                        >
+                            <span>Buka Siaga Darurat</span>
+                            <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Feature 2: Transparansi Harga Pasar Harian -->
+                <article class="flex flex-col items-start justify-between p-5 sm:p-6 lg:p-7 bg-[#faf8ff] rounded-2xl border border-indigo-100/60 shadow-[0px_1px_2px_#0000000d] hover:shadow-md hover:border-purple-300 hover:-translate-y-1 transition-all duration-300">
+                    <div>
+                        <div class="w-10 sm:w-11 h-10 sm:h-11 items-center justify-center bg-[#eaddff] rounded-xl flex mb-4 sm:mb-5 text-[#712ae2]">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+                            </svg>
+                        </div>
+                        <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-[#131b2e] text-base sm:text-lg tracking-[0] leading-snug mb-2 sm:mb-2.5">
+                            Transparansi Rujukan Harga Pasar
+                        </h3>
+                        <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-[13.5px] tracking-[0] leading-relaxed mb-4 sm:mb-5">
+                            Pembaruan harian harga sapi potong, susu murni, kambing, dan telur langsung dari pasar hewan serta koperasi ternak se-Jawa Timur.
+                        </p>
+                    </div>
+                    <div class="pt-3.5 border-t border-indigo-100/60 w-full">
+                        <a
+                            href="{{ route('harga-komoditas') }}"
+                            class="inline-flex items-center gap-1.5 [font-family:'Inter',sans-serif] font-semibold text-[#712ae2] text-xs tracking-[0] leading-5 hover:underline group"
+                        >
+                            <span>Pantau Harga Harian</span>
+                            <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Feature 3: Bimtek Pakan & Sertifikasi NKV -->
+                <article class="flex flex-col items-start justify-between p-5 sm:p-6 lg:p-7 bg-[#faf8ff] rounded-2xl border border-indigo-100/60 shadow-[0px_1px_2px_#0000000d] hover:shadow-md hover:border-teal-300 hover:-translate-y-1 transition-all duration-300 md:col-span-2 lg:col-span-1">
+                    <div>
+                        <div class="w-10 sm:w-11 h-10 sm:h-11 items-center justify-center bg-[#e0f7fa] rounded-xl flex mb-4 sm:mb-5 text-[#005a6a]">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
+                            </svg>
+                        </div>
+                        <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-[#131b2e] text-base sm:text-lg tracking-[0] leading-snug mb-2 sm:mb-2.5">
+                            Bimtek Pakan &amp; Sertifikasi NKV
+                        </h3>
+                        <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-[13.5px] tracking-[0] leading-relaxed mb-4 sm:mb-5">
+                            Kurikulum formulasi silase mandiri biomassa lokal serta bimbingan audit sanitasi kandang untuk pemenuhan sertifikat Nomor Kontrol Veteriner.
+                        </p>
+                    </div>
+                    <div class="pt-3.5 border-t border-indigo-100/60 w-full">
+                        <a
+                            href="{{ route('pelatihan') }}"
+                            class="inline-flex items-center gap-1.5 [font-family:'Inter',sans-serif] font-semibold text-[#005a6a] text-xs tracking-[0] leading-5 hover:underline group"
+                        >
+                            <span>Jadwal Bimtek Terbuka</span>
+                            <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. TeamAnalyticsShowcaseSection: PERTUMBUHAN & STATISTIK (Responsive Layout) -->
+    <section id="pertumbuhan" class="flex w-full flex-col items-start px-4 sm:px-6 md:px-8 lg:px-12 py-12 sm:py-16 lg:py-20 bg-[#faf8ff]">
+        <div class="max-w-[1120px] mx-auto w-full">
+            <div class="relative flex w-full flex-col items-start gap-8 sm:gap-10 lg:gap-12 rounded-2xl sm:rounded-3xl bg-[#eaedff] p-5 sm:p-7 md:p-9 lg:p-12 border border-indigo-100 shadow-[0px_4px_6px_-4px_#0000001a,0px_10px_15px_-3px_#0000001a] overflow-hidden">
+                
+                <!-- Ambient Subtle Glow Circles -->
+                <div class="absolute -top-24 -right-24 w-72 h-72 bg-[#8a4cfc20] rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center w-full">
+                    
+                    <!-- Left: Copy & Getting Started CTA -->
+                    <div class="lg:col-span-7 flex flex-col items-start gap-3.5 sm:gap-4.5">
                         
-                        <!-- Outer machined shell -->
-                        <div class="p-2 sm:p-2.5 rounded-3xl bg-slate-100/90 border border-slate-200/90 shadow-xl shadow-slate-900/5">
-                            <!-- Inner image core -->
-                            <div class="relative h-80 sm:h-96 lg:h-[420px] rounded-[calc(1.5rem-2px)] overflow-hidden bg-slate-200 group">
-                                <img
-                                    src="{{ asset('img/peternakan2.webp') }}"
-                                    alt="Peternak Muda Ruminansia Binaan Dinas Peternakan Jawa Timur"
-                                    class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700 ease-out"
-                                    loading="eager"
-                                />
-                            </div>
+                        <div class="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 sm:px-3 py-1 shadow-[0px_1px_2px_#0000000d]">
+                            <svg class="w-3 h-3 text-[#2a14b4]" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+                            </svg>
+                            <p class="[font-family:'Inter',sans-serif] text-[10px] sm:text-[11px] font-semibold tracking-[0] text-[#2a14b4] whitespace-nowrap">
+                                Fast Setup &amp; Zero Complexity
+                            </p>
+                        </div>
+
+                        <div class="w-full">
+                            <h2 class="[font-family:'Plus_Jakarta_Sans',sans-serif] text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight sm:leading-[1.2] tracking-[-0.8px] text-[#131b2e]">
+                                Mulai Bersama Peternak Milenial
+                                <br class="hidden sm:inline" />
+                                Lebih Mudah dari Sebelumnya
+                            </h2>
+                        </div>
+
+                        <div class="max-w-xl">
+                            <p class="[font-family:'Inter',sans-serif] text-xs sm:text-sm md:text-[15px] font-normal leading-relaxed text-[#464554]">
+                                Pendaftaran mandiri gratis tanpa syarat rumit. Terhubung langsung ke peta sentra ternak kabupaten/kota, rujukan harga harian pasar hewan, serta respons visitasi dokter dinas.
+                            </p>
+                        </div>
+
+                        <div class="w-full sm:w-auto pt-1">
+                            @auth
+                                <a
+                                    href="{{ route('dashboard') }}"
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg sm:rounded-xl bg-indigo-700 hover:bg-indigo-800 px-5 sm:px-7 py-3 sm:py-3.5 text-white font-semibold text-xs sm:text-sm shadow-[0px_6px_8px_-4px_#0000001a,0px_16px_20px_-4px_#0000001a] transition-all active:scale-[0.98] w-full sm:w-auto text-center"
+                                >
+                                    <span>Buka Dashboard Peternakan</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>
+                                </a>
+                            @else
+                                <a
+                                    href="{{ route('register') }}"
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg sm:rounded-xl bg-indigo-700 hover:bg-indigo-800 px-5 sm:px-7 py-3 sm:py-3.5 text-white font-semibold text-xs sm:text-sm shadow-[0px_6px_8px_-4px_#0000001a,0px_16px_20px_-4px_#0000001a] transition-all active:scale-[0.98] w-full sm:w-auto text-center"
+                                >
+                                    <span>Mulai Bergabung Sekarang</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>
+                                </a>
+                            @endauth
                         </div>
 
                     </div>
+
+                    <!-- Right: Live Platform Growth Visual Chart -->
+                    <article class="lg:col-span-5 bg-white rounded-2xl p-4 sm:p-5 lg:p-6 shadow-[0px_2px_4px_-2px_#0000001a,0px_4px_6px_-1px_#0000001a] border border-slate-100 flex flex-col justify-between w-full">
+                        <header class="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <div>
+                                <h3 class="[font-family:'Inter',sans-serif] text-xs sm:text-sm font-semibold text-[#131b2e]">
+                                    Platform Growth &bull; Jatim
+                                </h3>
+                                <p class="text-[10px] sm:text-[11px] text-[#464554]">Populasi &amp; Kemitraan Aktif</p>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#e2e7ff] text-[#2a14b4] text-[10px] sm:text-[11px] font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#2a14b4] animate-pulse"></span>
+                                Live Feed
+                            </span>
+                        </header>
+
+                        <!-- Bar Graph matching chartBars (Fluid Height on mobile) -->
+                        <div class="flex h-22 sm:h-28 items-end gap-1.5 sm:gap-2 md:gap-2.5 py-3 sm:py-4 px-1" role="img" aria-label="Platform growth chart showing rising adoption">
+                            <div class="flex-1 rounded-[4px_4px_0px_0px] h-8 sm:h-11 bg-[#e2e7ff] transition-all duration-300 hover:bg-[#c3c0ff]" title="Bulan 1: Formulasi dasar"></div>
+                            <div class="flex-1 rounded-[4px_4px_0px_0px] h-11 sm:h-16 bg-[#e2e7ff] transition-all duration-300 hover:bg-[#c3c0ff]" title="Bulan 2: Pelatihan awal"></div>
+                            <div class="flex-1 rounded-[4px_4px_0px_0px] h-9 sm:h-13 bg-[#e2e7ff] transition-all duration-300 hover:bg-[#c3c0ff]" title="Bulan 3: Audit kandang"></div>
+                            <div class="flex-1 rounded-[4px_4px_0px_0px] h-13 sm:h-19 bg-[#e2e7ff] transition-all duration-300 hover:bg-[#c3c0ff]" title="Bulan 4: Uji laboratorium"></div>
+                            <div class="flex-1 rounded-[4px_4px_0px_0px] h-11 sm:h-16 bg-[#e2e7ff] transition-all duration-300 hover:bg-[#c3c0ff]" title="Bulan 5: Sertifikasi NKV"></div>
+                            <div class="flex-1 rounded-[4px_4px_0px_0px] h-16 sm:h-22 bg-[#c3c0ff] transition-all duration-300 hover:bg-indigo-600" title="Bulan 6: Rantai pasok pasar"></div>
+                            <div class="flex-1 rounded-[4px_4px_0px_0px] h-20 sm:h-28 bg-indigo-700 shadow-md transition-all duration-300 hover:bg-indigo-800" title="Bulan 7: Kemandirian penuh"></div>
+                        </div>
+
+                        <div class="pt-2.5 border-t border-slate-100 text-center">
+                            <p class="[font-family:'Inter',sans-serif] text-[11px] sm:text-xs font-normal text-[#464554] leading-snug">
+                                Akselerasi siklus produksi &amp; kemandirian pakan di seluruh sentra daerah
+                            </p>
+                        </div>
+                    </article>
+
+                </div>
+
+                <!-- Bottom 3 Statistics Cards (Grid: 1 col on mobile, 3 cols on tablet & desktop) -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-5 w-full pt-1 sm:pt-2">
+                    
+                    <!-- Stat 1: 38 Kab/Kota -->
+                    <article class="flex flex-col items-start rounded-xl sm:rounded-2xl bg-white shadow-[0px_1px_2px_#0000000d] p-4 sm:p-5 border border-slate-100">
+                        <div class="[font-family:'Plus_Jakarta_Sans',sans-serif] text-2xl sm:text-3xl lg:text-[38px] font-extrabold leading-tight tracking-[-0.8px] text-[#2a14b4]">
+                            38 Wilayah
+                        </div>
+                        <h3 class="[font-family:'Inter',sans-serif] text-xs sm:text-sm font-semibold text-[#131b2e] mt-1.5 mb-0.5">
+                            Sentra Ternak Terpetakan
+                        </h3>
+                        <p class="[font-family:'Inter',sans-serif] text-[11px] sm:text-xs text-[#464554]">
+                            Mencakup seluruh 38 kabupaten &amp; kota se-Jawa Timur
+                        </p>
+                    </article>
+
+                    <!-- Stat 2: 93% -->
+                    <article class="flex flex-col items-start rounded-xl sm:rounded-2xl bg-white shadow-[0px_1px_2px_#0000000d] p-4 sm:p-5 border border-slate-100">
+                        <div class="[font-family:'Plus_Jakarta_Sans',sans-serif] text-2xl sm:text-3xl lg:text-[38px] font-extrabold leading-tight tracking-[-0.8px] text-[#712ae2]">
+                            93%
+                        </div>
+                        <h3 class="[font-family:'Inter',sans-serif] text-xs sm:text-sm font-semibold text-[#131b2e] mt-1.5 mb-0.5">
+                            Tingkat Kepuasan Peternak
+                        </h3>
+                        <p class="[font-family:'Inter',sans-serif] text-[11px] sm:text-xs text-[#464554]">
+                            Berdasarkan survei pendampingan teknis lapangan
+                        </p>
+                    </article>
+
+                    <!-- Stat 3: 4.9 Rating -->
+                    <article class="flex flex-col items-start rounded-xl sm:rounded-2xl bg-white shadow-[0px_1px_2px_#0000000d] p-4 sm:p-5 border border-slate-100">
+                        <div class="inline-flex items-center gap-1.5">
+                            <div class="[font-family:'Plus_Jakarta_Sans',sans-serif] text-2xl sm:text-3xl lg:text-[38px] font-extrabold leading-tight tracking-[-0.8px] text-[#131b2e]">
+                                4.9
+                            </div>
+                            <!-- 5 Stars SVG Container -->
+                            <div class="flex items-center text-amber-400 gap-0.5">
+                                @for($i = 0; $i < 5; $i++)
+                                    <svg class="w-3.5 sm:w-4 h-3.5 sm:h-4 fill-current" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                @endfor
+                            </div>
+                        </div>
+                        <h3 class="[font-family:'Inter',sans-serif] text-xs sm:text-sm font-semibold text-[#131b2e] mt-1.5 mb-0.5">
+                            Rating Layanan Publik
+                        </h3>
+                        <p class="[font-family:'Inter',sans-serif] text-[11px] sm:text-xs text-[#464554]">
+                            Dari ribuan ulasan kelompok peternak rakyat
+                        </p>
+                    </article>
+
                 </div>
 
             </div>
         </div>
     </section>
 
-    <!-- 3. Grounded Impact Metrics Strip (Real System Database Statistics) -->
-    <section class="py-10 bg-slate-50 border-b border-slate-200/70">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/80">
-                
-                <div class="pt-4 sm:pt-0 sm:px-4 first:pl-0">
-                    <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                        {{ $regionCount ?: 38 }}
-                    </p>
-                    <p class="text-xs sm:text-sm font-medium text-slate-500 mt-1">
-                        Kabupaten &amp; Kota Terhubung
-                    </p>
-                </div>
-
-                <div class="pt-4 sm:pt-0 sm:px-4">
-                    <p class="text-2xl sm:text-3xl font-extrabold text-[#013a85] tracking-tight">
-                        {{ $centerCount ?: 12 }}
-                    </p>
-                    <p class="text-xs sm:text-sm font-medium text-slate-500 mt-1">
-                        Sentra Komoditas Ternak
-                    </p>
-                </div>
-
-                <div class="pt-4 sm:pt-0 sm:px-4">
-                    <p class="text-2xl sm:text-3xl font-extrabold text-emerald-600 tracking-tight">
-                        {{ $commodityCount ?: 8 }}
-                    </p>
-                    <p class="text-xs sm:text-sm font-medium text-slate-500 mt-1">
-                        Komoditas Unggulan Terdata
-                    </p>
-                </div>
-
-                <div class="pt-4 sm:pt-0 sm:px-4">
-                    <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                        {{ $activeTrainingsCount ?: 4 }}
-                    </p>
-                    <p class="text-xs sm:text-sm font-medium text-slate-500 mt-1">
-                        Agenda Bimtek &amp; Pelatihan
-                    </p>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- 4. Ekosistem Layanan Utama (Asymmetrical Gapless Bento Grid) -->
-    <section id="layanan" class="py-20 sm:py-28 bg-white border-b border-slate-200/70">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- 6. ProjectManagementFeaturesSection: WORKFLOW PROCESS (1, 2, 3 Steps - Responsive Grid) -->
+    <section id="alur" class="flex flex-col w-full items-start px-4 sm:px-6 md:px-8 lg:px-12 py-12 sm:py-16 lg:py-20 bg-white border-b border-indigo-100/60 shadow-[0px_1px_2px_#0000000d]">
+        <div class="flex flex-col max-w-[1120px] mx-auto items-center gap-8 sm:gap-10 lg:gap-12 w-full">
             
-            <!-- Section Header -->
-            <div class="max-w-2xl mb-14">
-                <span class="text-xs font-bold uppercase tracking-wider text-[#013a85]">Fasilitas Publik Terpadu</span>
-                <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-1.5 leading-tight">
-                    Empat Pilar Utama Pengembangan Peternak Muda
-                </h2>
-                <p class="text-sm sm:text-base text-slate-600 mt-2.5 leading-relaxed">
-                    Setiap modul dirancang untuk mengatasi hambatan riil peternak di lapangan, dari pencegahan wabah hingga kepastian serapan pasar.
+            <header class="flex flex-col max-w-2xl items-center gap-1.5 sm:gap-2 text-center px-2">
+                <div class="[font-family:'Inter',sans-serif] font-semibold text-[#2a14b4] text-[11px] text-center tracking-[0.60px] leading-4 uppercase whitespace-nowrap">
+                    WORKFLOW PROCESS
+                </div>
+                <div class="w-full">
+                    <h2 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-bold text-[#131b2e] text-xl sm:text-2xl md:text-3xl lg:text-4xl text-center tracking-[-0.8px] leading-tight sm:leading-[1.2]">
+                        Alur Mudah Bergabung &amp; Berkembang
+                    </h2>
+                </div>
+                <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-sm md:text-[15px] text-center leading-relaxed">
+                    Tiga langkah terstruktur untuk meningkatkan produktivitas kandang dan terhubung ke rantai pasok industri.
                 </p>
+            </header>
+
+            <ol class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 lg:gap-7 w-full list-none m-0 p-0">
+                
+                <!-- Step 1 -->
+                <li class="flex flex-col items-center p-5 sm:p-6 lg:p-7 bg-[#faf8ff] rounded-2xl shadow-[0px_1px_2px_#0000000d] border border-indigo-100/60 text-center hover:shadow-md hover:border-indigo-300 transition-all duration-300">
+                    <div class="flex w-10 sm:w-11 h-10 sm:h-11 items-center justify-center bg-indigo-700 text-white font-semibold text-base sm:text-lg rounded-full shadow-[0px_4px_6px_-1px_#0000001a] mb-4 sm:mb-5">
+                        1
+                    </div>
+                    <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-[#131b2e] text-base sm:text-lg leading-snug mb-1.5 sm:mb-2">
+                        Daftarkan Usaha Ternak
+                    </h3>
+                    <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-[13.5px] leading-relaxed">
+                        Registrasi cepat dalam 2 menit. Daftarkan lokasi sentra, estimasi populasi hewan, serta komoditas unggulan Anda.
+                    </p>
+                </li>
+
+                <!-- Step 2 -->
+                <li class="flex flex-col items-center p-5 sm:p-6 lg:p-7 bg-[#faf8ff] rounded-2xl shadow-[0px_1px_2px_#0000000d] border border-indigo-100/60 text-center hover:shadow-md hover:border-purple-300 transition-all duration-300">
+                    <div class="flex w-10 sm:w-11 h-10 sm:h-11 items-center justify-center bg-[#712ae2] text-white font-semibold text-base sm:text-lg rounded-full shadow-[0px_4px_6px_-1px_#0000001a] mb-4 sm:mb-5">
+                        2
+                    </div>
+                    <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-[#131b2e] text-base sm:text-lg leading-snug mb-1.5 sm:mb-2">
+                        Verifikasi &amp; Pembinaan Mutu
+                    </h3>
+                    <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-[13.5px] leading-relaxed">
+                        Dapatkan pendampingan dokter dinas, bimbingan formulasi pakan silase mandiri, dan audit sanitasi standar NKV.
+                    </p>
+                </li>
+
+                <!-- Step 3 -->
+                <li class="flex flex-col items-center p-5 sm:p-6 lg:p-7 bg-[#faf8ff] rounded-2xl shadow-[0px_1px_2px_#0000000d] border border-indigo-100/60 text-center hover:shadow-md hover:border-teal-300 transition-all duration-300">
+                    <div class="flex w-10 sm:w-11 h-10 sm:h-11 items-center justify-center bg-[#005a6a] text-white font-semibold text-base sm:text-lg rounded-full shadow-[0px_4px_6px_-1px_#0000001a] mb-4 sm:mb-5">
+                        3
+                    </div>
+                    <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-[#131b2e] text-base sm:text-lg leading-snug mb-1.5 sm:mb-2">
+                        Akses Pasar &amp; Sukses Mandiri
+                    </h3>
+                    <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-[13.5px] leading-relaxed">
+                        Pantau pembaruan rujukan harga harian dan pasarkan produk olahan atau ternak hidup langsung ke pembeli industri tanpa calo.
+                    </p>
+                </li>
+
+            </ol>
+        </div>
+    </section>
+
+    <!-- 7. CustomerTestimonialsSection: USER ENDORSEMENTS (With Responsive Photography Cards) -->
+    <section id="testimoni" class="flex flex-col w-full items-start px-4 sm:px-6 md:px-8 lg:px-12 py-12 sm:py-16 lg:py-20 bg-[#faf8ff] border-b border-indigo-100/60">
+        <div class="flex flex-col max-w-[1120px] mx-auto items-center gap-8 sm:gap-10 lg:gap-12 w-full">
+            
+            <header class="flex flex-col max-w-2xl items-center gap-1.5 sm:gap-2 text-center px-2">
+                <div class="[font-family:'Inter',sans-serif] font-semibold text-[#712ae2] text-[11px] text-center tracking-[0.60px] leading-4 uppercase whitespace-nowrap">
+                    USER ENDORSEMENTS
+                </div>
+                <div class="w-full">
+                    <h2 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-bold text-[#131b2e] text-xl sm:text-2xl md:text-3xl lg:text-4xl text-center tracking-[-0.8px] leading-tight sm:leading-[1.2]">
+                        Kisah Sukses Peternak Muda
+                        <br class="hidden sm:inline" />
+                        Binaan Jawa Timur
+                    </h2>
+                </div>
+                <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-sm md:text-[15px] text-center leading-relaxed">
+                    Testimoni nyata dari pelaku usaha peternakan yang menerapkan pencatatan digital, pakan mandiri, dan sertifikasi dinas.
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 w-full">
+                
+                <!-- Testimonial 1: Slamet Riyadi (Malang) -->
+                <article class="flex flex-col justify-between p-5 sm:p-6 lg:p-7 bg-white rounded-2xl shadow-[0px_2px_4px_-2px_#0000001a,0px_4px_6px_-1px_#0000001a] border border-indigo-100/60 hover:shadow-lg transition-all duration-300">
+                    <div>
+                        <!-- Existing Farmer Photography -->
+                        <div class="relative w-full h-36 sm:h-44 md:h-48 rounded-xl overflow-hidden bg-slate-100 mb-4 sm:mb-5 group">
+                            <img
+                                src="{{ asset('img/peternakan2.webp') }}"
+                                alt="Slamet Riyadi Peternakan Domba Malang"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                loading="lazy"
+                            />
+                            <div class="absolute bottom-2 sm:bottom-2.5 left-2 sm:left-2.5 bg-[#131b2e]/85 backdrop-blur-sm text-white px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold">
+                                Efisiensi Pakan +28%
+                            </div>
+                        </div>
+
+                        <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-[#131b2e] text-base sm:text-lg md:text-xl tracking-[0] leading-snug mb-2 sm:mb-2.5">
+                            &ldquo;Formula Pakan Murah, Kenaikan Bobot Harian Terukur&rdquo;
+                        </h3>
+
+                        <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-sm md:text-[14.5px] tracking-[0] leading-relaxed mb-4 sm:mb-5">
+                            Dulu kami kesulitan mengatur formula pakan yang murah tapi berbobot. Sejak mengikuti bimbingan silase biomassa mandiri dan pendampingan recording dari dinas, kenaikan bobot harian ternak naik konsisten 180 gram per hari.
+                        </p>
+                    </div>
+
+                    <!-- Author Identity Strip -->
+                    <footer class="pt-4 border-t border-slate-100 flex items-center gap-3">
+                        <div class="w-9 sm:w-10 h-9 sm:h-10 rounded-full bg-indigo-700 text-white [font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-sm sm:text-base flex items-center justify-center shrink-0">
+                            SR
+                        </div>
+                        <div class="flex flex-col">
+                            <div class="[font-family:'Inter',sans-serif] font-semibold text-[#131b2e] text-xs sm:text-sm leading-tight">
+                                Slamet Riyadi
+                            </div>
+                            <div class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-[11px] sm:text-xs leading-tight mt-0.5">
+                                Ketua Kelompok Ternak Mandiri &bull; Malang
+                            </div>
+                        </div>
+                    </footer>
+                </article>
+
+                <!-- Testimonial 2: Siti Rahmawati (Blitar) -->
+                <article class="flex flex-col justify-between p-5 sm:p-6 lg:p-7 bg-white rounded-2xl shadow-[0px_2px_4px_-2px_#0000001a,0px_4px_6px_-1px_#0000001a] border border-indigo-100/60 hover:shadow-lg transition-all duration-300">
+                    <div>
+                        <!-- Existing Farmer Photography -->
+                        <div class="relative w-full h-36 sm:h-44 md:h-48 rounded-xl overflow-hidden bg-slate-100 mb-4 sm:mb-5 group">
+                            <img
+                                src="{{ asset('img/peternakan1.jpeg') }}"
+                                alt="Siti Rahmawati Peternakan Ayam Petelur Blitar"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                loading="lazy"
+                            />
+                            <div class="absolute bottom-2 sm:bottom-2.5 left-2 sm:left-2.5 bg-emerald-800/85 backdrop-blur-sm text-white px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold">
+                                Sertifikasi Higienitas NKV
+                            </div>
+                        </div>
+
+                        <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-[#131b2e] text-base sm:text-lg md:text-xl tracking-[0] leading-snug mb-2 sm:mb-2.5">
+                            &ldquo;Sertifikasi Higienitas NKV Membuka Akses Pasar Ritel&rdquo;
+                        </h3>
+
+                        <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-sm md:text-[14.5px] tracking-[0] leading-relaxed mb-4 sm:mb-5">
+                            Sertifikasi sanitasi kandang dan transparansi harga pasar harian membuat telur dari peternakan kami langsung diserap pasar ritel dan horeka. Tidak ada lagi kekhawatiran dipermainkan tengkulak saat masa panen tiba.
+                        </p>
+                    </div>
+
+                    <!-- Author Identity Strip -->
+                    <footer class="pt-4 border-t border-slate-100 flex items-center gap-3">
+                        <div class="w-9 sm:w-10 h-9 sm:h-10 rounded-full bg-[#712ae2] text-white [font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-sm sm:text-base flex items-center justify-center shrink-0">
+                            SR
+                        </div>
+                        <div class="flex flex-col">
+                            <div class="[font-family:'Inter',sans-serif] font-semibold text-[#131b2e] text-xs sm:text-sm leading-tight">
+                                Siti Rahmawati
+                            </div>
+                            <div class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-[11px] sm:text-xs leading-tight mt-0.5">
+                                Blitar Layer Farm &bull; Blitar
+                            </div>
+                        </div>
+                    </footer>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 7.5 Bagian Pendaftaran untuk Masyarakat Umum (Konsumen & Publik) -->
+    <section id="masyarakat" class="flex flex-col w-full items-start px-4 sm:px-6 md:px-8 lg:px-12 py-12 sm:py-16 lg:py-20 bg-white border-b border-indigo-100/60 shadow-[0px_1px_2px_#0000000d]">
+        <div class="flex flex-col max-w-[1120px] mx-auto items-center gap-8 sm:gap-10 w-full">
+            
+            <header class="flex flex-col max-w-2xl items-center gap-1.5 sm:gap-2 text-center px-2">
+                <span class="[font-family:'Inter',sans-serif] font-semibold text-emerald-700 bg-emerald-50 px-2.5 sm:px-3 py-0.5 rounded-full border border-emerald-100 text-[11px] tracking-wide">
+                    LAYANAN PUBLIK TERBUKA
+                </span>
+                <div class="w-full">
+                    <h2 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-bold text-[#131b2e] text-xl sm:text-2xl md:text-3xl lg:text-4xl text-center tracking-[-0.8px] leading-tight sm:leading-[1.2]">
+                        Pendaftaran Akun Masyarakat Umum &amp; Konsumen
+                    </h2>
+                </div>
+                <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-sm md:text-[15px] text-center leading-relaxed">
+                    Beli daging sapi, telur segar, dan susu langsung dari kandang binaan terverifikasi tanpa syarat kepemilikan usaha peternakan.
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 w-full">
+                
+                <div class="p-5 sm:p-6 lg:p-7 bg-[#faf8ff] rounded-2xl border border-indigo-100/60 shadow-[0px_1px_2px_#0000000d] flex flex-col justify-between hover:shadow-md hover:border-emerald-300 transition-all duration-300">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25c-.669 0-1.189-.578-1.119-1.243l1.263-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] text-base sm:text-lg font-bold text-[#131b2e] mb-1.5 leading-snug">Belanja Langsung Peternak</h3>
+                        <p class="[font-family:'Inter',sans-serif] text-xs sm:text-[13px] text-[#464554] leading-relaxed mb-4 sm:mb-5">
+                            Dapatkan komoditas hewani segar berstandar sanitasi NKV langsung dari tangan peternak rakyat dengan jaminan kualitas ASUH (Aman, Sehat, Utuh, Halal).
+                        </p>
+                    </div>
+                    <a href="{{ route('marketplace') }}" class="text-xs font-semibold text-emerald-700 hover:underline inline-flex items-center gap-1">
+                        <span>Buka Marketplace Komoditas</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                    </a>
+                </div>
+
+                <div class="p-5 sm:p-6 lg:p-7 bg-[#faf8ff] rounded-2xl border border-indigo-100/60 shadow-[0px_1px_2px_#0000000d] flex flex-col justify-between hover:shadow-md hover:border-amber-300 transition-all duration-300">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-4">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                            </svg>
+                        </div>
+                        <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] text-base sm:text-lg font-bold text-[#131b2e] mb-1.5 leading-snug">Transparansi Rujukan Harian</h3>
+                        <p class="[font-family:'Inter',sans-serif] text-xs sm:text-[13px] text-[#464554] leading-relaxed mb-4 sm:mb-5">
+                            Pantau harga resmi harian komoditas hewani dari pasar hewan di 38 kabupaten/kota se-Jatim untuk kebutuhan belanja rumah tangga atau wirausaha kuliner.
+                        </p>
+                    </div>
+                    <a href="{{ route('harga-komoditas') }}" class="text-xs font-semibold text-amber-700 hover:underline inline-flex items-center gap-1">
+                        <span>Pantau Rujukan Harga Harian</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                    </a>
+                </div>
+
+                <div class="p-5 sm:p-6 lg:p-7 bg-[#faf8ff] rounded-2xl border border-indigo-100/60 shadow-[0px_1px_2px_#0000000d] flex flex-col justify-between hover:shadow-md hover:border-blue-300 transition-all duration-300 sm:col-span-2 lg:col-span-1">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-blue-100 text-[#013a85] flex items-center justify-center mb-4">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                            </svg>
+                        </div>
+                        <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] text-base sm:text-lg font-bold text-[#131b2e] mb-1.5 leading-snug">Pameran &amp; Festival Ternak</h3>
+                        <p class="[font-family:'Inter',sans-serif] text-xs sm:text-[13px] text-[#464554] leading-relaxed mb-4 sm:mb-5">
+                            Lihat kalender pameran peternakan daerah, festival kontes ternak unggul, dan edukasi konsumsi protein hewani terbuka bagi seluruh keluarga.
+                        </p>
+                    </div>
+                    <a href="{{ route('pameran') }}" class="text-xs font-semibold text-[#013a85] hover:underline inline-flex items-center gap-1">
+                        <span>Jadwal Agenda Publik</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                    </a>
+                </div>
+
             </div>
 
-            <!-- Bento Grid: Gapless, Interlocking, Varied Visual Weight -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!-- Callout Action Card for Public Users (Responsive Stack) -->
+            <div class="w-full rounded-2xl sm:rounded-3xl bg-gradient-to-r from-emerald-800 to-teal-800 p-5 sm:p-7 lg:p-8 text-white shadow-lg flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
+                <div>
+                    <span class="inline-block px-2.5 py-0.5 rounded-full bg-white/15 text-[11px] font-semibold mb-1.5">
+                        Tanpa Syarat Kepemilikan Ternak
+                    </span>
+                    <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] text-lg sm:text-xl md:text-2xl font-bold leading-snug">
+                        Daftar Akun Masyarakat
+                    </h3>
+                    <p class="text-emerald-100/90 text-xs sm:text-sm mt-1 max-w-xl leading-relaxed">
+                        Mulai berbelanja langsung komoditas segar dan pantau informasi harga tanpa perlu memiliki usaha peternakan.
+                    </p>
+                </div>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 w-full lg:w-auto">
+                    <a
+                        href="{{ route('register', ['role' => 'umum']) }}"
+                        class="px-5 py-3 rounded-lg bg-white text-emerald-800 font-bold text-xs sm:text-sm hover:bg-emerald-50 transition-colors shadow-sm text-center"
+                    >
+                        Daftar Akun Masyarakat
+                    </a>
+                    <a
+                        href="{{ route('marketplace') }}"
+                        class="px-4.5 py-3 rounded-lg bg-white/10 text-white font-semibold text-xs sm:text-sm hover:bg-white/20 border border-white/20 transition-colors text-center"
+                    >
+                        Jelajahi Produk
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 8. FrequentlyAskedQuestionsSection: COMMON QUERIES (Responsive 2x2 Grid + Aside) -->
+    <section
+        id="faq"
+        aria-labelledby="faq-heading"
+        class="flex flex-col w-full items-start px-4 sm:px-6 md:px-8 lg:px-12 py-12 sm:py-16 lg:py-20 bg-[#faf8ff] border-b border-indigo-100/60"
+    >
+        <div class="flex flex-col max-w-[1120px] mx-auto items-center gap-8 sm:gap-10 lg:gap-12 w-full">
+            
+            <header class="flex flex-col max-w-2xl items-center gap-1.5 sm:gap-2 text-center px-2">
+                <div class="[font-family:'Inter',sans-serif] font-semibold text-[#2a14b4] text-[11px] text-center tracking-[0.60px] leading-4 uppercase whitespace-nowrap">
+                    COMMON QUERIES
+                </div>
+                <div class="w-full">
+                    <h2
+                        id="faq-heading"
+                        class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-bold text-[#131b2e] text-xl sm:text-2xl md:text-3xl lg:text-4xl text-center tracking-[-0.8px] leading-tight sm:leading-[1.2]"
+                    >
+                        Frequently Asked Questions
+                    </h2>
+                </div>
+                <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-sm md:text-[15px] text-center leading-relaxed">
+                    Jawaban ringkas seputar tata cara pendaftaran akun, layanan dokter dinas gratis, dan rujukan pasar.
+                </p>
+            </header>
+
+            <!-- 2x2 Grid of FAQ Articles -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 w-full">
                 
-                <!-- Bento 1: Featured Pillar (7 cols) - Kesmavet & Tanggap Darurat 24 Jam -->
-                <div class="md:col-span-7 double-bezel rounded-3xl bg-slate-50/70 p-6 sm:p-8 flex flex-col justify-between group transition-all duration-300">
-                    <div>
-                        <div class="flex items-center justify-between mb-6">
-                            <span class="w-10 h-10 rounded-2xl bg-red-50 text-red-600 border border-red-100 flex items-center justify-center font-bold text-sm">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <!-- FAQ 1 -->
+                <article class="w-full flex flex-col items-start justify-between p-5 sm:p-6 lg:p-7 bg-white rounded-2xl shadow-[0px_1px_2px_#0000000d] border border-indigo-100/60 hover:shadow-md transition-all duration-300">
+                    <div class="flex flex-col items-start gap-3 sm:gap-3.5 w-full">
+                        <div class="flex items-start gap-2.5 sm:gap-3 w-full">
+                            <span class="w-7 sm:w-8 h-7 sm:h-8 rounded-xl bg-[#e2e7ff] text-[#2a14b4] flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M12 18h.01" />
+                                </svg>
+                            </span>
+                            <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-[#131b2e] text-base sm:text-lg tracking-[0] leading-snug">
+                                Siapa saja yang berhak mendaftar di portal Peternak Milenial?
+                            </h3>
+                        </div>
+                        <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-[13.5px] tracking-[0] leading-relaxed">
+                            Seluruh pemuda, wirausaha pemula, kelompok peternak rakyat, serta pelaku UMKM olahan ternak yang berdomisili di 38 kabupaten/kota se-Jawa Timur dapat mendaftarkan akun secara mandiri tanpa pungutan biaya.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 w-full mt-3.5 sm:mt-4">
+                        <a
+                            href="#support"
+                            class="inline-flex items-center gap-1.5 [font-family:'Inter',sans-serif] font-semibold text-xs tracking-[0] leading-5 text-[#2a14b4] hover:underline"
+                        >
+                            <span>Click to learn more</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- FAQ 2 -->
+                <article class="w-full flex flex-col items-start justify-between p-5 sm:p-6 lg:p-7 bg-white rounded-2xl shadow-[0px_1px_2px_#0000000d] border border-indigo-100/60 hover:shadow-md transition-all duration-300">
+                    <div class="flex flex-col items-start gap-3 sm:gap-3.5 w-full">
+                        <div class="flex items-start gap-2.5 sm:gap-3 w-full">
+                            <span class="w-7 sm:w-8 h-7 sm:h-8 rounded-xl bg-[#eaddff] text-[#712ae2] flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                                 </svg>
                             </span>
-                            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-red-100/70 text-red-700">
-                                Respons Cepat 24 Jam
-                            </span>
+                            <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-[#131b2e] text-base sm:text-lg tracking-[0] leading-snug">
+                                Apakah layanan siaga darurat kesmavet dikenakan biaya?
+                            </h3>
                         </div>
-
-                        <h3 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight group-hover:text-[#013a85] transition-colors mb-3">
-                            Posko Darurat Kesmavet &amp; Rekam Medis Ternak
-                        </h3>
-                        <p class="text-slate-600 text-sm leading-relaxed mb-6">
-                            Sistem pelaporan siaga untuk gejala klinis hewan ternak dan deteksi dini wabah. Terhubung langsung ke dokter hewan dinas terdekat di tingkat kabupaten/kota untuk visitasi dan penanganan cepat.
+                        <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-[13.5px] tracking-[0] leading-relaxed">
+                            Layanan pelaporan siaga tanggap darurat dan konsultasi penyakit ternak bersama dokter hewan dinas merupakan fasilitas pelayanan publik resmi dari Pemprov Jawa Timur dan sepenuhnya gratis 24 jam.
                         </p>
                     </div>
-
-                    <!-- Mini UI Preview Card inside Bento -->
-                    <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                            <span class="text-xs font-medium text-slate-700">Layanan Siaga Aktif Seluruh Sentra</span>
-                        </div>
-                        <a href="{{ route('darurat') }}" class="text-xs font-bold text-[#013a85] hover:underline flex items-center gap-1">
-                            <span>Buka Siaga</span>
+                    <div class="pt-4 border-t border-slate-100 w-full mt-3.5 sm:mt-4">
+                        <a
+                            href="{{ route('darurat') }}"
+                            class="inline-flex items-center gap-1.5 [font-family:'Inter',sans-serif] font-semibold text-xs tracking-[0] leading-5 text-[#712ae2] hover:underline"
+                        >
+                            <span>Click to learn more</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                             </svg>
                         </a>
                     </div>
-                </div>
+                </article>
 
-                <!-- Bento 2: Secondary Pillar (5 cols) - Transparansi Harga Pasar Harian -->
-                <div class="md:col-span-5 double-bezel rounded-3xl bg-white p-6 sm:p-8 flex flex-col justify-between group transition-all duration-300">
-                    <div>
-                        <div class="flex items-center justify-between mb-6">
-                            <span class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center font-bold text-sm">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+                <!-- FAQ 3 -->
+                <article class="w-full flex flex-col items-start justify-between p-5 sm:p-6 lg:p-7 bg-white rounded-2xl shadow-[0px_1px_2px_#0000000d] border border-indigo-100/60 hover:shadow-md transition-all duration-300">
+                    <div class="flex flex-col items-start gap-3 sm:gap-3.5 w-full">
+                        <div class="flex items-start gap-2.5 sm:gap-3 w-full">
+                            <span class="w-7 sm:w-8 h-7 sm:h-8 rounded-xl bg-[#e0f7fa] text-[#005a6a] flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
                                 </svg>
                             </span>
-                            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
-                                Data Harian Riil
-                            </span>
+                            <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-[#131b2e] text-base sm:text-lg tracking-[0] leading-snug">
+                                Bagaimana prosedur sertifikasi Nomor Kontrol Veteriner (NKV)?
+                            </h3>
                         </div>
-
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight group-hover:text-[#013a85] transition-colors mb-2.5">
-                            Transparansi Harga Pasar
-                        </h3>
-                        <p class="text-slate-600 text-xs sm:text-sm leading-relaxed mb-6">
-                            Pembaruan harian harga sapi potong, susu segar, kambing, dan telur langsung dari pasar hewan serta sentra produksi se-Jawa Timur untuk melindungi posisi tawar peternak rakyat.
-                        </p>
-                    </div>
-
-                    <a href="{{ route('harga-komoditas') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#013a85] hover:text-blue-900 mt-2">
-                        <span>Pantau Rujukan Harga Harian</span>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                        </svg>
-                    </a>
-                </div>
-
-                <!-- Bento 3: Secondary Pillar (5 cols) - Bimtek & Standardisasi Mutu NKV -->
-                <div class="md:col-span-5 double-bezel rounded-3xl bg-white p-6 sm:p-8 flex flex-col justify-between group transition-all duration-300">
-                    <div>
-                        <div class="flex items-center justify-between mb-6">
-                            <span class="w-10 h-10 rounded-2xl bg-blue-50 text-[#013a85] border border-blue-100 flex items-center justify-center font-bold text-sm">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
-                                </svg>
-                            </span>
-                            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-blue-50 text-[#013a85] border border-blue-100">
-                                Bersertifikat
-                            </span>
-                        </div>
-
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight group-hover:text-[#013a85] transition-colors mb-2.5">
-                            Bimtek Pakan &amp; Sertifikasi NKV
-                        </h3>
-                        <p class="text-slate-600 text-xs sm:text-sm leading-relaxed mb-6">
-                            Kurikulum praktis formulasi pakan silase berbasis biomassa lokal dan pendampingan audit sanitasi kandang untuk pemenuhan sertifikat Nomor Kontrol Veteriner (NKV).
-                        </p>
-                    </div>
-
-                    <a href="{{ route('pelatihan') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#013a85] hover:text-blue-900 mt-2">
-                        <span>Lihat Jadwal Pelatihan Terbuka</span>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                        </svg>
-                    </a>
-                </div>
-
-                <!-- Bento 4: Featured Pillar (7 cols) - Marketplace & Akses Pasar Industri -->
-                <div class="md:col-span-7 double-bezel rounded-3xl bg-slate-50/70 p-6 sm:p-8 flex flex-col justify-between group transition-all duration-300">
-                    <div>
-                        <div class="flex items-center justify-between mb-6">
-                            <span class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center font-bold text-sm">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.651V9.35m0 0a3.001 3.001 0 003.75-.614A2.993 2.993 0 009 9.35c.71 0 1.373-.247 1.895-.664.522.417 1.185.664 1.895.664.71 0 1.373-.247 1.895-.664.522.417 1.185.664 1.895.664a3.001 3.001 0 003.75.614m-16.5 0L4.5 4.5h15l1.5 4.85" />
-                                </svg>
-                            </span>
-                            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
-                                Hilirisasi Produk
-                            </span>
-                        </div>
-
-                        <h3 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight group-hover:text-[#013a85] transition-colors mb-3">
-                            Kemitraan Pasar &amp; Marketplace Komoditas
-                        </h3>
-                        <p class="text-slate-600 text-sm leading-relaxed mb-6">
-                            Kanal pemasaran langsung yang mempertemukan peternak rakyat dengan pembeli grosir, horeka, dan rantai pasok industri tanpa perantara yang merugikan.
-                        </p>
-                    </div>
-
-                    <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
-                        <span class="text-xs font-medium text-slate-700">Daging Sapi, Domba, Susu Murni, dan Telur Segar</span>
-                        <a href="{{ route('marketplace') }}" class="text-xs font-bold text-[#013a85] hover:underline flex items-center gap-1">
-                            <span>Jelajahi Produk</span>
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- 5. Dokumentasi Lapangan & Cerita Sukses Peternak (Editorial Split Case Stories) -->
-    <section id="dampak" class="py-20 sm:py-28 bg-slate-50 border-b border-slate-200/70">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            
-            <div class="max-w-2xl mb-14">
-                <span class="text-xs font-bold uppercase tracking-wider text-[#013a85]">Dampak Nyata Lapangan</span>
-                <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-1.5 leading-tight">
-                    Transformasi Nyata Peternak Muda Jawa Timur
-                </h2>
-                <p class="text-sm sm:text-base text-slate-600 mt-2.5 leading-relaxed">
-                    Pengalaman peternak binaan yang menerapkan pencatatan digital, sanitasi bersertifikat, dan efisiensi pakan mandiri.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                
-                <!-- Story 1: Slamet Riyadi - Ruminansia Domba Malang -->
-                <div class="bg-white rounded-3xl p-7 sm:p-8 border border-slate-200/90 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <!-- Author Metadata Strip -->
-                        <div class="flex items-center gap-4 mb-6">
-                            <img
-                                src="{{ asset('img/peternakan2.webp') }}"
-                                alt="Slamet Riyadi"
-                                class="w-14 h-14 rounded-2xl object-cover border border-slate-200 shadow-xs shrink-0"
-                            />
-                            <div>
-                                <h4 class="text-base font-bold text-slate-900 leading-snug">Slamet Riyadi</h4>
-                                <p class="text-xs font-semibold text-[#013a85]">Kelompok Ternak Mandiri &bull; Malang</p>
-                                <span class="inline-block mt-0.5 text-[11px] text-slate-500 font-medium">Binaan Sentra Ruminansia Pedaging</span>
-                            </div>
-                        </div>
-
-                        <!-- Editorial Quote -->
-                        <p class="text-slate-700 text-sm sm:text-base leading-relaxed">
-                            &ldquo;Dulu kami kesulitan mengatur formula pakan yang murah tapi berbobot. Sejak mengikuti pelatihan silase biomassa mandiri dan pendampingan recording dari dinas, efisiensi pakan meningkat dan kenaikan bobot harian ternak kami konsisten naik 180 gram per hari. Usaha menjadi jauh lebih terukur.&rdquo;
-                        </p>
-                    </div>
-
-                    <!-- Impact Badge -->
-                    <div class="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                        <span class="font-medium text-slate-500">Hasil Implementasi:</span>
-                        <span class="font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
-                            Efisiensi Pakan +28%
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Story 2: Siti Rahmawati - Perunggasan Blitar -->
-                <div class="bg-white rounded-3xl p-7 sm:p-8 border border-slate-200/90 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <!-- Author Metadata Strip -->
-                        <div class="flex items-center gap-4 mb-6">
-                            <img
-                                src="{{ asset('img/peternakan1.jpeg') }}"
-                                alt="Siti Rahmawati"
-                                class="w-14 h-14 rounded-2xl object-cover border border-slate-200 shadow-xs shrink-0"
-                            />
-                            <div>
-                                <h4 class="text-base font-bold text-slate-900 leading-snug">Siti Rahmawati</h4>
-                                <p class="text-xs font-semibold text-emerald-700">Blitar Layer Farm &bull; Blitar</p>
-                                <span class="inline-block mt-0.5 text-[11px] text-slate-500 font-medium">Sertifikasi Higienitas NKV Level 1</span>
-                            </div>
-                        </div>
-
-                        <!-- Editorial Quote -->
-                        <p class="text-slate-700 text-sm sm:text-base leading-relaxed">
-                            &ldquo;Sertifikasi sanitasi NKV dan respons siaga darurat membuat telur dari peternakan kami langsung dipercaya pasar ritel dan industri pangan. Tidak ada lagi kekhawatiran harga jatuh saat panen raya karena data harga pasar transparan setiap hari.&rdquo;
-                        </p>
-                    </div>
-
-                    <!-- Impact Badge -->
-                    <div class="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                        <span class="font-medium text-slate-500">Hasil Implementasi:</span>
-                        <span class="font-bold text-[#013a85] bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
-                            Mitra Ritel &amp; Horeka Resmi
-                        </span>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- 6. Pusat Informasi & FAQ (Asymmetric 2-Column Architecture) -->
-    <section id="faq" class="py-20 sm:py-28 bg-white border-b border-slate-200/70">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                
-                <!-- Left: Static Context & Support Call Card -->
-                <div class="lg:col-span-5">
-                    <span class="text-xs font-bold uppercase tracking-wider text-[#013a85]">Bantuan &amp; Regulasi</span>
-                    <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-1.5 leading-tight">
-                        Pertanyaan Umum Peternak
-                    </h2>
-                    <p class="text-sm text-slate-600 mt-3 leading-relaxed">
-                        Jawaban ringkas seputar tata cara pendaftaran, layanan dokter hewan gratis, sertifikasi sanitasi kandang, dan rujukan pasar.
-                    </p>
-
-                    <!-- Contact Hotline Card -->
-                    <div class="mt-8 p-5 rounded-2xl bg-slate-50 border border-slate-200/80">
-                        <p class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">Butuh Bantuan Mendesak?</p>
-                        <p class="text-xs text-slate-500 mb-3 leading-relaxed">
-                            Hubungi posko siaga kesehatan hewan atau tim pendampingan teknis dinas.
-                        </p>
-                        <div class="space-y-2 text-xs font-medium text-slate-700">
-                            <div class="flex items-center justify-between py-1 border-b border-slate-200/60">
-                                <span>Posko Kesmavet:</span>
-                                <span class="font-bold text-[#013a85]">0800-1-DARURAT</span>
-                            </div>
-                            <div class="flex items-center justify-between py-1">
-                                <span>Email Binaan:</span>
-                                <a href="mailto:disnak@jatimprov.go.id" class="text-blue-600 hover:underline">disnak@jatimprov.go.id</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right: Clean Border-Divided Accordion List -->
-                <div class="lg:col-span-7 divide-y divide-slate-200/80">
-                    
-                    <!-- FAQ Item 1 -->
-                    <div class="py-5 first:pt-0">
-                        <button
-                            type="button"
-                            onclick="toggleFaq(this)"
-                            class="w-full text-left flex items-start justify-between gap-4 font-bold text-slate-900 hover:text-[#013a85] transition-colors"
-                        >
-                            <span class="text-base">Siapa saja yang berhak mendaftar di portal Peternak Milenial?</span>
-                            <span class="faq-icon text-xl text-slate-400 font-normal shrink-0 mt-0.5 transition-transform duration-200">+</span>
-                        </button>
-                        <div class="faq-content hidden mt-3 text-sm text-slate-600 leading-relaxed pr-6">
-                            Seluruh pemuda, wirausaha pemula, kelompok peternak rakyat, serta pelaku UMKM olahan ternak yang berdomisili di 38 kabupaten/kota se-Jawa Timur dapat mendaftarkan akun secara mandiri tanpa pungutan biaya.
-                        </div>
-                    </div>
-
-                    <!-- FAQ Item 2 -->
-                    <div class="py-5">
-                        <button
-                            type="button"
-                            onclick="toggleFaq(this)"
-                            class="w-full text-left flex items-start justify-between gap-4 font-bold text-slate-900 hover:text-[#013a85] transition-colors"
-                        >
-                            <span class="text-base">Apakah layanan siaga darurat kesmavet dikenakan biaya?</span>
-                            <span class="faq-icon text-xl text-slate-400 font-normal shrink-0 mt-0.5 transition-transform duration-200">+</span>
-                        </button>
-                        <div class="faq-content hidden mt-3 text-sm text-slate-600 leading-relaxed pr-6">
-                            Layanan pelaporan siaga tanggap darurat dan konsultasi penyakit ternak bersama dokter hewan dinas merupakan fasilitas pelayanan publik resmi dari Pemerintah Provinsi Jawa Timur dan sepenuhnya gratis.
-                        </div>
-                    </div>
-
-                    <!-- FAQ Item 3 -->
-                    <div class="py-5">
-                        <button
-                            type="button"
-                            onclick="toggleFaq(this)"
-                            class="w-full text-left flex items-start justify-between gap-4 font-bold text-slate-900 hover:text-[#013a85] transition-colors"
-                        >
-                            <span class="text-base">Bagaimana prosedur pengajuan sertifikasi Nomor Kontrol Veteriner (NKV)?</span>
-                            <span class="faq-icon text-xl text-slate-400 font-normal shrink-0 mt-0.5 transition-transform duration-200">+</span>
-                        </button>
-                        <div class="faq-content hidden mt-3 text-sm text-slate-600 leading-relaxed pr-6">
+                        <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-[13.5px] tracking-[0] leading-relaxed">
                             Setelah akun terdaftar, peternak dapat mengajukan asesmen mandiri kesiapan sanitasi kandang melalui portal. Tim pembina mutu dinas akan melakukan visitasi lapangan dan bimbingan hingga sertifikat NKV diterbitkan.
-                        </div>
+                        </p>
                     </div>
-
-                    <!-- FAQ Item 4 -->
-                    <div class="py-5">
-                        <button
-                            type="button"
-                            onclick="toggleFaq(this)"
-                            class="w-full text-left flex items-start justify-between gap-4 font-bold text-slate-900 hover:text-[#013a85] transition-colors"
+                    <div class="pt-4 border-t border-slate-100 w-full mt-3.5 sm:mt-4">
+                        <a
+                            href="{{ route('pelatihan') }}"
+                            class="inline-flex items-center gap-1.5 [font-family:'Inter',sans-serif] font-semibold text-xs tracking-[0] leading-5 text-[#005a6a] hover:underline"
                         >
-                            <span class="text-base">Dari mana sumber data harga pasar harian komoditas?</span>
-                            <span class="faq-icon text-xl text-slate-400 font-normal shrink-0 mt-0.5 transition-transform duration-200">+</span>
-                        </button>
-                        <div class="faq-content hidden mt-3 text-sm text-slate-600 leading-relaxed pr-6">
-                            Data harga harian dihimpun setiap pagi oleh petugas pencatat harga dinas langsung dari pasar-pasar hewan utama dan koperasi peternak di seluruh kabupaten/kota di Jawa Timur.
-                        </div>
+                            <span>Click to learn more</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                        </a>
                     </div>
+                </article>
 
-                </div>
+                <!-- FAQ 4 -->
+                <article class="w-full flex flex-col items-start justify-between p-5 sm:p-6 lg:p-7 bg-white rounded-2xl shadow-[0px_1px_2px_#0000000d] border border-indigo-100/60 hover:shadow-md transition-all duration-300">
+                    <div class="flex flex-col items-start gap-3 sm:gap-3.5 w-full">
+                        <div class="flex items-start gap-2.5 sm:gap-3 w-full">
+                            <span class="w-7 sm:w-8 h-7 sm:h-8 rounded-xl bg-[#e2e7ff] text-[#2a14b4] flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                                </svg>
+                            </span>
+                            <h3 class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-semibold text-[#131b2e] text-base sm:text-lg tracking-[0] leading-snug">
+                                Dari mana sumber data rujukan harga pasar harian?
+                            </h3>
+                        </div>
+                        <p class="[font-family:'Inter',sans-serif] font-normal text-[#464554] text-xs sm:text-[13.5px] tracking-[0] leading-relaxed">
+                            Data harga harian dihimpun setiap pagi oleh petugas pencatat harga dinas langsung dari pasar-pasar hewan utama dan koperasi peternak di seluruh 38 kabupaten/kota di Jawa Timur.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 w-full mt-3.5 sm:mt-4">
+                        <a
+                            href="{{ route('harga-komoditas') }}"
+                            class="inline-flex items-center gap-1.5 [font-family:'Inter',sans-serif] font-semibold text-xs tracking-[0] leading-5 text-[#2a14b4] hover:underline"
+                        >
+                            <span>Click to learn more</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </article>
 
             </div>
+
+            <!-- Albino Support Aside Banner (Responsive Layout) -->
+            <aside
+                id="support"
+                class="flex flex-col items-center justify-center p-4 sm:p-5 w-full bg-[#eaedff] rounded-2xl border border-indigo-100/60"
+            >
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 text-center">
+                    <span class="[font-family:'Inter',sans-serif] font-normal text-[#131b2e] text-xs sm:text-sm tracking-[0] leading-snug">
+                        Belum menemukan jawaban Anda?
+                    </span>
+                    <a
+                        href="mailto:disnak@jatimprov.go.id"
+                        class="[font-family:'Inter',sans-serif] font-semibold text-[#2a14b4] text-xs sm:text-sm hover:underline"
+                    >
+                        Hubungi posko siaga dinas sekarang (0800-1-DARURAT)
+                    </a>
+                </div>
+            </aside>
+
         </div>
     </section>
 
-    <!-- 7. High-Contrast Civic Action Banner (Grounded Institutional Confidence) -->
-    <section class="py-16 sm:py-20 bg-slate-50">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="rounded-3xl bg-[#013a85] p-8 sm:p-14 lg:p-16 text-white shadow-xl shadow-blue-950/15 relative overflow-hidden">
+    <!-- 9. LandingPageCallToActionSection: HIGH-IMPACT CIVIC BANNER (Fully Responsive Across All Screens) -->
+    <section
+        class="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 md:px-8 lg:px-12 bg-[#faf8ff]"
+        aria-labelledby="landing-page-cta-title"
+    >
+        <div class="max-w-[1120px] mx-auto w-full">
+            <div class="px-5 sm:px-8 md:px-12 lg:px-16 py-10 sm:py-12 lg:py-16 relative bg-[#283044] rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0px_25px_50px_-12px_#00000040] flex flex-col items-center text-center">
                 
-                <!-- Geometric decorative grid subtle accent -->
-                <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(rgba(255,255,255,0.4) 1px, transparent 1px); background-size: 24px 24px;"></div>
+                <!-- Ambient Spheres Blur from Albino Design -->
+                <div
+                    class="absolute -top-32 -left-32 w-72 h-72 bg-[#8a4cfc33] rounded-full blur-[48px] pointer-events-none"
+                    aria-hidden="true"
+                ></div>
+                <div
+                    class="absolute -right-32 -bottom-32 w-72 h-72 bg-[#005a6a4c] rounded-full blur-[48px] pointer-events-none"
+                    aria-hidden="true"
+                ></div>
 
-                <div class="relative max-w-2xl">
-                    <span class="inline-block px-3 py-1 rounded-full bg-white/10 text-xs font-semibold tracking-wider uppercase mb-5 border border-white/15">
-                        Program Pembinaan Resmi
+                <div class="flex flex-col max-w-2xl items-center gap-3.5 sm:gap-5 relative z-10">
+                    
+                    <span class="inline-block px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-white/10 text-[11px] sm:text-xs font-semibold text-indigo-200 border border-white/15">
+                        Program Pembinaan Terpadu Dinas Peternakan Jatim
                     </span>
-                    <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight mb-4">
+
+                    <h2
+                        id="landing-page-cta-title"
+                        class="[font-family:'Plus_Jakarta_Sans',sans-serif] font-bold text-white text-xl sm:text-2xl md:text-3xl lg:text-4xl text-center tracking-[-0.8px] leading-tight sm:leading-[1.2]"
+                    >
                         Wujudkan Peternakan Tangguh &amp; Modern di Jawa Timur
                     </h2>
-                    <p class="text-sm sm:text-base text-blue-100/90 leading-relaxed mb-8 font-normal">
-                        Daftarkan kelompok atau unit usaha peternakan Anda sekarang untuk mendapatkan akses bimbingan teknis, pengawasan medis, dan integrasi pasar daerah.
+
+                    <p class="[font-family:'Inter',sans-serif] font-normal text-[#dae2fdcc] text-xs sm:text-sm md:text-[15px] text-center tracking-[0] leading-relaxed">
+                        Daftarkan kelompok atau unit usaha peternakan Anda sekarang untuk mendapatkan akses bimbingan teknis, pengawasan medis 24 jam, dan integrasi pasar daerah.
                     </p>
 
-                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-3.5 w-full sm:w-auto pt-1 sm:pt-3">
+                        <a
+                            href="{{ route('login') }}"
+                            class="inline-flex items-center justify-center px-5 sm:px-7 py-3 sm:py-3.5 bg-[#dae2fd] hover:bg-[#c3cffc] text-[#283044] rounded-lg font-semibold text-xs sm:text-sm transition-colors duration-200 active:scale-[0.98] text-center"
+                        >
+                            Masuk ke Portal
+                        </a>
                         <a
                             href="{{ route('register') }}"
-                            class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm bg-white text-[#013a85] hover:bg-blue-50 shadow-sm transition-all duration-200 active:scale-[0.98]"
+                            class="inline-flex items-center justify-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 bg-indigo-700 hover:bg-indigo-800 text-white rounded-lg font-semibold text-xs sm:text-sm shadow-[0px_8px_10px_-6px_#0000001a,0px_20px_25px_-5px_#0000001a] transition-all duration-200 active:scale-[0.98] group text-center"
                         >
-                            <span>Daftar Akun Baru Sekarang</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <span>Daftar Akun Sekarang</span>
+                            <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                             </svg>
                         </a>
-                        <a
-                            href="{{ route('login') }}"
-                            class="inline-flex items-center justify-center px-6 py-3.5 rounded-full font-semibold text-sm bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all duration-200 active:scale-[0.98]"
-                        >
-                            <span>Masuk ke Portal</span>
-                        </a>
                     </div>
-                </div>
 
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- 8. Provincial Authority Footer -->
-    <footer class="bg-white border-t border-slate-200 pt-16 pb-12 text-slate-500 text-xs">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-slate-100">
+    <!-- 10. FooterNavigationSection: FULL GRID FOOTER (Responsive Multi-Column) -->
+    <footer class="flex w-full flex-col items-start bg-[#f2f3ff] px-4 sm:px-6 md:px-8 lg:px-12 py-10 sm:py-12 pb-[calc(2.5rem+env(safe-area-inset-bottom,0px))] border-t border-indigo-100/70">
+        <div class="max-w-[1120px] mx-auto w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10">
                 
-                <!-- Column 1: Identity & Official Presence (5 cols) -->
-                <div class="md:col-span-5">
+                <!-- Brand Profile & Identity (Cols 1-4) -->
+                <div class="lg:col-span-4 flex flex-col items-start gap-2.5 sm:gap-3.5">
                     <img
-                        src="{{ asset('img/logoaplikasi2.png') }}"
-                        alt="Peternak Milenial Jawa Timur"
-                        class="h-10 w-auto object-contain mb-4"
+                        class="h-8 sm:h-9 w-auto object-contain"
+                        alt="Peternak Milenial Logo"
+                        src="{{ asset('img/Peternak Milenial.png') }}"
                     />
-                    <p class="text-slate-600 max-w-sm leading-relaxed mb-4">
-                        Portal resmi Pemerintah Provinsi Jawa Timur melalui Dinas Peternakan untuk membina wirausaha muda peternakan dan menjamin kedaulatan pangan hewani berkelanjutan.
+                    <p class="[font-family:'Inter',sans-serif] text-xs sm:text-[13px] font-normal leading-relaxed text-[#464554] max-w-sm">
+                        Portal resmi Pemerintah Provinsi Jawa Timur melalui Dinas Peternakan untuk membina wirausaha muda peternakan dan menjamin kedaulatan pangan hewani berkelanjutan di 38 kabupaten/kota.
                     </p>
-                    <p class="text-slate-400 text-[11px] leading-relaxed">
-                        Jl. Jenderal Ahmad Yani No. 202, Gayungan, Surabaya, Jawa Timur 60235
+                    <div class="pt-1 text-[11px] sm:text-xs text-slate-500">
+                        <p class="font-semibold text-slate-700">Kantor Dinas Peternakan Provinsi Jatim</p>
+                        <p>Jl. Jenderal Ahmad Yani No. 202, Gayungan, Surabaya, Jawa Timur 60235</p>
+                    </div>
+                    <p class="pt-1 text-[11px] sm:text-xs text-slate-400">
+                        &copy; {{ date('Y') }} Dinas Peternakan Provinsi Jawa Timur. Hak Cipta Dilindungi.
                     </p>
                 </div>
 
-                <!-- Column 2: Public Modules (3 cols) -->
-                <div class="md:col-span-3">
-                    <h4 class="text-xs uppercase font-bold tracking-wider text-slate-900 mb-3.5">Layanan Publik</h4>
-                    <ul class="space-y-2.5 font-medium">
-                        <li><a href="{{ route('harga-komoditas') }}" class="text-slate-600 hover:text-[#013a85] transition-colors">Informasi Harga Pasar Harian</a></li>
-                        <li><a href="{{ route('darurat') }}" class="text-slate-600 hover:text-[#013a85] transition-colors">Posko Siaga Darurat Kesmavet</a></li>
-                        <li><a href="{{ route('pelatihan') }}" class="text-slate-600 hover:text-[#013a85] transition-colors">Agenda Bimtek &amp; Pelatihan</a></li>
-                        <li><a href="{{ route('marketplace') }}" class="text-slate-600 hover:text-[#013a85] transition-colors">Pasar Komoditas Ternak</a></li>
-                        <li><a href="{{ route('pameran') }}" class="text-slate-600 hover:text-[#013a85] transition-colors">Agenda Pameran Daerah</a></li>
-                    </ul>
-                </div>
+                <!-- 4 Link Navigation Columns (Cols 5-12, 2 cols on mobile, 4 cols on tablet & desktop) -->
+                <nav class="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-5 sm:gap-6" aria-label="Footer navigation">
+                    
+                    <!-- Col 1: Layanan Peternak -->
+                    <div class="flex flex-col items-start gap-2 sm:gap-2.5">
+                        <h3 class="[font-family:'Inter',sans-serif] text-xs sm:text-[13px] font-semibold leading-5 text-[#131b2e]">
+                            Layanan Peternak
+                        </h3>
+                        <ul class="flex flex-col items-start gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-[#464554]">
+                            <li><a class="hover:text-[#2a14b4] transition-colors" href="{{ route('darurat') }}">Siaga Darurat 24 Jam</a></li>
+                            <li><a class="hover:text-[#2a14b4] transition-colors" href="{{ route('pelatihan') }}">Bimtek &amp; Pelatihan</a></li>
+                            <li><a class="hover:text-[#2a14b4] transition-colors" href="{{ route('marketplace') }}">Pasar Komoditas</a></li>
+                            <li><a class="hover:text-[#2a14b4] transition-colors" href="{{ route('pameran') }}">Pameran Peternakan</a></li>
+                        </ul>
+                    </div>
 
-                <!-- Column 3: Quick Navigation (2 cols) -->
-                <div class="md:col-span-2">
-                    <h4 class="text-xs uppercase font-bold tracking-wider text-slate-900 mb-3.5">Akses Akun</h4>
-                    <ul class="space-y-2.5 font-medium">
-                        <li><a href="{{ route('login') }}" class="text-slate-600 hover:text-[#013a85] transition-colors">Masuk Akun</a></li>
-                        <li><a href="{{ route('register') }}" class="text-slate-600 hover:text-[#013a85] transition-colors">Pendaftaran Baru</a></li>
-                        <li><a href="{{ route('dashboard') }}" class="text-slate-600 hover:text-[#013a85] transition-colors">Dashboard Sistem</a></li>
-                    </ul>
-                </div>
+                    <!-- Col 2: Data & Rujukan -->
+                    <div class="flex flex-col items-start gap-2 sm:gap-2.5">
+                        <h3 class="[font-family:'Inter',sans-serif] text-xs sm:text-[13px] font-semibold leading-5 text-[#131b2e]">
+                            Data &amp; Rujukan
+                        </h3>
+                        <ul class="flex flex-col items-start gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-[#464554]">
+                            <li><a class="hover:text-[#2a14b4] transition-colors" href="{{ route('harga-komoditas') }}">Rujukan Harga Harian</a></li>
+                            <li><a class="hover:text-[#2a14b4] transition-colors" href="#pertumbuhan">Peta Sentra Daerah</a></li>
+                            <li><a class="hover:text-[#2a14b4] transition-colors" href="#alur">Standarisasi NKV</a></li>
+                            <li><a class="hover:text-[#2a14b4] transition-colors" href="{{ route('search') }}">Pencarian Sentra</a></li>
+                        </ul>
+                    </div>
 
-                <!-- Column 4: Contact & Emergency (2 cols) -->
-                <div class="md:col-span-2">
-                    <h4 class="text-xs uppercase font-bold tracking-wider text-slate-900 mb-3.5">Kontak Dinas</h4>
-                    <ul class="space-y-2 text-slate-600 font-medium">
-                        <li>Posko: <span class="font-bold text-[#013a85] block">0800-1-DARURAT</span></li>
-                        <li>Email: <a href="mailto:disnak@jatimprov.go.id" class="text-blue-600 hover:underline block truncate">disnak@jatimprov.go.id</a></li>
-                        <li>Jam: <span class="text-slate-500 text-[11px] block">Senin–Jumat 07.30–16.00</span></li>
-                    </ul>
-                </div>
+                    <!-- Col 3: Akses Akun -->
+                    <div class="flex flex-col items-start gap-2 sm:gap-2.5">
+                        <h3 class="[font-family:'Inter',sans-serif] text-xs sm:text-[13px] font-semibold leading-5 text-[#131b2e]">
+                            Akses Akun
+                        </h3>
+                        <ul class="flex flex-col items-start gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-[#464554]">
+                            <li><a class="hover:text-[#2a14b4] transition-colors" href="{{ route('login') }}">Masuk Akun</a></li>
+                            <li><a class="hover:text-[#2a14b4] transition-colors" href="{{ route('register') }}">Pendaftaran Peternak</a></li>
+                            <li><a class="hover:text-emerald-700 font-medium transition-colors" href="{{ route('register', ['role' => 'umum']) }}">Pendaftaran Masyarakat</a></li>
+                            <li><a class="hover:text-[#2a14b4] transition-colors" href="{{ route('dashboard') }}">Dashboard Sistem</a></li>
+                        </ul>
+                    </div>
 
-            </div>
+                    <!-- Col 4: Posko Dinas -->
+                    <div class="flex flex-col items-start gap-2 sm:gap-2.5">
+                        <h3 class="[font-family:'Inter',sans-serif] text-xs sm:text-[13px] font-semibold leading-5 text-[#131b2e]">
+                            Bantuan &amp; Kontak
+                        </h3>
+                        <ul class="flex flex-col items-start gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-[#464554]">
+                            <li>Posko: <span class="font-bold text-[#2a14b4] block">0800-1-DARURAT</span></li>
+                            <li>Email: <a href="mailto:disnak@jatimprov.go.id" class="hover:underline truncate block">disnak@jatimprov.go.id</a></li>
+                            <li>Jam Kerja: <span class="text-[10px] sm:text-[11px] text-slate-500 block">Senin–Jumat 07.30–16.00</span></li>
+                        </ul>
+                    </div>
 
-            <!-- Footer Bottom Strip -->
-            <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
-                <p>&copy; {{ date('Y') }} Dinas Peternakan Provinsi Jawa Timur. Seluruh Hak Cipta Dilindungi.</p>
-                <div class="flex items-center gap-6">
-                    <span class="hover:text-slate-600 transition-colors">Sistem Informasi Peternak Milenial Jatim</span>
-                </div>
+                </nav>
+
             </div>
         </div>
     </footer>
 
     <!-- Interactive Client Scripts -->
     <script>
-        // Mobile Drawer Menu
+        // Accessible Mobile Drawer Menu Toggle with Backdrop & Icon Sync
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
+            const backdrop = document.getElementById('mobile-menu-backdrop');
+            const btn = document.getElementById('mobile-menu-btn');
+            const hamburgerIcon = document.getElementById('hamburger-icon');
+            const closeIcon = document.getElementById('close-icon');
+
             if (menu) {
+                const isOpening = menu.classList.contains('hidden');
                 menu.classList.toggle('hidden');
+                if (backdrop) backdrop.classList.toggle('hidden', !isOpening);
+                if (btn) btn.setAttribute('aria-expanded', isOpening ? 'true' : 'false');
+                if (hamburgerIcon && closeIcon) {
+                    hamburgerIcon.classList.toggle('hidden', isOpening);
+                    closeIcon.classList.toggle('hidden', !isOpening);
+                }
             }
         }
 
         function closeMobileMenu() {
             const menu = document.getElementById('mobile-menu');
-            if (menu) {
-                menu.classList.add('hidden');
-            }
+            const backdrop = document.getElementById('mobile-menu-backdrop');
+            const btn = document.getElementById('mobile-menu-btn');
+            const hamburgerIcon = document.getElementById('hamburger-icon');
+            const closeIcon = document.getElementById('close-icon');
+
+            if (menu) menu.classList.add('hidden');
+            if (backdrop) backdrop.classList.add('hidden');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+            if (hamburgerIcon) hamburgerIcon.classList.remove('hidden');
+            if (closeIcon) closeIcon.classList.add('hidden');
         }
 
-        // Accessible FAQ Accordion Toggle
-        function toggleFaq(button) {
-            const content = button.nextElementSibling;
-            const icon = button.querySelector('.faq-icon');
-            const isCurrentlyOpen = !content.classList.contains('hidden');
-
-            // Close all items
-            document.querySelectorAll('.faq-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.faq-icon').forEach(el => {
-                el.textContent = '+';
-                el.classList.remove('rotate-45');
-            });
-
-            // Toggle target
-            if (!isCurrentlyOpen) {
-                content.classList.remove('hidden');
-                icon.textContent = '×';
+        // Close on Escape key press
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobileMenu();
             }
-        }
+        });
+
+        // Close mobile drawer when resizing back to desktop screen width
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) {
+                closeMobileMenu();
+            }
+        });
     </script>
 </body>
 </html>

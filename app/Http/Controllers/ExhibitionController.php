@@ -24,6 +24,9 @@ class ExhibitionController extends Controller
         if (! in_array($activeTab, ['agenda', 'stand', 'kalender'])) {
             $activeTab = 'agenda';
         }
+        if ($currentUser && $currentUser->isUmum() && $activeTab === 'stand') {
+            $activeTab = 'agenda';
+        }
 
         $featuredExhibition = Exhibition::where('is_featured', true)->first() ?? Exhibition::first();
         $exhibitions = Exhibition::orderByDesc('is_featured')->orderBy('start_date')->get();

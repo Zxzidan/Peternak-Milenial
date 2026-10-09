@@ -7,11 +7,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Daftar Akun Baru — Peternak Milenial Jawa Timur</title>
 
-    <!-- Google Fonts: Poppins -->
+    <!-- Typography: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&display=swap"
         rel="stylesheet">
 
     <!-- Flowbite & Vite Scripts -->
@@ -19,7 +19,7 @@
 
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #f8fafc;
         }
     </style>
@@ -56,7 +56,7 @@
                     <!-- Bottom Row Over Image: Titles, Description & Glassmorphic Benefit Badges -->
                     <div class="relative z-10 space-y-5">
                         <div>
-                            <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight drop-shadow-sm">
+                            <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-snug drop-shadow-sm">
                                 Bergabung dengan Ekosistem Peternak Milenial Jatim
                             </h2>
                             <p class="text-xs sm:text-sm text-slate-200/95 mt-2.5 leading-relaxed drop-shadow-xs">
@@ -102,7 +102,7 @@
                     <!-- Brand Header with Official Logo from img/ -->
                     <div class="flex items-center justify-between mb-8 pb-5 border-b border-slate-100">
                         <a href="{{ route('landing') }}" class="flex items-center group" title="Kembali ke Beranda">
-                            <img src="{{ asset('img/logoaplikasi2.png') }}" alt="Peternak Milenial Jawa Timur"
+                            <img src="{{ asset('img/Peternak Milenial.png') }}" alt="Peternak Milenial Jawa Timur"
                                 class="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105" />
                         </a>
                         <a href="{{ route('landing') }}"
@@ -117,16 +117,52 @@
                     </div>
 
                     <!-- Heading & Subtitle -->
-                    <div class="mb-8 sm:mb-10">
-                        <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 mb-3.5 shadow-2xs">
+                    <div class="mb-7 sm:mb-8">
+                        <span id="badge-role-title" class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 mb-3.5 shadow-2xs">
                             Pendaftaran Peternak Milenial Jatim
                         </span>
-                        <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight leading-tight">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight leading-snug">
                             Sign up
                         </h1>
-                        <p class="text-xs sm:text-sm text-slate-500 mt-2.5 sm:mt-3 leading-relaxed max-w-xl">
+                        <p id="subtitle-role" class="text-xs sm:text-sm text-slate-500 mt-2.5 sm:mt-3 leading-relaxed max-w-xl">
                             Lengkapi data diri, wilayah domisili, dan usaha peternakan Anda untuk mulai mengakses ekosistem digital Dinas Peternakan Jawa Timur.
                         </p>
+                    </div>
+
+                    <!-- Role Category Selector -->
+                    <div class="mb-7 sm:mb-8">
+                        <span class="block mb-2.5 text-xs sm:text-sm font-bold text-slate-800">
+                            Pilih Kategori Pendaftar:
+                        </span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            <!-- Card 1: Peternak Milenial -->
+                            <button type="button" id="role-card-peternak" onclick="setRole('peternak')"
+                                class="p-4 rounded-2xl border-2 text-left transition-all flex items-start gap-3.5 cursor-pointer bg-blue-50/80 border-blue-600 ring-2 ring-blue-100">
+                                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5" id="role-icon-peternak">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-900 leading-tight">Peternak Milenial</h3>
+                                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">Pelaku usaha peternakan, kelompok ternak, atau binaan dinas.</p>
+                                </div>
+                            </button>
+
+                            <!-- Card 2: Masyarakat Umum -->
+                            <button type="button" id="role-card-umum" onclick="setRole('umum')"
+                                class="p-4 rounded-2xl border-2 text-left transition-all flex items-start gap-3.5 cursor-pointer bg-white border-slate-200 hover:border-slate-300">
+                                <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-xs mt-0.5" id="role-icon-umum">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-900 leading-tight">Masyarakat Umum</h3>
+                                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">Konsumen produk ternak, pembeli pasar digital &amp; publik.</p>
+                                </div>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Flash Errors -->
@@ -151,7 +187,7 @@
                     <!-- Register Form (Spacious Logical Grouping) -->
                     <form action="{{ route('register.submit') }}" method="POST" enctype="multipart/form-data" class="space-y-7 sm:space-y-9">
                         @csrf
-                        <input type="hidden" name="role" value="peternak">
+                        <input type="hidden" name="role" id="role_input" value="{{ old('role', request('role', 'peternak')) }}">
                         <input type="hidden" name="terms" value="1">
 
                         <!-- SECTION 1: Identitas & Kontak -->
@@ -395,7 +431,7 @@
                         </div>
 
                         <!-- SECTION 3: Profil Usaha Peternakan -->
-                        <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-6 sm:p-7 xl:p-8 space-y-6 sm:space-y-7 shadow-2xs">
+                        <div id="section-livestock" class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-6 sm:p-7 xl:p-8 space-y-6 sm:space-y-7 shadow-2xs">
                             <div class="flex items-center gap-3.5 pb-4 border-b border-slate-200/70">
                                 <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs">
                                     <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -544,7 +580,7 @@
                                 <!-- Foto KTP (Spacious Styled Dropzone Container) -->
                                 <div class="sm:col-span-2">
                                     <label for="ktp_file" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
-                                        Foto KTP<span class="text-red-500 font-bold ml-0.5">*</span>
+                                        Foto KTP<span id="ktp-required-star" class="text-red-500 font-bold ml-0.5">*</span>
                                     </label>
                                     <div class="p-6 sm:p-7 border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-2xl bg-white hover:bg-blue-50/25 transition duration-200 group">
                                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5">
@@ -577,7 +613,7 @@
                         <div class="pt-6 sm:pt-8 space-y-6 sm:space-y-7">
                             <button type="submit"
                                 class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-100 font-bold rounded-xl text-sm sm:text-base py-3.5 sm:py-4 text-center transition duration-200 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/35 cursor-pointer flex items-center justify-center gap-2">
-                                <span>Sign Up</span>
+                                <span id="submit-btn-label">Sign Up</span>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                                 </svg>
@@ -981,8 +1017,91 @@
             });
         }
 
+        // Dynamic Role Switcher (Peternak Milenial vs Masyarakat Umum)
+        function setRole(role) {
+            const roleInput = document.getElementById('role_input');
+            if (roleInput) roleInput.value = role;
+
+            const cardPeternak = document.getElementById('role-card-peternak');
+            const cardUmum = document.getElementById('role-card-umum');
+            const iconPeternak = document.getElementById('role-icon-peternak');
+            const iconUmum = document.getElementById('role-icon-umum');
+            const sectionLivestock = document.getElementById('section-livestock');
+            const livestockType = document.getElementById('livestock_type');
+            const livestockCount = document.getElementById('livestock_count');
+            const ktpStar = document.getElementById('ktp-required-star');
+            const badgeTitle = document.getElementById('badge-role-title');
+            const subtitle = document.getElementById('subtitle-role');
+            const btnLabel = document.getElementById('submit-btn-label');
+
+            if (role === 'umum') {
+                // Highlight Umum Card
+                if (cardUmum) {
+                    cardUmum.className = 'p-4 rounded-2xl border-2 text-left transition-all flex items-start gap-3.5 cursor-pointer bg-emerald-50/80 border-emerald-600 ring-2 ring-emerald-100';
+                }
+                if (iconUmum) {
+                    iconUmum.className = 'w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5';
+                }
+                if (cardPeternak) {
+                    cardPeternak.className = 'p-4 rounded-2xl border-2 text-left transition-all flex items-start gap-3.5 cursor-pointer bg-white border-slate-200 hover:border-slate-300';
+                }
+                if (iconPeternak) {
+                    iconPeternak.className = 'w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-xs mt-0.5';
+                }
+
+                // Hide livestock section and remove required validation
+                if (sectionLivestock) sectionLivestock.classList.add('hidden');
+                if (livestockType) livestockType.removeAttribute('required');
+                if (livestockCount) livestockCount.removeAttribute('required');
+                if (ktpStar) ktpStar.classList.add('hidden');
+
+                // Update UI text
+                if (badgeTitle) {
+                    badgeTitle.textContent = 'Pendaftaran Akun Masyarakat Umum Jatim';
+                    badgeTitle.className = 'inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80 mb-3.5 shadow-2xs';
+                }
+                if (subtitle) {
+                    subtitle.textContent = 'Lengkapi data diri dan wilayah domisili Anda untuk mulai berbelanja di pasar digital peternakan dan memantau rujukan harga komoditas Jawa Timur.';
+                }
+                if (btnLabel) btnLabel.textContent = 'Sign Up sebagai Masyarakat Umum';
+            } else {
+                // Highlight Peternak Card
+                if (cardPeternak) {
+                    cardPeternak.className = 'p-4 rounded-2xl border-2 text-left transition-all flex items-start gap-3.5 cursor-pointer bg-blue-50/80 border-blue-600 ring-2 ring-blue-100';
+                }
+                if (iconPeternak) {
+                    iconPeternak.className = 'w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5';
+                }
+                if (cardUmum) {
+                    cardUmum.className = 'p-4 rounded-2xl border-2 text-left transition-all flex items-start gap-3.5 cursor-pointer bg-white border-slate-200 hover:border-slate-300';
+                }
+                if (iconUmum) {
+                    iconUmum.className = 'w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-xs mt-0.5';
+                }
+
+                // Show livestock section and add required validation
+                if (sectionLivestock) sectionLivestock.classList.remove('hidden');
+                if (livestockType) livestockType.setAttribute('required', 'required');
+                if (livestockCount) livestockCount.setAttribute('required', 'required');
+                if (ktpStar) ktpStar.classList.remove('hidden');
+
+                // Update UI text
+                if (badgeTitle) {
+                    badgeTitle.textContent = 'Pendaftaran Peternak Milenial Jatim';
+                    badgeTitle.className = 'inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 mb-3.5 shadow-2xs';
+                }
+                if (subtitle) {
+                    subtitle.textContent = 'Lengkapi data diri, wilayah domisili, dan usaha peternakan Anda untuk mulai mengakses ekosistem digital Dinas Peternakan Jawa Timur.';
+                }
+                if (btnLabel) btnLabel.textContent = 'Sign Up';
+            }
+        }
+
         // Restore old inputs if present
         document.addEventListener('DOMContentLoaded', () => {
+            const initialRole = @json(old('role', request('role', 'peternak')));
+            setRole(initialRole);
+
             const oldKab = @json(old('kabupaten'));
             const oldKec = @json(old('kecamatan'));
             const oldDesa = @json(old('desa'));
