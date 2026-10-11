@@ -1,7 +1,7 @@
 # 🌾 Peternak Milenial Jawa Timur (SIP-Milenial)
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="300" alt="Laravel Framework">
+  <img src="public/img/Peternak%20Milenial.png" width="380" alt="Logo Peternak Milenial Jawa Timur">
 </p>
 
 <p align="center">
