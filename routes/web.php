@@ -19,8 +19,9 @@ Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('regi
 Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// 1. Landing Page Utama (Public Portal Peternak Milenial Jatim)
+// 1. Landing Page Utama & FAQ (Public Portal Peternak Milenial Jatim)
 Route::get('/', [LandingController::class, 'index'])->name('landing');
+Route::get('/faq', [LandingController::class, 'faq'])->name('faq');
 
 // 2. Global Search
 Route::get('/search', [SearchController::class, 'search'])->name('search');

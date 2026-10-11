@@ -27,4 +27,12 @@ class LandingController extends Controller
             'activeTrainingsCount' => $activeTrainingsCount,
         ]);
     }
+
+    /**
+     * Display the FAQ help-center page.
+     */
+    public function faq(): View
+    {
+        return view('faq');
+    }
 }

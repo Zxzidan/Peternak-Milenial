@@ -52,6 +52,20 @@ test('landing page displays dashboard shortcut when authenticated', function () 
     $response->assertSee(route('dashboard'));
 });
 
+test('faq page renders successfully with accordions and cta', function () {
+    $response = $this->get(route('faq'));
+
+    $response->assertStatus(200);
+    $response->assertSee('Frequently Asked');
+    $response->assertSee('Questions');
+    $response->assertSee('Siapa saja yang berhak mendaftar di portal Peternak Milenial?');
+    $response->assertSee('Apakah layanan siaga darurat kesmavet dikenakan biaya?');
+    $response->assertSee('Bagaimana prosedur sertifikasi Nomor Kontrol Veteriner (NKV)?');
+    $response->assertSee('Dari mana sumber data rujukan harga pasar harian?');
+    $response->assertSee('Wujudkan Peternakan Tangguh & Modern di Jawa Timur');
+    $response->assertSee('0800-1-DARURAT');
+});
+
 test('dashboard page renders successfully', function () {
     $response = $this->get(route('dashboard'));
 
@@ -1174,4 +1188,46 @@ test('user can register as masyarakat umum without livestock fields and is redir
     expect($created->isUmum())->toBeTrue();
     expect($created->livestock_type)->toBeNull();
     expect($created->livestock_count)->toBeNull();
+});
+
+test('masyarakat umum can register with minimal required fields: name, birth_date, and alamat', function () {
+    $data = [
+        'name' => 'Siti Rahmawati',
+        'birth_date' => '2001-08-20',
+        'alamat' => 'Jl. Pemuda No. 45, RT 02 / RW 05, Surabaya',
+        'email' => 'siti.rahma@example.com',
+        'password' => 'rahasia123',
+        'password_confirmation' => 'rahasia123',
+        'role' => 'umum',
+    ];
+
+    $response = $this->post(route('register.submit'), $data);
+
+    $response->assertRedirect(route('marketplace'));
+    $this->assertAuthenticated();
+
+    $user = User::where('email', 'siti.rahma@example.com')->first();
+    expect($user)->not->toBeNull();
+    expect($user->name)->toBe('Siti Rahmawati');
+    expect($user->birth_date->format('Y-m-d'))->toBe('2001-08-20');
+    expect($user->alamat)->toBe('Jl. Pemuda No. 45, RT 02 / RW 05, Surabaya');
+    expect($user->role)->toBe('umum');
+    expect($user->nik)->toBeNull();
+    expect($user->ktp_path)->toBeNull();
+    expect($user->livestock_type)->toBeNull();
+});
+
+test('register page renders multi-step wizard structure and navigation controls', function () {
+    $response = $this->get(route('register'));
+
+    $response->assertStatus(200);
+    $response->assertSee('id="wizard-progress-card"', false);
+    $response->assertSee('id="wizard-progress-bar"', false);
+    $response->assertSee('id="step-pane-1"', false);
+    $response->assertSee('id="step-pane-2"', false);
+    $response->assertSee('id="step-pane-3"', false);
+    $response->assertSee('id="step-pane-4"', false);
+    $response->assertSee('Lanjut: Wilayah Domisili');
+    $response->assertSee('Sebelumnya');
+    $response->assertSee('Sign Up');
 });

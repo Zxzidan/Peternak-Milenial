@@ -22,189 +22,288 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #f8fafc;
         }
+
+        @keyframes stepFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-pane:not(.hidden) {
+            animation: stepFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
     </style>
 </head>
 
 <body
-    class="bg-gradient-to-br from-slate-50 via-blue-50/40 to-sky-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+    class="bg-slate-100/70 text-slate-800 min-h-screen flex flex-col justify-between antialiased selection:bg-blue-600 selection:text-white">
 
-    <!-- Main Content Area: Spacious & Refined Split Layout (Hero Image on Left, Register Form on Right) -->
-    <main class="flex-1 flex items-start justify-center py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
-        <div class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-start">
+    <!-- Main Content Area: Unified Modal Card (Split Layout: Image on Left, Form on Right - Matching Login Page) -->
+    <main class="flex-1 flex items-center justify-center py-4 sm:py-6 lg:py-6 px-4 sm:px-6 lg:px-8">
+        <div
+            class="w-full max-w-5xl xl:max-w-6xl bg-white rounded-3xl sm:rounded-[32px] overflow-hidden shadow-2xl shadow-slate-900/10 border border-slate-200/80 grid grid-cols-1 lg:grid-cols-12">
 
-            <!-- LEFT COLUMN: Full Hero Image Showcase with Gradient (Sticky, Balanced) -->
-            <div class="lg:col-span-5 xl:col-span-5 hidden lg:flex flex-col sticky top-8 self-start">
-                <div class="relative w-full h-[calc(100vh-4rem)] min-h-[680px] max-h-[920px] rounded-3xl overflow-hidden shadow-2xl border border-slate-200/80 flex flex-col justify-between p-8 sm:p-9 xl:p-10 text-white group">
-                    <!-- Background Image (Full Bleed, High Definition) -->
-                    <img
-                        src="{{ asset('img/hiasan baru 1.jpg') }}"
-                        alt="Dukungan & Kemitraan Peternak Milenial Jatim"
-                        class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105 select-none"
-                    />
+            <!-- LEFT COLUMN: Hero Image Showcase with Dark Gradient Overlay (Matching Login Design) -->
+            <div
+                class="lg:col-span-5 relative hidden lg:flex flex-col justify-between p-7 sm:p-8 xl:p-9 text-white overflow-hidden group">
+                <!-- Background Image (Full Bleed, High Definition) -->
+                <img
+                    src="{{ asset('img/hiasan baru 1.jpg') }}"
+                    alt="Dukungan & Kemitraan Peternak Milenial Jatim"
+                    class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105 select-none"
+                />
 
-                    <!-- Gradient Overlay: Rich multi-stop gradient for sharp text contrast and visual depth -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-900/25"></div>
-                    <div class="absolute inset-0 bg-gradient-to-r from-blue-950/40 via-transparent to-emerald-950/30 mix-blend-multiply pointer-events-none"></div>
+                <!-- Multi-stop Gradient Overlay for Crisp Text Readability -->
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-900/25"></div>
+                <div class="absolute inset-0 bg-slate-900/10 pointer-events-none"></div>
 
-                    <!-- Top Row Over Image -->
-                    <div class="relative z-10 flex items-center justify-end">
-                        <span class="text-xs font-semibold tracking-wide text-white/90 bg-black/30 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15">
-                            Dinas Peternakan Jatim
-                        </span>
+                <!-- Top Row Over Image: Badge -->
+                <div class="relative z-10 flex items-center justify-between">
+                    <span class="text-xs font-semibold tracking-wide text-white bg-black/40 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15">
+                        Dinas Peternakan Jatim
+                    </span>
+                </div>
+
+                <!-- Bottom Information: Title, Description & Feature Pills -->
+                <div class="relative z-10 space-y-4">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug drop-shadow-sm">
+                            Bergabung dengan Ekosistem Peternak Milenial Jatim
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-200/90 mt-2 leading-relaxed">
+                            Langkah nyata mewujudkan kemandirian pangan hewani melalui pendampingan ahli, sertifikasi ternak, dan kemudahan akses pasar di Jawa Timur.
+                        </p>
                     </div>
 
-                    <!-- Bottom Row Over Image: Titles, Description & Glassmorphic Benefit Badges -->
-                    <div class="relative z-10 space-y-5">
-                        <div>
-                            <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-snug drop-shadow-sm">
-                                Bergabung dengan Ekosistem Peternak Milenial Jatim
-                            </h2>
-                            <p class="text-xs sm:text-sm text-slate-200/95 mt-2.5 leading-relaxed drop-shadow-xs">
-                                Langkah nyata mewujudkan kemandirian pangan hewani melalui pendampingan ahli, sertifikasi ternak, dan kemudahan akses pembiayaan usaha.
-                            </p>
+                    <!-- Glassmorphic Benefit Badges -->
+                    <div class="grid grid-cols-2 gap-2.5 pt-1">
+                        <div class="p-2.5 sm:p-3 bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-400 flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="text-xs font-bold text-white truncate leading-tight">Bimbingan Teknis</h4>
+                                <p class="text-[11px] text-slate-300 truncate leading-tight mt-0.5">e-Tag Barcode</p>
+                            </div>
                         </div>
 
-                        <!-- Glassmorphic Benefit Badges -->
-                        <div class="space-y-3 pt-1">
-                            <div class="p-3.5 bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl flex items-center gap-3 transition">
-                                <div class="w-9 h-9 rounded-xl bg-emerald-500/25 border border-emerald-400/40 text-emerald-300 flex items-center justify-center shrink-0 shadow-2xs">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div class="min-w-0">
-                                    <h4 class="text-xs font-bold text-white truncate">Bimbingan Teknis &amp; Sertifikat</h4>
-                                    <p class="text-[11px] text-slate-300 truncate">Akses modul Bimtek, e-Sertifikat &amp; e-Tag Barcode</p>
-                                </div>
+                        <div class="p-2.5 sm:p-3 bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/30 text-blue-400 flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+                                </svg>
                             </div>
-
-                            <div class="p-3.5 bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl flex items-center gap-3 transition">
-                                <div class="w-9 h-9 rounded-xl bg-blue-500/25 border border-blue-400/40 text-blue-300 flex items-center justify-center shrink-0 shadow-2xs">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
-                                    </svg>
-                                </div>
-                                <div class="min-w-0">
-                                    <h4 class="text-xs font-bold text-white truncate">Pasar Digital Peternak Jatim</h4>
-                                    <p class="text-[11px] text-slate-300 truncate">Jual beli komoditas langsung tanpa perantara</p>
-                                </div>
+                            <div class="min-w-0">
+                                <h4 class="text-xs font-bold text-white truncate leading-tight">Pasar Digital</h4>
+                                <p class="text-[11px] text-slate-300 truncate leading-tight mt-0.5">Komoditas Jatim</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN: Register Card (Spacious, Well-Organized & Clean Theme) -->
-            <div class="lg:col-span-7 xl:col-span-7 w-full">
-                <div
-                    class="bg-white/95 border border-slate-200/90 rounded-3xl p-7 sm:p-9 lg:p-10 xl:p-12 shadow-xl shadow-slate-200/50 backdrop-blur">
+            <!-- RIGHT COLUMN: Registration Form (Spacious, Unified Single Modal) -->
+            <div class="lg:col-span-7 p-6 sm:p-8 lg:p-8 xl:p-10 bg-white flex flex-col justify-between">
 
-                    <!-- Brand Header with Official Logo from img/ -->
-                    <div class="flex items-center justify-between mb-8 pb-5 border-b border-slate-100">
-                        <a href="{{ route('landing') }}" class="flex items-center group" title="Kembali ke Beranda">
-                            <img src="{{ asset('img/Peternak Milenial.png') }}" alt="Peternak Milenial Jawa Timur"
-                                class="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105" />
-                        </a>
-                        <a href="{{ route('landing') }}"
-                            class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                            </svg>
-                            <span>Halaman Utama</span>
-                        </a>
-                    </div>
+                <!-- Brand Header with Logo & Back to Home Link -->
+                <div class="flex items-center justify-between mb-5 pb-3.5 border-b border-slate-100">
+                    <a href="{{ route('landing') }}" class="flex items-center group" title="Kembali ke Beranda">
+                        <img src="{{ asset('img/Peternak Milenial.png') }}" alt="Peternak Milenial Jawa Timur"
+                            class="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-105" />
+                    </a>
+                    <a href="{{ route('landing') }}"
+                        class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-500 hover:text-blue-600 px-3 py-1.5 rounded-xl hover:bg-slate-50 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                        </svg>
+                        <span>Halaman Utama</span>
+                    </a>
+                </div>
 
-                    <!-- Heading & Subtitle -->
-                    <div class="mb-7 sm:mb-8">
-                        <span id="badge-role-title" class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 mb-3.5 shadow-2xs">
-                            Pendaftaran Peternak Milenial Jatim
-                        </span>
-                        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight leading-snug">
-                            Sign up
-                        </h1>
-                        <p id="subtitle-role" class="text-xs sm:text-sm text-slate-500 mt-2.5 sm:mt-3 leading-relaxed max-w-xl">
-                            Lengkapi data diri, wilayah domisili, dan usaha peternakan Anda untuk mulai mengakses ekosistem digital Dinas Peternakan Jawa Timur.
-                        </p>
-                    </div>
+                <!-- Heading, Subtitle & Role Category Selector -->
+                <div class="space-y-3.5 mb-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                                Sign up
+                            </h1>
+                            <span id="badge-role-title" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs">
+                                Pendaftaran Peternak Milenial Jatim
+                            </span>
+                        </div>
 
-                    <!-- Role Category Selector -->
-                    <div class="mb-7 sm:mb-8">
-                        <span class="block mb-2.5 text-xs sm:text-sm font-bold text-slate-800">
-                            Pilih Kategori Pendaftar:
-                        </span>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                            <!-- Card 1: Peternak Milenial -->
+                        <!-- Role Category Switcher -->
+                        <div class="flex items-center gap-2.5 shrink-0">
+                            <!-- Peternak Milenial -->
                             <button type="button" id="role-card-peternak" onclick="setRole('peternak')"
-                                class="p-4 rounded-2xl border-2 text-left transition-all flex items-start gap-3.5 cursor-pointer bg-blue-50/80 border-blue-600 ring-2 ring-blue-100">
-                                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5" id="role-icon-peternak">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                class="px-3.5 py-2 rounded-xl border-2 text-left transition-all flex items-center gap-2.5 cursor-pointer bg-blue-50/80 border-blue-600 ring-2 ring-blue-100 shadow-2xs">
+                                <div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-2xs" id="role-icon-peternak">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                     </svg>
                                 </div>
-                                <div>
-                                    <h3 class="text-sm font-bold text-slate-900 leading-tight">Peternak Milenial</h3>
-                                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">Pelaku usaha peternakan, kelompok ternak, atau binaan dinas.</p>
-                                </div>
+                                <span class="text-xs sm:text-sm font-bold text-slate-800">Peternak</span>
                             </button>
 
-                            <!-- Card 2: Masyarakat Umum -->
+                            <!-- Masyarakat Umum -->
                             <button type="button" id="role-card-umum" onclick="setRole('umum')"
-                                class="p-4 rounded-2xl border-2 text-left transition-all flex items-start gap-3.5 cursor-pointer bg-white border-slate-200 hover:border-slate-300">
-                                <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-xs mt-0.5" id="role-icon-umum">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                class="px-3.5 py-2 rounded-xl border-2 text-left transition-all flex items-center gap-2.5 cursor-pointer bg-white border-slate-200 hover:border-slate-300 shadow-2xs">
+                                <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-2xs" id="role-icon-umum">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                                     </svg>
                                 </div>
-                                <div>
-                                    <h3 class="text-sm font-bold text-slate-900 leading-tight">Masyarakat Umum</h3>
-                                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">Konsumen produk ternak, pembeli pasar digital &amp; publik.</p>
+                                <span class="text-xs sm:text-sm font-bold text-slate-800">Masyarakat</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <p id="subtitle-role" class="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-2xl">
+                        Lengkapi data diri, wilayah domisili, dan usaha peternakan Anda untuk mulai mengakses ekosistem digital Dinas Peternakan Jawa Timur.
+                    </p>
+                </div>
+
+                <!-- Flash Errors -->
+                @if ($errors->any())
+                    <div class="mb-4 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs sm:text-sm">
+                        <div class="font-semibold mb-1 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                            </svg>
+                            Mohon perbaiki data formulir berikut:
+                        </div>
+                        <ul class="list-disc list-inside space-y-0.5 text-red-700 ml-1">
+                            @foreach ($errors->all() as $err)
+                                <li>{{ $err }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                @php
+                    $initialStepIndex = 0;
+                    if ($errors->any()) {
+                        $oldRole = old('role', request('role', 'peternak'));
+                        if ($errors->has('password') || $errors->has('password_confirmation') || $errors->has('ktp_file')) {
+                            $initialStepIndex = ($oldRole === 'umum') ? 2 : 3;
+                        } elseif ($errors->has('livestock_type') || $errors->has('livestock_count')) {
+                            $initialStepIndex = 2;
+                        } elseif ($errors->has('kabupaten') || $errors->has('kecamatan') || $errors->has('desa') || $errors->has('alamat')) {
+                            $initialStepIndex = 1;
+                        } elseif ($errors->has('name') || $errors->has('birth_date') || $errors->has('email') || $errors->has('phone_number') || $errors->has('nik')) {
+                            $initialStepIndex = 0;
+                        }
+                    }
+                @endphp
+
+                <!-- Register Form (Step-by-Step Wizard) -->
+                <form id="register-form" action="{{ route('register.submit') }}" method="POST" enctype="multipart/form-data" class="space-y-4 sm:space-y-5">
+                    @csrf
+                    <input type="hidden" name="role" id="role_input" value="{{ old('role', request('role', 'peternak')) }}">
+                    <input type="hidden" name="terms" value="1">
+
+                    <!-- Multi-Step Wizard Progress Bar -->
+                    <div id="wizard-progress-card" class="p-3.5 sm:p-4 bg-slate-50/90 border border-slate-200/90 rounded-2xl shadow-2xs mb-5">
+                        <!-- Step Counter & Title -->
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2.5">
+                                <span id="wizard-step-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-600 text-white shadow-2xs">
+                                    Langkah 1 dari 4
+                                </span>
+                                <span id="wizard-current-title" class="text-xs sm:text-sm font-bold text-slate-800">
+                                    Identitas Diri &amp; Kontak
+                                </span>
+                            </div>
+                            <span id="wizard-percent-text" class="text-xs sm:text-sm font-extrabold text-blue-600">
+                                25% Selesai
+                            </span>
+                        </div>
+
+                        <!-- Progress Bar Track -->
+                        <div class="w-full bg-slate-200/90 rounded-full h-2 mb-2.5 overflow-hidden">
+                            <div id="wizard-progress-bar" class="bg-gradient-to-r from-blue-600 to-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 25%"></div>
+                        </div>
+
+                        <!-- Step Tabs -->
+                        <div id="wizard-steps-nav" class="grid grid-cols-4 gap-2 pt-2.5 border-t border-slate-200/70">
+                            <!-- Step 0 Tab -->
+                            <button type="button" onclick="handleStepNavClick(0)" id="step-nav-0"
+                                class="step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer text-blue-800 bg-blue-50 ring-1 ring-blue-200">
+                                <div id="step-num-0" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition bg-blue-600 text-white shadow-2xs">
+                                    1
+                                </div>
+                                <div class="min-w-0 hidden sm:block">
+                                    <p id="step-nav-title-0" class="text-xs font-bold text-slate-800 truncate">Identitas</p>
+                                    <p id="step-nav-sub-0" class="text-[10px] text-slate-400 truncate mt-0.5">Data diri &amp; kontak</p>
+                                </div>
+                            </button>
+
+                            <!-- Step 1 Tab -->
+                            <button type="button" onclick="handleStepNavClick(1)" id="step-nav-1"
+                                class="step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer text-slate-400 hover:bg-slate-50">
+                                <div id="step-num-1" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition bg-slate-100 text-slate-500 border border-slate-200">
+                                    2
+                                </div>
+                                <div class="min-w-0 hidden sm:block">
+                                    <p id="step-nav-title-1" class="text-xs font-bold text-slate-700 truncate">Domisili</p>
+                                    <p id="step-nav-sub-1" class="text-[10px] text-slate-400 truncate mt-0.5">Wilayah Jatim</p>
+                                </div>
+                            </button>
+
+                            <!-- Step 2 Tab -->
+                            <button type="button" onclick="handleStepNavClick(2)" id="step-nav-2"
+                                class="step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer text-slate-400 hover:bg-slate-50">
+                                <div id="step-num-2" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition bg-slate-100 text-slate-500 border border-slate-200">
+                                    3
+                                </div>
+                                <div class="min-w-0 hidden sm:block">
+                                    <p id="step-nav-title-2" class="text-xs font-bold text-slate-700 truncate">Peternakan</p>
+                                    <p id="step-nav-sub-2" class="text-[10px] text-slate-400 truncate mt-0.5">Profil usaha ternak</p>
+                                </div>
+                            </button>
+
+                            <!-- Step 3 Tab -->
+                            <button type="button" onclick="handleStepNavClick(3)" id="step-nav-3"
+                                class="step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer text-slate-400 hover:bg-slate-50">
+                                <div id="step-num-3" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition bg-slate-100 text-slate-500 border border-slate-200">
+                                    4
+                                </div>
+                                <div class="min-w-0 hidden sm:block">
+                                    <p id="step-nav-title-3" class="text-xs font-bold text-slate-700 truncate">Keamanan</p>
+                                    <p id="step-nav-sub-3" class="text-[10px] text-slate-400 truncate mt-0.5">Kata sandi &amp; KTP</p>
                                 </div>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Flash Errors -->
-                    @if ($errors->any())
-                        <div class="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-800 text-xs">
-                            <div class="font-semibold mb-1.5 flex items-center gap-2">
-                                <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                                </svg>
-                                Mohon perbaiki data formulir berikut:
-                            </div>
-                            <ul class="list-disc list-inside space-y-1 text-red-700 ml-1">
-                                @foreach ($errors->all() as $err)
-                                    <li>{{ $err }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <!-- Register Form (Spacious Logical Grouping) -->
-                    <form action="{{ route('register.submit') }}" method="POST" enctype="multipart/form-data" class="space-y-7 sm:space-y-9">
-                        @csrf
-                        <input type="hidden" name="role" id="role_input" value="{{ old('role', request('role', 'peternak')) }}">
-                        <input type="hidden" name="terms" value="1">
-
-                        <!-- SECTION 1: Identitas & Kontak -->
-                        <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-6 sm:p-7 xl:p-8 space-y-6 sm:space-y-7 shadow-2xs">
-                            <div class="flex items-center gap-3.5 pb-4 border-b border-slate-200/80">
-                                <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 shadow-2xs">
-                                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <!-- STEP PANE 1: Identitas Diri & Kontak -->
+                    <div id="step-pane-1" class="step-pane space-y-4">
+                        <!-- SECTION 1: Identitas Diri -->
+                        <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xs">
+                            <div class="flex items-center gap-3 pb-3 border-b border-slate-200/80">
+                                <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h2 class="text-sm sm:text-base font-bold text-slate-900">Identitas Diri &amp; Kontak</h2>
-                                    <p class="text-xs text-slate-500 mt-0.5">Informasi utama untuk verifikasi keanggotaan peternak</p>
+                                    <h2 id="sec1-title" class="text-sm sm:text-base font-bold text-slate-900 leading-normal">Identitas Diri &amp; Kontak</h2>
+                                    <p id="sec1-desc" class="text-xs sm:text-sm text-slate-500 leading-normal mt-0.5">Informasi utama untuk verifikasi keanggotaan peternak</p>
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                                 <!-- Nama Lengkap -->
                                 <div>
                                     <label for="name" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
@@ -218,12 +317,28 @@
                                         </div>
                                         <input type="text" name="name" id="name" value="{{ old('name') }}" required
                                             placeholder="Nama Lengkap"
-                                            class="bg-white border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-4 py-3 sm:py-3.5 placeholder-slate-400 shadow-2xs transition">
+                                            class="bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-3.5 py-2.5 sm:py-3 placeholder-slate-400 shadow-2xs transition">
+                                    </div>
+                                </div>
+
+                                <!-- Tanggal Lahir -->
+                                <div>
+                                    <label for="birth_date" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
+                                        Tanggal Lahir<span class="text-red-500 font-bold ml-0.5">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                                            </svg>
+                                        </div>
+                                        <input type="date" name="birth_date" id="birth_date" value="{{ old('birth_date') }}" required
+                                            class="bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-3.5 py-2.5 sm:py-3 placeholder-slate-400 shadow-2xs transition cursor-pointer">
                                     </div>
                                 </div>
 
                                 <!-- Email -->
-                                <div>
+                                <div class="sm:col-span-2">
                                     <label for="email" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
                                         Email<span class="text-red-500 font-bold ml-0.5">*</span>
                                     </label>
@@ -235,12 +350,12 @@
                                         </div>
                                         <input type="email" name="email" id="email" value="{{ old('email') }}" required
                                             placeholder="Email"
-                                            class="bg-white border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-4 py-3 sm:py-3.5 placeholder-slate-400 shadow-2xs transition">
+                                            class="bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-3.5 py-2.5 sm:py-3 placeholder-slate-400 shadow-2xs transition">
                                     </div>
                                 </div>
 
-                                <!-- No Telpon (WA) -->
-                                <div>
+                                <!-- No Telpon (WA) - Khusus Peternak -->
+                                <div id="field-phone">
                                     <label for="phone_number" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
                                         No Telpon (WA)<span class="text-red-500 font-bold ml-0.5">*</span>
                                     </label>
@@ -252,12 +367,12 @@
                                         </div>
                                         <input type="text" name="phone_number" id="phone_number" value="{{ old('phone_number') }}" required
                                             placeholder="628xxxxxxxxxx"
-                                            class="bg-white border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-4 py-3 sm:py-3.5 placeholder-slate-400 shadow-2xs transition">
+                                            class="bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-3.5 py-2.5 sm:py-3 placeholder-slate-400 shadow-2xs transition">
                                     </div>
                                 </div>
 
-                                <!-- NIK -->
-                                <div>
+                                <!-- NIK - Khusus Peternak -->
+                                <div id="field-nik">
                                     <label for="nik" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
                                         NIK<span class="text-red-500 font-bold ml-0.5">*</span>
                                     </label>
@@ -269,172 +384,206 @@
                                         </div>
                                         <input type="text" name="nik" id="nik" value="{{ old('nik') }}" maxlength="16" required
                                             placeholder="NIK"
-                                            class="bg-white border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-4 py-3 sm:py-3.5 placeholder-slate-400 shadow-2xs transition">
-                                    </div>
-                                </div>
-
-                                <!-- Tanggal Lahir -->
-                                <div class="sm:col-span-2">
-                                    <label for="birth_date" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
-                                        Tanggal Lahir<span class="text-red-500 font-bold ml-0.5">*</span>
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                                            </svg>
-                                        </div>
-                                        <input type="date" name="birth_date" id="birth_date" value="{{ old('birth_date') }}" required
-                                            class="bg-white border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-4 py-3 sm:py-3.5 placeholder-slate-400 shadow-2xs transition cursor-pointer">
+                                            class="bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-3.5 py-2.5 sm:py-3 placeholder-slate-400 shadow-2xs transition">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- SECTION 2: Wilayah Domisili (Jawa Timur) -->
-                        <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-6 sm:p-7 xl:p-8 space-y-6 sm:space-y-7 shadow-2xs">
-                            <div class="flex items-center gap-3.5 pb-4 border-b border-slate-200/70">
-                                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs">
-                                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <!-- Step 1 Nav Action -->
+                        <div class="pt-2 flex items-center justify-end">
+                            <button type="button" onclick="nextStep()"
+                                class="inline-flex items-center justify-center gap-2 text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-100 font-bold rounded-xl text-xs sm:text-sm py-2.5 sm:py-3 px-6 sm:px-7 transition duration-200 shadow-sm shadow-blue-500/20 hover:shadow-md cursor-pointer">
+                                <span id="btn-next-step1-label">Lanjut: Wilayah Domisili</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP PANE 2: Alamat & Wilayah Domisili -->
+                    <div id="step-pane-2" class="step-pane hidden space-y-4">
+                        <!-- SECTION 2: Alamat & Wilayah Domisili -->
+                        <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xs">
+                            <div class="flex items-center gap-3 pb-3 border-b border-slate-200/70">
+                                <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h2 class="text-sm sm:text-base font-bold text-slate-900">Wilayah Domisili (Jawa Timur)</h2>
-                                    <p class="text-xs text-slate-500 mt-0.5">Penentuan sentra binaan dan penugasan petugas pendamping</p>
+                                    <h2 id="sec2-title" class="text-sm sm:text-base font-bold text-slate-900 leading-normal">Alamat &amp; Wilayah Domisili</h2>
+                                    <p id="sec2-desc" class="text-xs sm:text-sm text-slate-500 leading-normal mt-0.5">Alamat lengkap domisili tempat tinggal</p>
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-                                <!-- Kabupaten/Kota -->
-                                <div class="sm:col-span-2">
-                                    <label for="kabupaten" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
-                                        Kabupaten/Kota<span class="text-red-500 font-bold ml-0.5">*</span>
+                            <div class="space-y-4">
+                                <!-- Alamat Lengkap -->
+                                <div id="field-alamat">
+                                    <label for="alamat" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
+                                        Alamat Lengkap<span class="text-red-500 font-bold ml-0.5">*</span>
                                     </label>
-                                    @php
-                                        $jatimKabupatens = [
-                                            'Kabupaten Bangkalan',
-                                            'Kabupaten Banyuwangi',
-                                            'Kabupaten Blitar',
-                                            'Kabupaten Bojonegoro',
-                                            'Kabupaten Bondowoso',
-                                            'Kabupaten Gresik',
-                                            'Kabupaten Jember',
-                                            'Kabupaten Jombang',
-                                            'Kabupaten Kediri',
-                                            'Kabupaten Lamongan',
-                                            'Kabupaten Lumajang',
-                                            'Kabupaten Madiun',
-                                            'Kabupaten Magetan',
-                                            'Kabupaten Malang',
-                                            'Kabupaten Mojokerto',
-                                            'Kabupaten Nganjuk',
-                                            'Kabupaten Ngawi',
-                                            'Kabupaten Pacitan',
-                                            'Kabupaten Pamekasan',
-                                            'Kabupaten Pasuruan',
-                                            'Kabupaten Ponorogo',
-                                            'Kabupaten Probolinggo',
-                                            'Kabupaten Sampang',
-                                            'Kabupaten Sidoarjo',
-                                            'Kabupaten Situbondo',
-                                            'Kabupaten Sumenep',
-                                            'Kabupaten Trenggalek',
-                                            'Kabupaten Tuban',
-                                            'Kabupaten Tulungagung',
-                                            'Kota Batu',
-                                            'Kota Blitar',
-                                            'Kota Kediri',
-                                            'Kota Madiun',
-                                            'Kota Malang',
-                                            'Kota Mojokerto',
-                                            'Kota Pasuruan',
-                                            'Kota Probolinggo',
-                                            'Kota Surabaya',
-                                        ];
-                                    @endphp
                                     <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                                            </svg>
-                                        </div>
-                                        <select name="kabupaten" id="kabupaten" required onchange="handleKabupatenChange(this.value)"
-                                            class="appearance-none bg-white border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-10 py-3 sm:py-3.5 shadow-2xs transition cursor-pointer">
-                                            <option value="" disabled {{ old('kabupaten') ? '' : 'selected' }}>Pilih Kabupaten...</option>
-                                            @foreach ($jatimKabupatens as $kab)
-                                                <option value="{{ $kab }}" {{ old('kabupaten') == $kab ? 'selected' : '' }}>{{ $kab }}</option>
-                                            @endforeach
-                                        </select>
-                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 sm:pr-4 text-slate-400">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                            </svg>
-                                        </div>
+                                        <textarea name="alamat" id="alamat" rows="3"
+                                            placeholder="Alamat lengkap (nama jalan, RT/RW, nomor rumah, dsb.)"
+                                            class="bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 block w-full p-3 sm:p-3.5 placeholder-slate-400 shadow-2xs transition">{{ old('alamat') }}</textarea>
                                     </div>
                                 </div>
 
-                                <!-- Kecamatan -->
-                                <div>
-                                    <label for="kecamatan" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
-                                        Kecamatan<span class="text-red-500 font-bold ml-0.5">*</span>
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
-                                            </svg>
-                                        </div>
-                                        <select name="kecamatan" id="kecamatan" required onchange="handleKecamatanChange(this.value)"
-                                            class="appearance-none bg-white border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-10 py-3 sm:py-3.5 shadow-2xs transition cursor-pointer">
-                                            <option value="" disabled {{ old('kecamatan') ? '' : 'selected' }}>Pilih Kecamatan...</option>
-                                            @if(old('kecamatan'))
-                                                <option value="{{ old('kecamatan') }}" selected>{{ old('kecamatan') }}</option>
-                                            @endif
-                                        </select>
-                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 sm:pr-4 text-slate-400">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                            </svg>
+                                <!-- Wilayah Domisili (Jatim) - Cascading Dropdown Khusus Peternak -->
+                                <div id="section-wilayah-cascading" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-3 border-t border-slate-200/60">
+                                    <!-- Kabupaten/Kota -->
+                                    <div class="sm:col-span-2">
+                                        <label for="kabupaten" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
+                                            Kabupaten/Kota<span class="text-red-500 font-bold ml-0.5">*</span>
+                                        </label>
+                                        @php
+                                            $jatimKabupatens = [
+                                                'Kabupaten Bangkalan',
+                                                'Kabupaten Banyuwangi',
+                                                'Kabupaten Blitar',
+                                                'Kabupaten Bojonegoro',
+                                                'Kabupaten Bondowoso',
+                                                'Kabupaten Gresik',
+                                                'Kabupaten Jember',
+                                                'Kabupaten Jombang',
+                                                'Kabupaten Kediri',
+                                                'Kabupaten Lamongan',
+                                                'Kabupaten Lumajang',
+                                                'Kabupaten Madiun',
+                                                'Kabupaten Magetan',
+                                                'Kabupaten Malang',
+                                                'Kabupaten Mojokerto',
+                                                'Kabupaten Nganjuk',
+                                                'Kabupaten Ngawi',
+                                                'Kabupaten Pacitan',
+                                                'Kabupaten Pamekasan',
+                                                'Kabupaten Pasuruan',
+                                                'Kabupaten Ponorogo',
+                                                'Kabupaten Probolinggo',
+                                                'Kabupaten Sampang',
+                                                'Kabupaten Sidoarjo',
+                                                'Kabupaten Situbondo',
+                                                'Kabupaten Sumenep',
+                                                'Kabupaten Trenggalek',
+                                                'Kabupaten Tuban',
+                                                'Kabupaten Tulungagung',
+                                                'Kota Batu',
+                                                'Kota Blitar',
+                                                'Kota Kediri',
+                                                'Kota Madiun',
+                                                'Kota Malang',
+                                                'Kota Mojokerto',
+                                                'Kota Pasuruan',
+                                                'Kota Probolinggo',
+                                                'Kota Surabaya',
+                                            ];
+                                        @endphp
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                                </svg>
+                                            </div>
+                                            <select name="kabupaten" id="kabupaten" required onchange="handleKabupatenChange(this.value)"
+                                                class="appearance-none bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-9 py-2.5 sm:py-3 shadow-2xs transition cursor-pointer">
+                                                <option value="" disabled {{ old('kabupaten') ? '' : 'selected' }}>Pilih Kabupaten...</option>
+                                                @foreach ($jatimKabupatens as $kab)
+                                                    <option value="{{ $kab }}" {{ old('kabupaten') == $kab ? 'selected' : '' }}>{{ $kab }}</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                </svg>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Kelurahan/Desa -->
-                                <div>
-                                    <label for="desa" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
-                                        Kelurahan/Desa<span class="text-red-500 font-bold ml-0.5">*</span>
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                                            </svg>
+                                    <!-- Kecamatan -->
+                                    <div>
+                                        <label for="kecamatan" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
+                                            Kecamatan<span class="text-red-500 font-bold ml-0.5">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+                                                </svg>
+                                            </div>
+                                            <select name="kecamatan" id="kecamatan" required onchange="handleKecamatanChange(this.value)"
+                                                class="appearance-none bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-9 py-2.5 sm:py-3 shadow-2xs transition cursor-pointer">
+                                                <option value="" disabled {{ old('kecamatan') ? '' : 'selected' }}>Pilih Kecamatan...</option>
+                                                @if(old('kecamatan'))
+                                                    <option value="{{ old('kecamatan') }}" selected>{{ old('kecamatan') }}</option>
+                                                @endif
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                </svg>
+                                            </div>
                                         </div>
-                                        <select name="desa" id="desa" required
-                                            class="appearance-none bg-white border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-10 py-3 sm:py-3.5 shadow-2xs transition cursor-pointer">
-                                            <option value="" disabled {{ old('desa') ? '' : 'selected' }}>Pilih Desa...</option>
-                                            @if(old('desa'))
-                                                <option value="{{ old('desa') }}" selected>{{ old('desa') }}</option>
-                                            @endif
-                                        </select>
-                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 sm:pr-4 text-slate-400">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                            </svg>
+                                    </div>
+
+                                    <!-- Kelurahan/Desa -->
+                                    <div>
+                                        <label for="desa" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
+                                            Kelurahan/Desa<span class="text-red-500 font-bold ml-0.5">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                                                </svg>
+                                            </div>
+                                            <select name="desa" id="desa" required
+                                                class="appearance-none bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-9 py-2.5 sm:py-3 shadow-2xs transition cursor-pointer">
+                                                <option value="" disabled {{ old('desa') ? '' : 'selected' }}>Pilih Desa...</option>
+                                                @if(old('desa'))
+                                                    <option value="{{ old('desa') }}" selected>{{ old('desa') }}</option>
+                                                @endif
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                </svg>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Step 2 Nav Action -->
+                        <div class="pt-2 flex items-center justify-between gap-3">
+                            <button type="button" onclick="prevStep()"
+                                class="inline-flex items-center justify-center gap-2 text-slate-700 bg-slate-100 hover:bg-slate-200 focus:ring-2 focus:ring-slate-100 font-bold rounded-xl text-xs sm:text-sm py-2.5 sm:py-3 px-5 sm:px-6 transition duration-200 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                                </svg>
+                                <span>Sebelumnya</span>
+                            </button>
+                            <button type="button" onclick="nextStep()"
+                                class="inline-flex items-center justify-center gap-2 text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-100 font-bold rounded-xl text-xs sm:text-sm py-2.5 sm:py-3 px-6 sm:px-7 transition duration-200 shadow-sm shadow-blue-500/20 hover:shadow-md cursor-pointer">
+                                <span id="btn-next-step2-label">Lanjut: Profil Peternakan</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP PANE 3: Profil Usaha Peternakan -->
+                    <div id="step-pane-3" class="step-pane hidden space-y-4">
                         <!-- SECTION 3: Profil Usaha Peternakan -->
-                        <div id="section-livestock" class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-6 sm:p-7 xl:p-8 space-y-6 sm:space-y-7 shadow-2xs">
-                            <div class="flex items-center gap-3.5 pb-4 border-b border-slate-200/70">
-                                <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs">
-                                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <div id="section-livestock" class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xs">
+                            <div class="flex items-center gap-3 pb-3 border-b border-slate-200/70">
+                                <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 11l1 6l3 1l2-3h4l2 3l3-1l1-6" />
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M7 10V7a3 3 0 013-3h4a3 3 0 013 3v3" />
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 16h4" />
@@ -444,12 +593,12 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h2 class="text-sm sm:text-base font-bold text-slate-900">Profil Usaha Peternakan</h2>
-                                    <p class="text-xs text-slate-500 mt-0.5">Komoditas ternak yang sedang Anda budidayakan</p>
+                                    <h2 class="text-sm sm:text-base font-bold text-slate-900 leading-normal">Profil Usaha Peternakan</h2>
+                                    <p class="text-xs sm:text-sm text-slate-500 leading-normal mt-0.5">Komoditas ternak yang sedang Anda budidayakan</p>
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                                 <!-- Jenis Ternak -->
                                 <div>
                                     <label for="livestock_type" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
@@ -480,13 +629,13 @@
                                             </svg>
                                         </div>
                                         <select name="livestock_type" id="livestock_type" required
-                                            class="appearance-none bg-white border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-10 py-3 sm:py-3.5 shadow-2xs transition cursor-pointer">
+                                            class="appearance-none bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-9 py-2.5 sm:py-3 shadow-2xs transition cursor-pointer">
                                             <option value="" disabled {{ old('livestock_type') ? '' : 'selected' }}>Pilih Jenis Ternak...</option>
                                             @foreach ($livestockOptions as $opt)
                                                 <option value="{{ $opt }}" {{ old('livestock_type') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
                                             @endforeach
                                         </select>
-                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 sm:pr-4 text-slate-400">
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                                             </svg>
@@ -507,8 +656,8 @@
                                         </div>
                                         <input type="number" min="0" name="livestock_count" id="livestock_count" value="{{ old('livestock_count') }}" required
                                             placeholder="Jumlah Ternak (ekor)"
-                                            class="bg-white border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-16 py-3 sm:py-3.5 placeholder-slate-400 shadow-2xs transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                                        <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-xs font-semibold text-slate-400 pointer-events-none">
+                                            class="bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-14 py-2.5 sm:py-3 placeholder-slate-400 shadow-2xs transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                                        <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-xs font-semibold text-slate-400 pointer-events-none">
                                             Ekor
                                         </span>
                                     </div>
@@ -516,21 +665,42 @@
                             </div>
                         </div>
 
+                        <!-- Step 3 Nav Action -->
+                        <div class="pt-2 flex items-center justify-between gap-3">
+                            <button type="button" onclick="prevStep()"
+                                class="inline-flex items-center justify-center gap-2 text-slate-700 bg-slate-100 hover:bg-slate-200 focus:ring-2 focus:ring-slate-100 font-bold rounded-xl text-xs sm:text-sm py-2.5 sm:py-3 px-5 sm:px-6 transition duration-200 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                                </svg>
+                                <span>Sebelumnya</span>
+                            </button>
+                            <button type="button" onclick="nextStep()"
+                                class="inline-flex items-center justify-center gap-2 text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-100 font-bold rounded-xl text-xs sm:text-sm py-2.5 sm:py-3 px-6 sm:px-7 transition duration-200 shadow-sm shadow-blue-500/20 hover:shadow-md cursor-pointer">
+                                <span id="btn-next-step3-label">Lanjut: Keamanan &amp; KTP</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP PANE 4: Keamanan Akun & Berkas KTP -->
+                    <div id="step-pane-4" class="step-pane hidden space-y-4">
                         <!-- SECTION 4: Keamanan & Berkas Verifikasi -->
-                        <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-6 sm:p-7 xl:p-8 space-y-6 sm:space-y-7 shadow-2xs">
-                            <div class="flex items-center gap-3.5 pb-4 border-b border-slate-200/70">
-                                <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 shadow-2xs">
-                                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xs">
+                            <div class="flex items-center gap-3 pb-3 border-b border-slate-200/70">
+                                <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h2 class="text-sm sm:text-base font-bold text-slate-900">Keamanan Akun &amp; Berkas Identitas</h2>
-                                    <p class="text-xs text-slate-500 mt-0.5">Kata sandi akun dan unggah foto KTP resmi untuk validasi</p>
+                                    <h2 id="sec4-title" class="text-sm sm:text-base font-bold text-slate-900 leading-normal">Keamanan Akun &amp; Berkas Identitas</h2>
+                                    <p id="sec4-desc" class="text-xs sm:text-sm text-slate-500 leading-normal mt-0.5">Kata sandi akun dan unggah foto KTP resmi untuk validasi</p>
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                                 <!-- Password Baru -->
                                 <div>
                                     <label for="password" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
@@ -543,10 +713,10 @@
                                             </svg>
                                         </div>
                                         <input type="password" name="password" id="password" required placeholder="Password Baru"
-                                            class="bg-white border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-11 py-3 sm:py-3.5 placeholder-slate-400 shadow-2xs transition">
+                                            class="bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-10 py-2.5 sm:py-3 placeholder-slate-400 shadow-2xs transition">
                                         <button type="button" onclick="togglePasswordVisibility('password', 'password-eye-icon')" aria-label="Lihat kata sandi"
                                             class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer">
-                                            <svg id="password-eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                            <svg id="password-eye-icon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
@@ -566,10 +736,10 @@
                                             </svg>
                                         </div>
                                         <input type="password" name="password_confirmation" id="password_confirmation" required placeholder="Konfirmasi Password"
-                                            class="bg-white border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-11 py-3 sm:py-3.5 placeholder-slate-400 shadow-2xs transition">
+                                            class="bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 block w-full pl-10 pr-10 py-2.5 sm:py-3 placeholder-slate-400 shadow-2xs transition">
                                         <button type="button" onclick="togglePasswordVisibility('password_confirmation', 'password_confirmation-eye-icon')" aria-label="Lihat konfirmasi kata sandi"
                                             class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer">
-                                            <svg id="password_confirmation-eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                            <svg id="password_confirmation-eye-icon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
@@ -577,22 +747,22 @@
                                     </div>
                                 </div>
 
-                                <!-- Foto KTP (Spacious Styled Dropzone Container) -->
-                                <div class="sm:col-span-2">
+                                <!-- Foto KTP (Comfortable Dropzone Container) -->
+                                <div id="field-ktp" class="sm:col-span-2">
                                     <label for="ktp_file" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
                                         Foto KTP<span id="ktp-required-star" class="text-red-500 font-bold ml-0.5">*</span>
                                     </label>
-                                    <div class="p-6 sm:p-7 border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-2xl bg-white hover:bg-blue-50/25 transition duration-200 group">
-                                        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5">
-                                            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
-                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <div class="p-3.5 sm:p-4 border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-2xl bg-white hover:bg-blue-50/25 transition group">
+                                        <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+                                            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
                                                 </svg>
                                             </div>
-                                            <div class="flex-1 text-center sm:text-left">
+                                            <div class="flex-1 w-full text-center sm:text-left">
                                                 <input type="file" name="ktp_file" id="ktp_file" accept=".jpeg,.png,.jpg"
-                                                    class="block w-full text-xs sm:text-sm text-slate-600 file:mr-3.5 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer transition shadow-2xs" />
-                                                <div class="mt-3.5 flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1.5 text-xs text-slate-500 font-normal">
+                                                    class="block w-full text-xs sm:text-sm text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer transition shadow-2xs" />
+                                                <div class="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs text-slate-500 font-normal">
                                                     <span class="inline-flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-lg text-slate-600">
                                                         <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                                                         * Besar Max 10 MB
@@ -609,37 +779,44 @@
                             </div>
                         </div>
 
-                        <!-- Submit Button & Login Link -->
-                        <div class="pt-6 sm:pt-8 space-y-6 sm:space-y-7">
-                            <button type="submit"
-                                class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-100 font-bold rounded-xl text-sm sm:text-base py-3.5 sm:py-4 text-center transition duration-200 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/35 cursor-pointer flex items-center justify-center gap-2">
+                        <!-- Step 4 Nav & Submit Action -->
+                        <div class="pt-2 flex items-center justify-between gap-3">
+                            <button type="button" onclick="prevStep()"
+                                class="inline-flex items-center justify-center gap-2 text-slate-700 bg-slate-100 hover:bg-slate-200 focus:ring-2 focus:ring-slate-100 font-bold rounded-xl text-xs sm:text-sm py-2.5 sm:py-3 px-5 sm:px-6 transition duration-200 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                                </svg>
+                                <span>Sebelumnya</span>
+                            </button>
+                            <button type="submit" id="submit-btn"
+                                class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-100 font-bold rounded-xl text-xs sm:text-sm py-2.5 sm:py-3 px-7 sm:px-8 transition duration-200 shadow-md shadow-blue-500/25 hover:shadow-lg cursor-pointer">
                                 <span id="submit-btn-label">Sign Up</span>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                                 </svg>
                             </button>
-
-                            <div class="mt-8 pt-6 sm:pt-7 border-t border-slate-200/70 text-center">
-                                <p class="text-xs sm:text-sm text-slate-500">
-                                    Sudah punya akun?
-                                    <a href="{{ route('login') }}"
-                                        class="text-blue-600 hover:text-blue-700 font-bold hover:underline transition ml-1 inline-flex items-center gap-1">
-                                        <span>Masuk di sini</span>
-                                      
-                                    </a>
-                                </p>
-                            </div>
                         </div>
-                    </form>
+                    </div>
 
-                </div>
+                    <!-- Global Login Link (visible on all wizard steps) -->
+                    <div class="mt-4 pt-3.5 border-t border-slate-100 text-center">
+                        <p class="text-xs sm:text-sm text-slate-500">
+                            Sudah punya akun?
+                            <a href="{{ route('login') }}"
+                                class="text-blue-600 hover:text-blue-700 font-bold hover:underline transition ml-1 inline-flex items-center gap-1">
+                                <span>Masuk di sini</span>
+                            </a>
+                        </p>
+                    </div>
+                </form>
+
             </div>
 
         </div>
     </main>
 
-    <!-- Footer (Bright Theme) -->
-    <footer class="py-5 text-center text-xs text-slate-500 border-t border-slate-200/70 bg-white/60">
+    <!-- Footer (Bright Theme - Matching Login) -->
+    <footer class="py-3 text-center text-xs text-slate-500 border-t border-slate-200/70 bg-white/60">
         &copy; {{ date('Y') }} Dinas Peternakan Provinsi Jawa Timur. Sistem Terpadu Peternak Milenial.
     </footer>
 
@@ -1017,10 +1194,256 @@
             });
         }
 
+        // Multi-Step Wizard State & Configuration
+        let currentRole = 'peternak';
+        let currentStepIndex = 0;
+
+        const wizardConfig = {
+            peternak: [
+                {
+                    paneId: 'step-pane-1',
+                    badge: 'Langkah 1 dari 4',
+                    title: 'Identitas Diri & Kontak',
+                    navTitle: 'Identitas',
+                    navSub: 'Data diri & kontak'
+                },
+                {
+                    paneId: 'step-pane-2',
+                    badge: 'Langkah 2 dari 4',
+                    title: 'Alamat & Wilayah Domisili',
+                    navTitle: 'Domisili',
+                    navSub: 'Wilayah Jatim'
+                },
+                {
+                    paneId: 'step-pane-3',
+                    badge: 'Langkah 3 dari 4',
+                    title: 'Profil Usaha Peternakan',
+                    navTitle: 'Peternakan',
+                    navSub: 'Profil usaha ternak'
+                },
+                {
+                    paneId: 'step-pane-4',
+                    badge: 'Langkah 4 dari 4',
+                    title: 'Keamanan Akun & Berkas KTP',
+                    navTitle: 'Keamanan',
+                    navSub: 'Kata sandi & KTP'
+                }
+            ],
+            umum: [
+                {
+                    paneId: 'step-pane-1',
+                    badge: 'Langkah 1 dari 3',
+                    title: 'Identitas Diri',
+                    navTitle: 'Identitas',
+                    navSub: 'Nama & email'
+                },
+                {
+                    paneId: 'step-pane-2',
+                    badge: 'Langkah 2 dari 3',
+                    title: 'Alamat Domisili',
+                    navTitle: 'Alamat',
+                    navSub: 'Tempat tinggal'
+                },
+                {
+                    paneId: 'step-pane-4',
+                    badge: 'Langkah 3 dari 3',
+                    title: 'Keamanan Akun',
+                    navTitle: 'Keamanan',
+                    navSub: 'Kata sandi akun'
+                }
+            ]
+        };
+
+        function validateStep(stepIndex) {
+            const steps = wizardConfig[currentRole];
+            if (!steps || !steps[stepIndex]) return true;
+
+            const pane = document.getElementById(steps[stepIndex].paneId);
+            if (!pane) return true;
+
+            const inputs = pane.querySelectorAll('input:not([type="hidden"]), select, textarea');
+            for (const input of inputs) {
+                // Skip inputs hidden by role
+                if (input.closest('.hidden') !== null) {
+                    continue;
+                }
+
+                if (!input.checkValidity()) {
+                    input.reportValidity();
+                    return false;
+                }
+
+                if (currentRole === 'peternak' && input.id === 'nik' && input.value) {
+                    if (!/^\d{16}$/.test(input.value.trim())) {
+                        input.setCustomValidity('NIK harus berupa 16 digit angka');
+                        input.reportValidity();
+                        return false;
+                    } else {
+                        input.setCustomValidity('');
+                    }
+                }
+
+                if (input.id === 'password_confirmation') {
+                    const pass = document.getElementById('password')?.value;
+                    if (pass && input.value !== pass) {
+                        input.setCustomValidity('Konfirmasi password tidak cocok dengan password');
+                        input.reportValidity();
+                        return false;
+                    } else {
+                        input.setCustomValidity('');
+                    }
+                }
+            }
+            return true;
+        }
+
+        function updateStepperUI() {
+            const steps = wizardConfig[currentRole];
+            const currentStep = steps[currentStepIndex];
+            const totalSteps = steps.length;
+            const progressPercent = Math.round(((currentStepIndex + 1) / totalSteps) * 100);
+
+            const badge = document.getElementById('wizard-step-badge');
+            const currentTitle = document.getElementById('wizard-current-title');
+            const percentText = document.getElementById('wizard-percent-text');
+            const progressBar = document.getElementById('wizard-progress-bar');
+
+            if (badge) badge.textContent = currentStep.badge;
+            if (currentTitle) currentTitle.textContent = currentStep.title;
+            if (percentText) percentText.textContent = `${progressPercent}% Selesai`;
+            if (progressBar) progressBar.style.width = `${progressPercent}%`;
+
+            const navContainer = document.getElementById('wizard-steps-nav');
+            if (navContainer) {
+                if (currentRole === 'peternak') {
+                    navContainer.className = 'grid grid-cols-4 gap-2 pt-2.5 border-t border-slate-200/70';
+                } else {
+                    navContainer.className = 'grid grid-cols-3 gap-2 pt-2.5 border-t border-slate-200/70';
+                }
+            }
+
+            for (let i = 0; i < 4; i++) {
+                const navBtn = document.getElementById('step-nav-' + i);
+                const stepNum = document.getElementById('step-num-' + i);
+                const navTitle = document.getElementById('step-nav-title-' + i);
+                const navSub = document.getElementById('step-nav-sub-' + i);
+
+                if (i < totalSteps) {
+                    if (navBtn) navBtn.classList.remove('hidden');
+                    const stepData = steps[i];
+                    if (navTitle) navTitle.textContent = stepData.navTitle;
+                    if (navSub) navSub.textContent = stepData.navSub;
+
+                    if (i < currentStepIndex) {
+                        // Completed step
+                        if (stepNum) {
+                            stepNum.className = 'w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition bg-emerald-600 text-white shadow-2xs';
+                            stepNum.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+                        }
+                        if (navBtn) navBtn.className = 'step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer text-emerald-700 bg-emerald-50/50 hover:bg-emerald-50';
+                    } else if (i === currentStepIndex) {
+                        // Current active step
+                        const activeColor = currentRole === 'umum' ? 'bg-emerald-600' : 'bg-blue-600';
+                        const activeBg = currentRole === 'umum' ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200' : 'bg-blue-50 text-blue-800 ring-1 ring-blue-200';
+                        if (stepNum) {
+                            stepNum.className = `w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition ${activeColor} text-white shadow-2xs`;
+                            stepNum.textContent = (i + 1);
+                        }
+                        if (navBtn) navBtn.className = `step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer ${activeBg}`;
+                    } else {
+                        // Upcoming step
+                        if (stepNum) {
+                            stepNum.className = 'w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition bg-slate-100 text-slate-500 border border-slate-200';
+                            stepNum.textContent = (i + 1);
+                        }
+                        if (navBtn) navBtn.className = 'step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer text-slate-400 hover:bg-slate-50';
+                    }
+                } else {
+                    if (navBtn) navBtn.classList.add('hidden');
+                }
+            }
+
+            // Update Next button labels inside panes
+            const btnNext1 = document.getElementById('btn-next-step1-label');
+            if (btnNext1) {
+                btnNext1.textContent = currentRole === 'umum' ? 'Lanjut: Alamat Lengkap' : 'Lanjut: Wilayah Domisili';
+            }
+            const btnNext2 = document.getElementById('btn-next-step2-label');
+            if (btnNext2) {
+                btnNext2.textContent = currentRole === 'umum' ? 'Lanjut: Keamanan Akun' : 'Lanjut: Profil Peternakan';
+            }
+        }
+
+        function goToStepIndex(index) {
+            const steps = wizardConfig[currentRole];
+            if (index < 0 || index >= steps.length) return;
+
+            currentStepIndex = index;
+
+            // Hide all 4 potential step panes
+            [1, 2, 3, 4].forEach(p => {
+                const pane = document.getElementById('step-pane-' + p);
+                if (pane) {
+                    pane.classList.add('hidden');
+                }
+            });
+
+            // Show active pane
+            const activePane = document.getElementById(steps[index].paneId);
+            if (activePane) {
+                activePane.classList.remove('hidden');
+            }
+
+            updateStepperUI();
+
+            const card = document.getElementById('wizard-progress-card');
+            if (card) {
+                const rect = card.getBoundingClientRect();
+                if (rect.top < 0 || rect.top > 250) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        }
+
+        function nextStep() {
+            const steps = wizardConfig[currentRole];
+            if (currentStepIndex < steps.length - 1) {
+                if (!validateStep(currentStepIndex)) {
+                    return;
+                }
+                goToStepIndex(currentStepIndex + 1);
+            }
+        }
+
+        function prevStep() {
+            if (currentStepIndex > 0) {
+                goToStepIndex(currentStepIndex - 1);
+            }
+        }
+
+        function handleStepNavClick(targetIndex) {
+            const steps = wizardConfig[currentRole];
+            if (targetIndex < 0 || targetIndex >= steps.length) return;
+
+            if (targetIndex <= currentStepIndex) {
+                goToStepIndex(targetIndex);
+            } else {
+                for (let i = currentStepIndex; i < targetIndex; i++) {
+                    if (!validateStep(i)) {
+                        if (i !== currentStepIndex) goToStepIndex(i);
+                        return;
+                    }
+                }
+                goToStepIndex(targetIndex);
+            }
+        }
+
         // Dynamic Role Switcher (Peternak Milenial vs Masyarakat Umum)
         function setRole(role) {
             const roleInput = document.getElementById('role_input');
             if (roleInput) roleInput.value = role;
+
+            currentRole = (role === 'umum') ? 'umum' : 'peternak';
 
             const cardPeternak = document.getElementById('role-card-peternak');
             const cardUmum = document.getElementById('role-card-umum');
@@ -1034,68 +1457,154 @@
             const subtitle = document.getElementById('subtitle-role');
             const btnLabel = document.getElementById('submit-btn-label');
 
+            const fieldPhone = document.getElementById('field-phone');
+            const phoneNumber = document.getElementById('phone_number');
+            const fieldNik = document.getElementById('field-nik');
+            const nikInput = document.getElementById('nik');
+            const fieldKtp = document.getElementById('field-ktp');
+            const ktpFileInput = document.getElementById('ktp_file');
+            const fieldAlamat = document.getElementById('field-alamat');
+            const alamatInput = document.getElementById('alamat');
+            const sectionWilayahCascading = document.getElementById('section-wilayah-cascading');
+            const kabupaten = document.getElementById('kabupaten');
+            const kecamatan = document.getElementById('kecamatan');
+            const desa = document.getElementById('desa');
+            const sec1Title = document.getElementById('sec1-title');
+            const sec1Desc = document.getElementById('sec1-desc');
+            const sec2Title = document.getElementById('sec2-title');
+            const sec2Desc = document.getElementById('sec2-desc');
+            const sec4Title = document.getElementById('sec4-title');
+            const sec4Desc = document.getElementById('sec4-desc');
+
             if (role === 'umum') {
                 // Highlight Umum Card
                 if (cardUmum) {
-                    cardUmum.className = 'p-4 rounded-2xl border-2 text-left transition-all flex items-start gap-3.5 cursor-pointer bg-emerald-50/80 border-emerald-600 ring-2 ring-emerald-100';
+                    cardUmum.className = 'px-3.5 py-2 rounded-xl border-2 text-left transition-all flex items-center gap-2.5 cursor-pointer bg-emerald-50/80 border-emerald-600 ring-2 ring-emerald-100 shadow-2xs';
                 }
                 if (iconUmum) {
-                    iconUmum.className = 'w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5';
+                    iconUmum.className = 'w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs';
                 }
                 if (cardPeternak) {
-                    cardPeternak.className = 'p-4 rounded-2xl border-2 text-left transition-all flex items-start gap-3.5 cursor-pointer bg-white border-slate-200 hover:border-slate-300';
+                    cardPeternak.className = 'px-3.5 py-2 rounded-xl border-2 text-left transition-all flex items-center gap-2.5 cursor-pointer bg-white border-slate-200 hover:border-slate-300 shadow-2xs';
                 }
                 if (iconPeternak) {
-                    iconPeternak.className = 'w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-xs mt-0.5';
+                    iconPeternak.className = 'w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-2xs';
                 }
 
-                // Hide livestock section and remove required validation
+                // Sembunyikan field yang tidak diperlukan untuk masyarakat umum
+                if (fieldPhone) fieldPhone.classList.add('hidden');
+                if (phoneNumber) phoneNumber.removeAttribute('required');
+                if (fieldNik) fieldNik.classList.add('hidden');
+                if (nikInput) nikInput.removeAttribute('required');
+                if (fieldKtp) fieldKtp.classList.add('hidden');
+                if (ktpFileInput) ktpFileInput.removeAttribute('required');
                 if (sectionLivestock) sectionLivestock.classList.add('hidden');
                 if (livestockType) livestockType.removeAttribute('required');
                 if (livestockCount) livestockCount.removeAttribute('required');
-                if (ktpStar) ktpStar.classList.add('hidden');
+                if (sectionWilayahCascading) sectionWilayahCascading.classList.add('hidden');
+                if (kabupaten) kabupaten.removeAttribute('required');
+                if (kecamatan) kecamatan.removeAttribute('required');
+                if (desa) desa.removeAttribute('required');
 
-                // Update UI text
+                // Alamat lengkap wajib untuk masyarakat
+                if (alamatInput) alamatInput.setAttribute('required', 'required');
+
+                // Update text header
+                if (sec1Title) sec1Title.textContent = 'Identitas Diri';
+                if (sec1Desc) sec1Desc.textContent = 'Nama lengkap, tanggal lahir, dan email akun Anda';
+                if (sec2Title) sec2Title.textContent = 'Alamat Lengkap';
+                if (sec2Desc) sec2Desc.textContent = 'Alamat domisili lengkap tempat tinggal Anda';
+                if (sec4Title) sec4Title.textContent = 'Keamanan Akun';
+                if (sec4Desc) sec4Desc.textContent = 'Kata sandi untuk login masuk ke sistem';
+
                 if (badgeTitle) {
                     badgeTitle.textContent = 'Pendaftaran Akun Masyarakat Umum Jatim';
-                    badgeTitle.className = 'inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80 mb-3.5 shadow-2xs';
+                    badgeTitle.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80 shadow-2xs';
                 }
                 if (subtitle) {
-                    subtitle.textContent = 'Lengkapi data diri dan wilayah domisili Anda untuk mulai berbelanja di pasar digital peternakan dan memantau rujukan harga komoditas Jawa Timur.';
+                    subtitle.textContent = 'Cukup isi nama lengkap, tanggal lahir, alamat lengkap, dan kata sandi untuk mulai mengakses akun dan layanan.';
                 }
                 if (btnLabel) btnLabel.textContent = 'Sign Up sebagai Masyarakat Umum';
             } else {
                 // Highlight Peternak Card
                 if (cardPeternak) {
-                    cardPeternak.className = 'p-4 rounded-2xl border-2 text-left transition-all flex items-start gap-3.5 cursor-pointer bg-blue-50/80 border-blue-600 ring-2 ring-blue-100';
+                    cardPeternak.className = 'px-3.5 py-2 rounded-xl border-2 text-left transition-all flex items-center gap-2.5 cursor-pointer bg-blue-50/80 border-blue-600 ring-2 ring-blue-100 shadow-2xs';
                 }
                 if (iconPeternak) {
-                    iconPeternak.className = 'w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5';
+                    iconPeternak.className = 'w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-2xs';
                 }
                 if (cardUmum) {
-                    cardUmum.className = 'p-4 rounded-2xl border-2 text-left transition-all flex items-start gap-3.5 cursor-pointer bg-white border-slate-200 hover:border-slate-300';
+                    cardUmum.className = 'px-3.5 py-2 rounded-xl border-2 text-left transition-all flex items-center gap-2.5 cursor-pointer bg-white border-slate-200 hover:border-slate-300 shadow-2xs';
                 }
                 if (iconUmum) {
-                    iconUmum.className = 'w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-xs mt-0.5';
+                    iconUmum.className = 'w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-2xs';
                 }
 
-                // Show livestock section and add required validation
+                // Tampilkan field lengkap peternak
+                if (fieldPhone) fieldPhone.classList.remove('hidden');
+                if (phoneNumber) phoneNumber.setAttribute('required', 'required');
+                if (fieldNik) fieldNik.classList.remove('hidden');
+                if (nikInput) nikInput.setAttribute('required', 'required');
+                if (fieldKtp) fieldKtp.classList.remove('hidden');
                 if (sectionLivestock) sectionLivestock.classList.remove('hidden');
                 if (livestockType) livestockType.setAttribute('required', 'required');
                 if (livestockCount) livestockCount.setAttribute('required', 'required');
+                if (sectionWilayahCascading) sectionWilayahCascading.classList.remove('hidden');
+                if (kabupaten) kabupaten.setAttribute('required', 'required');
+                if (kecamatan) kecamatan.setAttribute('required', 'required');
+                if (desa) desa.setAttribute('required', 'required');
                 if (ktpStar) ktpStar.classList.remove('hidden');
+                if (alamatInput) alamatInput.removeAttribute('required');
 
-                // Update UI text
+                // Update text header
+                if (sec1Title) sec1Title.textContent = 'Identitas Diri & Kontak';
+                if (sec1Desc) sec1Desc.textContent = 'Informasi utama untuk verifikasi keanggotaan peternak';
+                if (sec2Title) sec2Title.textContent = 'Wilayah Domisili (Jawa Timur)';
+                if (sec2Desc) sec2Desc.textContent = 'Penentuan sentra binaan dan penugasan petugas pendamping';
+                if (sec4Title) sec4Title.textContent = 'Keamanan Akun & Berkas Identitas';
+                if (sec4Desc) sec4Desc.textContent = 'Kata sandi akun dan unggah foto KTP resmi untuk validasi';
+
                 if (badgeTitle) {
                     badgeTitle.textContent = 'Pendaftaran Peternak Milenial Jatim';
-                    badgeTitle.className = 'inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 mb-3.5 shadow-2xs';
+                    badgeTitle.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs';
                 }
                 if (subtitle) {
                     subtitle.textContent = 'Lengkapi data diri, wilayah domisili, dan usaha peternakan Anda untuk mulai mengakses ekosistem digital Dinas Peternakan Jawa Timur.';
                 }
                 if (btnLabel) btnLabel.textContent = 'Sign Up';
             }
+
+            goToStepIndex(0);
         }
+
+        // Form Submit Handler & Event Listeners
+        const regForm = document.getElementById('register-form');
+        if (regForm) {
+            regForm.addEventListener('submit', function(e) {
+                const steps = wizardConfig[currentRole];
+                // If user pressed Enter on an earlier step, advance to next step
+                if (currentStepIndex < steps.length - 1) {
+                    e.preventDefault();
+                    nextStep();
+                    return;
+                }
+
+                // If on final step, validate all steps in sequence
+                for (let i = 0; i < steps.length; i++) {
+                    if (!validateStep(i)) {
+                        e.preventDefault();
+                        goToStepIndex(i);
+                        return;
+                    }
+                }
+            });
+        }
+
+        ['nik', 'password_confirmation', 'password'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', function() {
+                this.setCustomValidity('');
+            });
+        });
 
         // Restore old inputs if present
         document.addEventListener('DOMContentLoaded', () => {
@@ -1108,6 +1617,11 @@
 
             if (oldKab) {
                 handleKabupatenChange(oldKab, oldKec, oldDesa);
+            }
+
+            const initialStep = @json($initialStepIndex);
+            if (initialStep > 0) {
+                goToStepIndex(initialStep);
             }
         });
     </script>

@@ -28,6 +28,7 @@ class User extends Authenticatable
         'kabupaten',
         'kecamatan',
         'desa',
+        'alamat',
         'livestock_type',
         'livestock_count',
         'ktp_path',
