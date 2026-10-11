@@ -1219,7 +1219,7 @@
                     badge: 'Langkah 3 dari 4',
                     title: 'Profil Usaha Peternakan',
                     navTitle: 'Peternakan',
-                    navSub: 'Profil usaha ternak'
+                    navSub: 'Profil usaha'
                 },
                 {
                     paneId: 'step-pane-4',
