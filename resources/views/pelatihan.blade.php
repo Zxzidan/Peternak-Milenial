@@ -1,533 +1,2089 @@
 @extends('layouts.app')
 
-@section('title', 'Pelatihan & Bimbingan Teknis — Peternak Milenial Jatim')
+@section('title', 'Pembelajaran & Bimbingan Teknis — Peternak Milenial Jatim')
 
 @section('content')
 @php
-    $activeTab = request('tab', 'jadwal');
-    if (!in_array($activeTab, ['jadwal', 'modul', 'sertifikat'])) {
-        $activeTab = 'jadwal';
+    $currentUser = auth()->user();
+    $activeTab = request('tab', 'pembelajaran');
+    if ($activeTab === 'modul') {
+        $activeTab = 'pembelajaran';
+    } elseif ($activeTab === 'jadwal' && !request()->has('view_offline')) {
+        $activeTab = 'zoom';
     }
+    if (!in_array($activeTab, ['pembelajaran', 'zoom', 'kuis', 'sertifikat', 'jadwal_offline'])) {
+        $activeTab = 'pembelajaran';
+    }
+
+    $selectedTopic = request('topic', 'all');
+    $searchQuery = request('search', '');
+
+    // Current hour greeting
+    $hour = (int) date('H');
+    $greeting = $hour < 11 ? 'Selamat Pagi' : ($hour < 15 ? 'Selamat Siang' : ($hour < 18 ? 'Selamat Sore' : 'Selamat Malam'));
+    $watchProgressPct = $totalMaterialsCount > 0 ? (int) round(($watchedCount / $totalMaterialsCount) * 100) : 0;
 @endphp
 
-<div class="space-y-6 sm:space-y-8 pt-1 sm:pt-2">
+<div class="space-y-6 sm:space-y-7 pt-1 sm:pt-2">
 
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 sm:pb-6 border-b border-gray-200 dark:border-gray-800">
-        <div>
-            <div class="flex items-center gap-2 mb-2 sm:mb-2.5">
-                <span class="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 text-xs font-medium px-2 py-0.5 rounded">
-                    Bidang Pembibitan &amp; Produksi
-                </span>
-                <span class="text-xs text-gray-500 dark:text-gray-400">
-                    · BBPP Batu &amp; Disnak Jatim
-                </span>
-            </div>
-            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-snug">
-                @if($activeTab === 'jadwal')
-                    Jadwal Bimbingan Teknis
-                @elseif($activeTab === 'modul')
-                    Modul &amp; Video Praktik
-                @elseif($activeTab === 'sertifikat')
-                    {{ auth()->check() && auth()->user()->isAdmin() ? 'Basis Data Sertifikat Digital' : 'Sertifikat Digital Saya' }}
-                @endif
-            </h1>
-            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2 leading-relaxed max-w-2xl">
-                @if($activeTab === 'jadwal')
-                    Program peningkatan kapasitas peternak bersama BBPP Batu dan akademisi peternakan Jawa Timur.
-                @elseif($activeTab === 'modul')
-                    Materi resmi dinas peternakan, SOP budidaya ternak, dan video tutorial yang dapat diakses bebas.
-                @elseif($activeTab === 'sertifikat')
-                    Verifikasi tanda tangan elektronik dan sertifikasi kompetensi resmi Dinas Peternakan Jawa Timur.
-                @endif
-            </p>
+    <!-- Notification Alerts -->
+    @if(session('success'))
+    <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 text-xs sm:text-sm flex items-center justify-between shadow-2xs">
+        <div class="flex items-center gap-2.5">
+            <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>{{ session('success') }}</span>
         </div>
+        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700 font-bold ml-2">&times;</button>
+    </div>
+    @endif
 
-        <div class="flex flex-wrap items-center gap-2.5">
-            @if($activeTab === 'jadwal')
-                @if(auth()->check() && auth()->user()->isAdmin())
-                <button
-                    type="button"
-                    onclick="document.getElementById('form-tambah-bimtek').classList.toggle('hidden')"
-                    class="inline-flex items-center text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 px-3.5 py-2 rounded-lg transition shadow-xs"
+    @if(session('error'))
+    <div class="p-4 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 text-red-900 dark:text-red-200 text-xs sm:text-sm flex items-center justify-between shadow-2xs">
+        <div class="flex items-center gap-2.5">
+            <svg class="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+            <span>{{ session('error') }}</span>
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 font-bold ml-2">&times;</button>
+    </div>
+    @endif
+
+    <!-- 1. Top Bar: Search Bar, Category Filter & Status Badges (Ottertag Style) -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
+        <!-- Search & Filter Controls -->
+        <form method="GET" action="{{ route('pelatihan') }}" class="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 max-w-2xl">
+            <input type="hidden" name="tab" value="{{ $activeTab }}">
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                    </svg>
+                </div>
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ $searchQuery }}"
+                    placeholder="Cari modul video, materi pakan, atau narasumber..."
+                    class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-2xs transition"
+                />
+            </div>
+
+            <div class="flex items-center gap-2">
+                <select
+                    name="topic"
+                    onchange="this.form.submit()"
+                    class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-xs rounded-xl px-3 py-2.5 focus:ring-primary-600 focus:border-primary-600 shadow-2xs transition"
                 >
-                    + Tambah Program Bimtek
-                </button>
+                    <option value="all" {{ $selectedTopic === 'all' ? 'selected' : '' }}>Semua Topik Modul</option>
+                    <option value="Manajemen Pakan" {{ $selectedTopic === 'Manajemen Pakan' ? 'selected' : '' }}>Manajemen Pakan</option>
+                    <option value="Produksi & Mutu Susu" {{ $selectedTopic === 'Produksi & Mutu Susu' ? 'selected' : '' }}>Produksi & Mutu Susu</option>
+                    <option value="Kesehatan Ternak" {{ $selectedTopic === 'Kesehatan Ternak' ? 'selected' : '' }}>Kesehatan Ternak</option>
+                    <option value="Bibit & Budidaya" {{ $selectedTopic === 'Bibit & Budidaya' ? 'selected' : '' }}>Bibit & Budidaya</option>
+                </select>
                 <button
-                    type="button"
-                    onclick="document.getElementById('panel-verifikasi-peserta').classList.toggle('hidden')"
-                    class="inline-flex items-center text-xs font-medium text-primary-700 bg-primary-50 dark:bg-primary-950/60 dark:text-primary-300 hover:bg-primary-100 border border-primary-200 dark:border-primary-800 px-3 py-2 rounded-lg transition"
+                    type="submit"
+                    class="px-4 py-2.5 bg-primary-700 hover:bg-primary-800 text-white rounded-xl text-xs font-semibold shadow-2xs transition cursor-pointer"
                 >
-                    Verifikasi Peserta ({{ $allRegistrations->count() }})
+                    Cari
                 </button>
-                @else
-                <span class="inline-flex items-center text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
-                    {{ $trainings->count() }} Program Terbuka
-                </span>
-                @endif
-            @elseif($activeTab === 'modul')
-                <span class="inline-flex items-center text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
-                    Tersedia {{ $materials->count() }} Modul &amp; Video
-                </span>
-                @if(auth()->check() && auth()->user()->isAdmin())
-                <button
-                    type="button"
-                    onclick="document.getElementById('form-unggah-materi').classList.toggle('hidden')"
-                    class="inline-flex items-center text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 px-3.5 py-2 rounded-lg transition shadow-xs"
-                >
-                    + Unggah Materi
-                </button>
-                @endif
-            @elseif($activeTab === 'sertifikat')
-                <span class="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-3 py-2 rounded-lg">
-                    Tersertifikasi Resmi
-                </span>
-                @if(auth()->check() && auth()->user()->isAdmin())
-                <button
-                    type="button"
-                    onclick="document.getElementById('form-terbitkan-sertifikat').classList.toggle('hidden')"
-                    class="inline-flex items-center text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 px-3.5 py-2 rounded-lg transition shadow-xs"
-                >
-                    + Terbitkan Sertifikat
-                </button>
-                @endif
+            </div>
+        </form>
+
+        <!-- Top Widgets: Watched Progress, Quiz Avg, Zoom Sessions (Ottertag Metric Cards) -->
+        <div class="flex items-center gap-2.5 overflow-x-auto pb-1 sm:pb-0">
+            @if($currentUser && $currentUser->isAdmin())
+            <!-- Admin Widget 1: Modul Diterbitkan -->
+            <div class="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 shadow-2xs shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-500 dark:text-gray-400 block font-medium">Modul Diterbitkan</span>
+                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $totalMaterialsCount }} Modul Video</span>
+                </div>
+            </div>
+
+            <!-- Admin Widget 2: Bank Kuis & Soal -->
+            <div class="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 shadow-2xs shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/70 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-500 dark:text-gray-400 block font-medium">Bank Soal Kuis</span>
+                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $quizzes->count() }} Kuis ({{ $quizzes->sum(fn($q) => $q->questions->count()) }} Soal)</span>
+                </div>
+            </div>
+
+            <!-- Admin Widget 3: Peserta Bimtek -->
+            <div class="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 shadow-2xs shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-500 dark:text-gray-400 block font-medium">Pendaftar Pelatihan</span>
+                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $allRegistrations->count() }} Peternak</span>
+                </div>
+            </div>
+            @else
+            <!-- Widget 1: Video Ditonton -->
+            <div class="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 shadow-2xs shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-500 dark:text-gray-400 block font-medium">Modul Ditonton</span>
+                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $watchedCount }}/{{ $totalMaterialsCount }} Selesai ({{ $watchProgressPct }}%)</span>
+                </div>
+            </div>
+
+            <!-- Widget 2: Kuis Evaluasi -->
+            <div class="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 shadow-2xs shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/70 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-500 dark:text-gray-400 block font-medium">Rata-rata Kuis</span>
+                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $averageScore }} / 100 ({{ $passedQuizzesCount }} Lulus)</span>
+                </div>
+            </div>
+
+            <!-- Widget 3: Live Zoom -->
+            <div class="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 shadow-2xs shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-500 dark:text-gray-400 block font-medium">Jadwal Zoom</span>
+                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $upcomingZoomCount }} Sesi Terbuka</span>
+                </div>
+            </div>
             @endif
         </div>
     </div>
 
-    @if($activeTab === 'jadwal')
-        @if(auth()->check() && auth()->user()->isAdmin())
-        <!-- Panel Verifikasi Peserta Bimtek (Admin Only) -->
-        <div id="panel-verifikasi-peserta" class="hidden bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-5 shadow-xs">
-            <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700 mb-3.5">
-                <div>
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Verifikasi Pendaftaran Peserta Bimtek</h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Verifikasi dan tentukan status kepesertaan peternak yang mendaftar pelatihan.</p>
-                </div>
-                <button type="button" onclick="document.getElementById('panel-verifikasi-peserta').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-xs">Tutup</button>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs text-left text-gray-600 dark:text-gray-300">
-                    <thead class="text-[11px] text-gray-700 uppercase bg-gray-50 dark:bg-gray-700/50 dark:text-gray-300">
-                        <tr>
-                            <th class="px-3.5 py-2.5">Nama Peternak</th>
-                            <th class="px-3.5 py-2.5">Program Bimtek</th>
-                            <th class="px-3.5 py-2.5">Waktu Daftar</th>
-                            <th class="px-3.5 py-2.5">Status</th>
-                            <th class="px-3.5 py-2.5 text-right">Aksi Verifikasi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                        @forelse ($allRegistrations as $reg)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition">
-                            <td class="px-3.5 py-2.5 font-bold text-gray-900 dark:text-white">{{ $reg->user?->name ?? 'Peternak' }}</td>
-                            <td class="px-3.5 py-2.5">{{ $reg->training?->title ?? 'Pelatihan' }}</td>
-                            <td class="px-3.5 py-2.5 text-gray-400">{{ \Carbon\Carbon::parse($reg->registered_at)->format('d M Y H:i') }}</td>
-                            <td class="px-3.5 py-2.5">
-                                @if ($reg->status === 'approved' || $reg->status === 'confirmed')
-                                    <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold px-2 py-0.5 rounded">Disetujui</span>
-                                @elseif ($reg->status === 'pending')
-                                    <span class="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-semibold px-2 py-0.5 rounded">Menunggu</span>
-                                @else
-                                    <span class="bg-red-50 text-red-700 border border-red-200 text-[10px] font-semibold px-2 py-0.5 rounded">Ditolak</span>
-                                @endif
-                            </td>
-                            <td class="px-3.5 py-2.5 text-right space-x-1">
-                                @if ($reg->status !== 'approved' && $reg->status !== 'confirmed')
-                                    <form action="{{ route('pelatihan.registration.status', $reg) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        <input type="hidden" name="tab" value="jadwal">
-                                        <input type="hidden" name="status" value="confirmed">
-                                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-semibold px-2 py-1 rounded transition">Setujui</button>
-                                    </form>
-                                @endif
-                                @if ($reg->status !== 'cancelled' && $reg->status !== 'rejected')
-                                    <form action="{{ route('pelatihan.registration.status', $reg) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        <input type="hidden" name="tab" value="jadwal">
-                                        <input type="hidden" name="status" value="cancelled">
-                                        <button type="submit" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-[10px] font-medium px-2 py-1 rounded transition">Tolak</button>
-                                    </form>
-                                @endif
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="px-3.5 py-4 text-center text-gray-400">Belum ada peserta mendaftar.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+    <!-- 2. Hero Indigo Gradient Banner (Ottertag Inspired) with Quick Actions -->
+    <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#9333EA] p-5 sm:p-8 text-white shadow-md">
+        <!-- Sparkle & Glow Decorative Elements -->
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+        <div class="absolute top-4 right-16 text-white/30 hidden sm:block">
+            <svg class="w-10 h-10 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l2.5 9.5L24 12l-9.5 2.5L12 24l-2.5-9.5L0 12l9.5-2.5z"/></svg>
+        </div>
+        <div class="absolute bottom-6 right-48 text-white/20 hidden sm:block">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l2.5 9.5L24 12l-9.5 2.5L12 24l-2.5-9.5L0 12l9.5-2.5z"/></svg>
         </div>
 
-        <!-- Form Tambah Program Bimtek (Collapsible) -->
-        <div id="form-tambah-bimtek" class="hidden bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-5 shadow-xs">
-            <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700 mb-3.5">
-                <div>
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Tambah Program Bimtek Baru</h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Data pelatihan akan langsung tersimpan ke database Dinas Peternakan Jatim.</p>
-                </div>
-                <button type="button" onclick="document.getElementById('form-tambah-bimtek').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-xs">
-                    Batal
+        <div class="relative z-10 max-w-2xl space-y-3">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-xs text-[11px] font-semibold text-white">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>E-Learning Peternak Milenial Jatim</span>
+            </div>
+            <h1 class="text-xl sm:text-3xl font-extrabold tracking-tight leading-snug">
+                Peningkatan Kapasitas &amp; Sertifikasi Peternak Muda Jawa Timur
+            </h1>
+            @if($currentUser && $currentUser->isAdmin())
+            <p class="text-xs sm:text-sm text-indigo-100 leading-relaxed max-w-xl">
+                Kelola kurikulum video pembelajaran, jadwalkan Bimtek daring via Zoom beserta dokumen materi, susun butir bank soal evaluasi kuis, dan pantau kelulusan kompetensi peternak milenial.
+            </p>
+
+            <div class="pt-2 flex flex-wrap items-center gap-2.5">
+                <button
+                    type="button"
+                    onclick="document.getElementById('modal-upload-materi-admin').classList.remove('hidden')"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs shadow-xs hover:bg-indigo-50 transition cursor-pointer"
+                >
+                    <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                    <span>+ Unggah Video &amp; Dokumen</span>
+                </button>
+                <button
+                    type="button"
+                    onclick="document.getElementById('modal-jadwalkan-zoom-admin').classList.remove('hidden')"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-950/40 border border-white/30 text-white font-semibold text-xs hover:bg-indigo-950/60 transition cursor-pointer"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
+                    <span>+ Jadwalkan Sesi Zoom</span>
+                </button>
+                <button
+                    type="button"
+                    onclick="document.getElementById('modal-buat-soal-admin').classList.remove('hidden')"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-950/50 border border-white/30 text-white font-semibold text-xs hover:bg-purple-950/70 transition cursor-pointer"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 011.13-1.897L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
+                    <span>+ Tambah Butir Soal</span>
                 </button>
             </div>
+            @else
+            <p class="text-xs sm:text-sm text-indigo-100 leading-relaxed max-w-xl">
+                Akses video pembelajaran resmi, unduh dokumen panduan SOP standar BBPP Batu &amp; Fapet UB, kerjakan soal kuis pemahaman, dan ikuti kelas daring interaktif via Zoom.
+            </p>
 
-            <form action="{{ route('pelatihan.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                @csrf
-                <input type="hidden" name="tab" value="jadwal">
-                <div class="md:col-span-2">
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Judul Pelatihan <span class="text-red-500">*</span></label>
-                    <input type="text" name="title" required placeholder="Contoh: Formulasi Pakan Ransum & Silase Mandiri" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                </div>
-                <div>
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Pengajar / Narasumber <span class="text-red-500">*</span></label>
-                    <input type="text" name="instructor" required placeholder="Dr. Ir. Hendro Wibowo, M.Sc" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                </div>
-                <div class="md:col-span-3">
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Deskripsi Singkat <span class="text-red-500">*</span></label>
-                    <textarea name="description" rows="2" required placeholder="Penjelasan silabus dan materi yang diajarkan..." class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white"></textarea>
-                </div>
-                <div>
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Tanggal Mulai <span class="text-red-500">*</span></label>
-                    <input type="date" name="start_date" required value="{{ date('Y-m-d', strtotime('+3 days')) }}" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                </div>
-                <div>
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Tanggal Selesai <span class="text-red-500">*</span></label>
-                    <input type="date" name="end_date" required value="{{ date('Y-m-d', strtotime('+5 days')) }}" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                </div>
-                <div>
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Lokasi Pelaksanaan <span class="text-red-500">*</span></label>
-                    <input type="text" name="location" required placeholder="BBPP Songgoriti, Batu" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                </div>
-                <div>
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Kuota Peserta <span class="text-red-500">*</span></label>
-                    <input type="number" name="quota" required min="1" value="30" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                </div>
-                <div>
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Jenis Pendanaan</label>
-                    <select name="cost_type" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                        <option value="gratis_apbd">Gratis (APBD Jatim)</option>
-                        <option value="daring">Daring / Webinar</option>
-                        <option value="mandiri">Mandiri</option>
-                    </select>
-                </div>
-                <div class="flex items-end justify-end">
-                    <button type="submit" class="w-full bg-primary-700 hover:bg-primary-800 text-white font-semibold py-2 px-4 rounded-lg shadow-xs transition">
-                        Simpan Bimtek Baru
-                    </button>
-                </div>
-            </form>
+            <div class="pt-2 flex flex-wrap items-center gap-2.5">
+                <a
+                    href="#section-modul-video"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs shadow-xs hover:bg-indigo-50 transition cursor-pointer"
+                >
+                    <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+                    <span>Lanjutkan Menonton Modul</span>
+                </a>
+                <a
+                    href="{{ route('pelatihan', ['tab' => 'zoom']) }}"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 border border-white/30 text-white font-semibold text-xs hover:bg-white/30 transition"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                    <span>Lihat Jadwal Zoom ({{ $upcomingZoomCount }})</span>
+                </a>
+            </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- 3. Navigation Tabs (Pill Tab System) -->
+    <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
+        <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto">
+            <a
+                href="{{ route('pelatihan', ['tab' => 'pembelajaran', 'topic' => $selectedTopic]) }}"
+                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap {{ $activeTab === 'pembelajaran' ? 'bg-primary-700 text-white shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900' }}"
+            >
+                Video &amp; Modul Pembelajaran
+            </a>
+            <a
+                href="{{ route('pelatihan', ['tab' => 'zoom']) }}"
+                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5 {{ $activeTab === 'zoom' ? 'bg-primary-700 text-white shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900' }}"
+            >
+                <span>Jadwal Kelas Zoom</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $activeTab === 'zoom' ? 'bg-white text-primary-800' : 'bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300' }}">{{ $zoomTrainings->count() }}</span>
+            </a>
+            <a
+                href="{{ route('pelatihan', ['tab' => 'kuis']) }}"
+                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5 {{ $activeTab === 'kuis' ? 'bg-primary-700 text-white shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900' }}"
+            >
+                <span>Kuis &amp; Soal Evaluasi</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $activeTab === 'kuis' ? 'bg-white text-primary-800' : 'bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300' }}">{{ $quizzes->count() }}</span>
+            </a>
+            <a
+                href="{{ route('pelatihan', ['tab' => 'sertifikat']) }}"
+                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap {{ $activeTab === 'sertifikat' ? 'bg-primary-700 text-white shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900' }}"
+            >
+                Sertifikat Digital
+            </a>
+        </div>
+
+        @if($currentUser && $currentUser->isAdmin())
+        <div class="hidden sm:flex items-center gap-2">
+            <span class="text-xs text-gray-500 font-medium">Mode Administrator Dinas</span>
         </div>
         @endif
+    </div>
 
-        <!-- Grid Jadwal Bimtek -->
-        <div id="jadwal">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                @forelse ($trainings as $training)
-                @php
-                    $isRegistered = in_array($training->id, $myRegisteredTrainingIds);
-                    $userRegistration = $myRegistrations->firstWhere('training_id', $training->id);
-                @endphp
-                <div class="bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-4 sm:p-5 flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-gray-600 transition">
+    <!-- 4. Main Content Area with 2-Column Layout (Learning Area + Right Profile Ottertag Panel) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-7 items-start">
+
+        <!-- Left / Center Column: Courses / Zoom / Quizzes (9 cols on lg) -->
+        <div class="lg:col-span-8 xl:col-span-9 space-y-7">
+
+            @if($activeTab === 'pembelajaran')
+            <!-- ========================================== -->
+            <!-- TAB 1: MODUL & VIDEO PEMBELAJARAN (OTTERTAG) -->
+            <!-- ========================================== -->
+            <div id="section-modul-video" class="space-y-6">
+
+                <!-- Section Title & Category Filter Badges -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                     <div>
-                        <div class="flex items-center justify-between mb-2">
-                            @if ($training->remaining_quota > 0)
-                                <span class="text-[11px] font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded dark:bg-green-950/60 dark:text-green-300">
-                                    Terbuka
-                                </span>
-                                <span class="text-[11px] text-gray-400 font-medium">Sisa {{ $training->remaining_quota }} Kuota</span>
-                            @else
-                                <span class="text-[11px] font-medium text-red-700 bg-red-50 px-2 py-0.5 rounded dark:bg-red-950/60 dark:text-red-300">
-                                    Penuh
-                                </span>
-                                <span class="text-[11px] text-red-400 font-medium">Kuota Habis</span>
-                            @endif
-                        </div>
-
-                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">
-                            {{ $training->title }}
-                        </h3>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
-                            {{ Str::limit($training->description, 110) }}
+                        <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                            Video Pembelajaran Mandiri (Continue Watching)
+                        </h2>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            Tonton rekaman materi teknis budidaya, nutrisi pakan, dan SOP peternakan dari Dinas Peternakan Jawa Timur.
                         </p>
-
-                        <div class="mt-3.5 space-y-1 text-xs text-gray-600 dark:text-gray-300">
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-gray-400 text-[11px]">Waktu:</span>
-                                <span>{{ \Carbon\Carbon::parse($training->start_date)->format('d M') }} – {{ \Carbon\Carbon::parse($training->end_date)->format('d M Y') }}</span>
-                            </div>
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-gray-400 text-[11px]">Lokasi:</span>
-                                <span>{{ $training->location }}</span>
-                            </div>
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-gray-400 text-[11px]">Pengajar:</span>
-                                <span>{{ $training->instructor }}</span>
-                            </div>
-                        </div>
                     </div>
 
-                    <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-between text-xs">
-                        <span class="font-semibold text-cyan-700 dark:text-cyan-400 capitalize">
-                            {{ str_replace('_', ' ', $training->cost_type) }}
-                        </span>
+                    @if($currentUser && $currentUser->isAdmin())
+                    <button
+                        type="button"
+                        onclick="document.getElementById('modal-upload-materi-admin').classList.remove('hidden')"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary-700 hover:bg-primary-800 text-white text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        <span>Tambah Modul Video</span>
+                    </button>
+                    @endif
+                </div>
 
-                        <div class="flex items-center gap-1.5">
-                            @if(auth()->check() && auth()->user()->isAdmin())
-                                <span class="px-2.5 py-1 bg-blue-50 text-primary-700 border border-blue-200 rounded-md font-semibold text-[11px]">
-                                    Pengelola Bimtek
+                <!-- Video Cards Grid (3 Columns on md/lg) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+                    @forelse($materials as $material)
+                    @php
+                        $prog = $userProgress->get($material->id);
+                        $isWatched = $prog ? $prog->is_watched : false;
+                        $pct = $isWatched ? 100 : ($prog ? $prog->watch_percentage : 0);
+                        $hasQuiz = $material->quiz !== null;
+                    @endphp
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group">
+                        <!-- Thumbnail & Video Badge -->
+                        <div class="relative aspect-video w-full bg-gray-900 overflow-hidden">
+                            <img
+                                src="{{ $material->thumbnail_url }}"
+                                alt="{{ $material->title }}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90"
+                            />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+
+                            <!-- Play Overlay Button -->
+                            <button
+                                type="button"
+                                onclick="openVideoPlayerModal({{ json_encode($material) }}, '{{ $material->video_embed_url }}')"
+                                class="absolute inset-0 flex items-center justify-center group-hover:opacity-100 transition-opacity cursor-pointer"
+                                title="Putar Video Pembelajaran"
+                            >
+                                <div class="w-11 h-11 rounded-full bg-white/90 text-primary-700 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </button>
+
+                            <!-- Category / Topic Badge -->
+                            <div class="absolute top-2.5 left-2.5">
+                                <span class="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wide bg-indigo-600/90 text-white backdrop-blur-xs">
+                                    {{ $material->topic ?? 'PETERNAKAN' }}
                                 </span>
-                                <form action="{{ route('pelatihan.destroy', $training) }}" method="POST" onsubmit="return confirm('Hapus Bimtek {{ $training->title }}?')">
+                            </div>
+
+                            <!-- Duration & Level Badge -->
+                            <div class="absolute bottom-2.5 right-2.5 flex items-center gap-1.5">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-black/70 text-white backdrop-blur-xs flex items-center gap-1">
+                                    <svg class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    {{ $material->duration ?? '20 Menit' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="p-4 sm:p-4.5 flex-1 flex flex-col justify-between space-y-3">
+                            <div class="space-y-1.5">
+                                <h3 class="text-xs sm:text-sm font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
+                                    {{ $material->title }}
+                                </h3>
+                                <p class="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                                    {{ $material->description ?? 'Modul pembelajaran standar peningkatan kompetensi peternak milenial Jawa Timur.' }}
+                                </p>
+                            </div>
+
+                            <!-- Progress Bar / Admin Publish Metric -->
+                            @if($currentUser && $currentUser->isAdmin())
+                            <div class="space-y-1 pt-1 border-t border-gray-100 dark:border-gray-700/60">
+                                <div class="flex items-center justify-between text-[10px] text-gray-500 font-medium">
+                                    <span>Status Modul</span>
+                                    <span class="text-indigo-600 dark:text-indigo-400 font-bold flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        Diterbitkan Dinas
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between text-[10px] text-gray-400">
+                                    <span>Total Tayang: {{ $material->views_count }}x tonton</span>
+                                    <span>{{ $hasQuiz ? ($material->quiz->questions->count() . ' Butir Soal') : 'Belum Ada Kuis' }}</span>
+                                </div>
+                            </div>
+                            @else
+                            <div class="space-y-1 pt-1 border-t border-gray-100 dark:border-gray-700/60">
+                                <div class="flex items-center justify-between text-[10px] text-gray-500 font-medium">
+                                    <span>Progres Belajar</span>
+                                    <span class="{{ $isWatched ? 'text-emerald-600 font-bold' : 'text-gray-500' }}">
+                                        {{ $isWatched ? '100% Selesai' : $pct . '% Ditonton' }}
+                                    </span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                    <div
+                                        class="h-full rounded-full transition-all duration-500 {{ $isWatched ? 'bg-emerald-500' : 'bg-primary-600' }}"
+                                        style="width: {{ max(6, $pct) }}%"
+                                    ></div>
+                                </div>
+                            </div>
+                            @endif
+
+                            <!-- Instructor Info -->
+                            <div class="flex items-center justify-between pt-1">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <img
+                                        src="{{ asset('img/dokter.png') }}"
+                                        alt="{{ $material->instructor_name }}"
+                                        class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-600 shrink-0"
+                                    />
+                                    <div class="min-w-0 truncate">
+                                        <span class="text-xs font-semibold text-gray-800 dark:text-gray-200 block truncate">
+                                            {{ $material->instructor_name ?? 'Dr. Ir. Budi Santoso' }}
+                                        </span>
+                                        <span class="text-[10px] text-gray-400 block truncate">
+                                            {{ $material->author_institution }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons: Admin Management vs Peternak Learner -->
+                            <div class="pt-2 flex items-center gap-1.5 border-t border-gray-100 dark:border-gray-700">
+                                @if($currentUser && $currentUser->isAdmin())
+                                <!-- Admin Action: Pratinjau Video (Bukan Mengerjakan) -->
+                                <button
+                                    type="button"
+                                    onclick="openVideoPlayerModal({{ json_encode($material) }}, '{{ $material->video_embed_url }}')"
+                                    class="flex-1 inline-flex items-center justify-center gap-1 px-2.5 py-1.5 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-semibold transition cursor-pointer"
+                                    title="Pratinjau Video Modul"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    <span>Pratinjau</span>
+                                </button>
+
+                                <a
+                                    href="{{ route('pelatihan.document.download', ['type' => 'material', 'id' => $material->id]) }}"
+                                    class="inline-flex items-center justify-center px-2 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 text-gray-700 dark:text-gray-200 rounded-lg text-xs font-medium transition"
+                                    title="Unduh Dokumen PDF Modul"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                                </a>
+
+                                @if($hasQuiz)
+                                <button
+                                    type="button"
+                                    onclick="openAdminAddQuestionModal({{ $material->quiz->id }})"
+                                    class="inline-flex items-center justify-center gap-1 px-2.5 py-1.5 bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded-lg text-xs font-semibold transition cursor-pointer"
+                                    title="Tambah Butir Soal ke Kuis Modul Ini"
+                                >
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                    <span>+ Soal</span>
+                                </button>
+                                @else
+                                <button
+                                    type="button"
+                                    onclick="openAdminCreateQuizModal({{ $material->id }}, '{{ addslashes($material->title) }}')"
+                                    class="inline-flex items-center justify-center gap-1 px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold transition cursor-pointer shadow-2xs"
+                                    title="Buat Kuis Evaluasi untuk Modul Ini"
+                                >
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                    <span>+ Kuis</span>
+                                </button>
+                                @endif
+
+                                <form action="{{ route('pelatihan.materials.destroy', $material) }}" method="POST" onsubmit="return confirm('Hapus modul {{ $material->title }}?')" class="inline-block">
                                     @csrf
                                     @method('DELETE')
-                                    <input type="hidden" name="tab" value="jadwal">
-                                    <button type="submit" class="p-1 text-gray-400 hover:text-red-600 transition" title="Hapus Pelatihan">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                                    <button type="submit" class="p-1.5 text-gray-400 hover:text-red-600 transition cursor-pointer" title="Hapus Modul">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                                     </button>
                                 </form>
-                            @else
-                                @if ($isRegistered && $userRegistration)
-                                    <form action="{{ route('pelatihan.cancel', $userRegistration) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pendaftaran Bimtek ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <input type="hidden" name="tab" value="jadwal">
-                                        <button
-                                            type="submit"
-                                            class="px-2.5 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-md font-medium text-xs transition"
-                                            title="Klik untuk membatalkan tiket"
-                                        >
-                                            &check; Terdaftar (Batal)
-                                        </button>
-                                    </form>
-                                @elseif ($training->remaining_quota > 0)
-                                    <form action="{{ route('pelatihan.register', $training) }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="tab" value="jadwal">
-                                        <button
-                                            type="submit"
-                                            class="px-3.5 py-1.5 bg-primary-700 hover:bg-primary-800 text-white font-medium rounded-md transition shadow-xs"
-                                        >
-                                            Daftar Sekarang
-                                        </button>
-                                    </form>
                                 @else
-                                    <button type="button" disabled class="px-3 py-1.5 bg-gray-100 text-gray-400 rounded-md cursor-not-allowed text-xs">
-                                        Ditutup
-                                    </button>
+                                <!-- Peternak Action: Tonton Video & Kerjakan Kuis -->
+                                <button
+                                    type="button"
+                                    onclick="openVideoPlayerModal({{ json_encode($material) }}, '{{ $material->video_embed_url }}')"
+                                    class="flex-1 inline-flex items-center justify-center gap-1 px-2.5 py-1.5 bg-primary-700 hover:bg-primary-800 text-white rounded-lg text-xs font-semibold transition cursor-pointer shadow-2xs"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+                                    <span>Tonton</span>
+                                </button>
+
+                                <a
+                                    href="{{ route('pelatihan.document.download', ['type' => 'material', 'id' => $material->id]) }}"
+                                    class="inline-flex items-center justify-center px-2 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 text-gray-700 dark:text-gray-200 rounded-lg text-xs font-medium transition"
+                                    title="Unduh Dokumen PDF Modul"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                                </a>
+
+                                @if($hasQuiz)
+                                <button
+                                    type="button"
+                                    onclick="openQuizRunnerModal({{ json_encode($material->quiz) }}, {{ json_encode($material->quiz->questions) }})"
+                                    class="inline-flex items-center justify-center px-2.5 py-1.5 bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded-lg text-xs font-semibold transition cursor-pointer"
+                                    title="Kerjakan Soal Kuis"
+                                >
+                                    Kuis
+                                </button>
                                 @endif
-                            @endif
+                                @endif
+                            </div>
                         </div>
                     </div>
-                </div>
-                @empty
-                <div class="col-span-full py-12 px-4 text-center bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
-                    <div class="w-12 h-12 mx-auto rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-400 mb-2.5 shadow-xs">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
-                        </svg>
+                    @empty
+                    <div class="col-span-full py-12 text-center bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                        <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300">Belum ada modul pembelajaran yang sesuai</h4>
+                        <p class="text-xs text-gray-400 mt-1">Coba reset filter topik atau kata kunci pencarian Anda.</p>
                     </div>
-                    <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200">Belum ada program pelatihan</h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto">Jadwal bimbingan teknis dan pelatihan peternak akan ditampilkan setelah dipublikasikan oleh Admin Dinas.</p>
+                    @endforelse
                 </div>
-                @endforelse
-            </div>
-        </div>
-    @elseif($activeTab === 'modul')
-        @if(auth()->check() && auth()->user()->isAdmin())
-        <!-- Form Unggah Materi (Admin Only) -->
-        <div id="form-unggah-materi" class="hidden bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-5 shadow-xs">
-            <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700 mb-3.5">
-                <div>
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Unggah Materi Pembelajaran Baru</h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Publikasikan modul, buku pedoman, atau tautan video tutorial untuk peternak.</p>
-                </div>
-                <button type="button" onclick="document.getElementById('form-unggah-materi').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-xs">
-                    Batal
-                </button>
-            </div>
 
-            <form action="{{ route('pelatihan.materials.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
-                @csrf
-                <input type="hidden" name="tab" value="modul">
-                <div>
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Program Bimtek</label>
-                    <select name="training_id" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                        <option value="">Umum (Dinas Peternakan Jatim)</option>
-                        @foreach ($trainings as $t)
-                            <option value="{{ $t->id }}">{{ $t->title }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Judul Materi <span class="text-red-500">*</span></label>
-                    <input type="text" name="title" required placeholder="Modul Pembuatan Silase Mandiri..." class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                </div>
-                <div>
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Jenis Materi <span class="text-red-500">*</span></label>
-                    <select name="file_type" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                        <option value="pdf">PDF (Buku/Modul SOP)</option>
-                        <option value="video">Video Praktik / Webinar</option>
-                        <option value="slide">Slide Presentasi</option>
-                    </select>
-                </div>
-                <div class="flex items-end gap-2">
-                    <div class="w-full">
-                        <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Ukuran / Keterangan File</label>
-                        <input type="text" name="file_size" placeholder="Contoh: 4.2 MB" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                    </div>
-                    <button type="submit" class="bg-primary-700 hover:bg-primary-800 text-white font-semibold py-2 px-3 rounded-lg shadow-xs transition shrink-0">
-                        Simpan
-                    </button>
-                </div>
-            </form>
-        </div>
-        @endif
-
-        <!-- Daftar Modul & Video Praktik -->
-        <div id="modul" class="bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-5 shadow-xs">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
-                @forelse ($materials as $material)
-                <div class="p-4 bg-gray-50 dark:bg-gray-750/50 rounded-xl flex items-center justify-between border border-gray-200/80 dark:border-gray-700 hover:border-gray-300 transition">
-                    <div class="flex items-start gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 flex items-center justify-center shrink-0 text-primary-700 dark:text-primary-400 font-bold text-[10px] uppercase shadow-2xs">
-                            @if(str_contains(strtolower($material->file_type ?? $material->category ?? ''), 'video'))
-                                <svg class="w-4 h-4 text-rose-600" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
-                            @else
-                                <svg class="w-4 h-4 text-primary-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
-                            @endif
-                        </div>
+                <!-- Mentor / Instruktur Ahli Table (Ottertag "Your Mentor" Table) -->
+                <div class="pt-6 space-y-3.5 border-t border-gray-200 dark:border-gray-800">
+                    <div class="flex items-center justify-between">
                         <div>
-                            <span class="font-bold text-gray-900 dark:text-white block leading-snug">{{ $material->title }}</span>
-                            <span class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 block">
-                                {{ $material->training?->title ?? 'Materi Dinas' }} &bull; {{ strtoupper(str_replace('_', ' ', $material->file_type ?? $material->category ?? 'PDF')) }} &bull; {{ $material->file_size ?? '3.5 MB' }}
-                            </span>
+                            <h3 class="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
+                                Instruktur &amp; Narasumber Bimbingan Teknis
+                            </h3>
+                            <p class="text-xs text-gray-500">Pakar terakreditasi dari BBPP Batu, Fakultas Peternakan UB, dan Dokter Hewan Dinas.</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 shrink-0 ms-2">
-                        <a
-                            href="{{ $material->file_url ?? '#' }}"
-                            onclick="alert('Mengunduh materi: {{ addslashes($material->title) }}')"
-                            class="font-semibold text-primary-700 dark:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg transition"
-                        >
-                            {{ str_contains(strtolower($material->file_type ?? $material->category ?? ''), 'video') ? 'Tonton' : 'Unduh' }}
-                        </a>
-                        @if(auth()->check() && auth()->user()->isAdmin())
-                        <form action="{{ route('pelatihan.materials.destroy', $material) }}" method="POST" onsubmit="return confirm('Hapus materi {{ $material->title }}?')">
-                            @csrf
-                            @method('DELETE')
-                            <input type="hidden" name="tab" value="modul">
-                            <button type="submit" class="text-gray-400 hover:text-red-600 p-1.5 rounded transition" title="Hapus Materi">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
-                            </button>
-                        </form>
-                        @endif
+
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700 overflow-hidden shadow-2xs">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left text-gray-600 dark:text-gray-300">
+                                <thead class="text-[11px] text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-700/60 border-b border-gray-200 dark:border-gray-700">
+                                    <tr>
+                                        <th class="px-4 py-3">Nama Instruktur &amp; Instansi</th>
+                                        <th class="px-4 py-3">Spesialisasi</th>
+                                        <th class="px-4 py-3">Materi Diampu</th>
+                                        <th class="px-4 py-3 text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                                    @foreach($mentors as $mentor)
+                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-700/40 transition">
+                                        <td class="px-4 py-3.5 flex items-center gap-3">
+                                            <img src="{{ $mentor['avatar'] }}" alt="{{ $mentor['name'] }}" class="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"/>
+                                            <div>
+                                                <span class="font-bold text-gray-900 dark:text-white block">{{ $mentor['name'] }}</span>
+                                                <span class="text-[11px] text-gray-400 block">{{ $mentor['institution'] }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3.5">
+                                            <span class="px-2.5 py-1 rounded-md text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">
+                                                {{ $mentor['specialty'] }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3.5 font-medium text-gray-700 dark:text-gray-200">
+                                            {{ $mentor['courses_count'] }} Modul &amp; Sesi Bimtek
+                                        </td>
+                                        <td class="px-4 py-3.5 text-right">
+                                            <a
+                                                href="{{ route('konsultasi') }}"
+                                                class="px-3 py-1.5 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 hover:bg-primary-100 rounded-lg text-[11px] font-semibold transition"
+                                            >
+                                                Konsultasi
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                @empty
-                <div class="col-span-full text-center text-gray-400 py-10 text-xs bg-gray-50 dark:bg-gray-750/30 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
-                    Belum ada modul atau materi pembelajaran yang diunggah oleh Admin Dinas.
-                </div>
-                @endforelse
-            </div>
-        </div>
-    @elseif($activeTab === 'sertifikat')
-        @if(auth()->check() && auth()->user()->isAdmin())
-        <!-- Form Terbitkan Sertifikat (Admin Only) -->
-        <div id="form-terbitkan-sertifikat" class="hidden bg-emerald-50/60 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800 p-5 shadow-xs">
-            <div class="flex items-center justify-between pb-3 border-b border-emerald-200/70 dark:border-emerald-800 mb-3.5">
-                <div>
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Terbitkan Sertifikat Digital Resmi</h3>
-                    <p class="text-xs text-gray-600 dark:text-gray-400">Penerbitan e-Sertifikat kompetensi binaan dengan nomor registrasi Disnak Jatim.</p>
-                </div>
-                <button type="button" onclick="document.getElementById('form-terbitkan-sertifikat').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-xs">
-                    Batal
-                </button>
+
             </div>
 
-            <form action="{{ route('pelatihan.certificates.issue') }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
-                @csrf
-                <input type="hidden" name="tab" value="sertifikat">
-                <div>
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Penerima Peternak <span class="text-red-500">*</span></label>
-                    <select name="user_id" required class="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                        @foreach ($peternakUsers as $pu)
-                            <option value="{{ $pu->id }}">{{ $pu->name }} ({{ $pu->email }})</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Program Pelatihan <span class="text-red-500">*</span></label>
-                    <select name="training_id" required class="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                        @foreach ($trainings as $t)
-                            <option value="{{ $t->id }}">{{ $t->title }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Nomor Seri Sertifikat</label>
-                    <input type="text" name="certificate_number" placeholder="JTM-CERT-2026-..." class="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                </div>
-                <div class="flex items-end justify-end">
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-3 rounded-lg shadow-xs transition">
-                        Terbitkan Sekarang
-                    </button>
-                </div>
-            </form>
-        </div>
-        @endif
-
-        <!-- Daftar Sertifikat Digital -->
-        <div id="sertifikat" class="bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-5 shadow-xs">
-            <div class="space-y-3.5">
-                @forelse ($certificates as $cert)
-                <div class="p-4.5 rounded-xl bg-gray-50 dark:bg-gray-750/50 border border-gray-200/80 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:border-gray-300 transition">
+            @elseif($activeTab === 'zoom')
+            <!-- ========================================== -->
+            <!-- TAB 2: JADWAL PEMBELAJARAN SECARA ZOOM -->
+            <!-- ========================================== -->
+            <div class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                        <div class="flex items-center gap-2 mb-1.5">
-                            <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 px-2 py-0.5 rounded">
-                                {{ $cert->is_valid ?? true ? 'Terverifikasi Resmi' : 'Kedaluwarsa' }}
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 text-[11px] font-bold">
+                                Kelas Daring Interaktif
                             </span>
-                            <span class="text-gray-400 text-[11px]">No. Seri: {{ $cert->certificate_number }}</span>
+                            <span class="text-xs text-gray-500">Live Zoom Meetings</span>
                         </div>
-                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">
-                            {{ $cert->title ?? $cert->training?->title ?? 'Sertifikasi Kompetensi Peternak Milenial' }}
-                        </h3>
-                        <p class="text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
-                            Penerima: <strong class="text-gray-700 dark:text-gray-200">{{ $cert->recipient_name ?? $cert->user?->name ?? 'Peternak Binaan' }}</strong> &bull; Diterbitkan: {{ \Carbon\Carbon::parse($cert->issued_date)->format('d F Y') }}
+                        <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                            Jadwal Pembelajaran &amp; Pelatihan Daring via Zoom
+                        </h2>
+                        <p class="text-xs text-gray-500">
+                            Ikuti webinar interaktif tatap maya bersama instruktur ahli BBPP Batu dan narasumber perbankan/industri susu.
                         </p>
                     </div>
 
-                    <div class="flex items-center gap-2 shrink-0">
-                        <button
-                            type="button"
-                            onclick="alert('Mengunduh e-Sertifikat resmi nomor {{ $cert->certificate_number }} untuk {{ addslashes($cert->recipient_name ?? $cert->user?->name ?? 'Peternak') }}...')"
-                            class="px-3.5 py-2 bg-primary-700 hover:bg-primary-800 text-white font-medium rounded-lg shrink-0 transition shadow-xs text-xs"
-                        >
-                            Unduh PDF
-                        </button>
-                        @if(auth()->check() && auth()->user()->isAdmin())
-                        <form action="{{ route('pelatihan.certificates.destroy', $cert) }}" method="POST" onsubmit="return confirm('Hapus sertifikat {{ $cert->certificate_number }}?')">
-                            @csrf
-                            @method('DELETE')
-                            <input type="hidden" name="tab" value="sertifikat">
-                            <button type="submit" class="text-gray-400 hover:text-red-600 p-1.5 rounded transition" title="Hapus Sertifikat">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
-                            </button>
-                        </form>
-                        @endif
+                    @if($currentUser && $currentUser->isAdmin())
+                    <button
+                        type="button"
+                        onclick="document.getElementById('modal-jadwalkan-zoom-admin').classList.remove('hidden')"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        <span>Jadwalkan Sesi Zoom Baru</span>
+                    </button>
+                    @endif
+                </div>
+
+                <!-- Zoom Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                    @forelse($zoomTrainings as $zt)
+                    @php
+                        $isRegistered = in_array($zt->id, $myRegisteredTrainingIds);
+                        $status = $zt->zoom_status;
+                    @endphp
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700 p-5 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <!-- Status & Date -->
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-1.5">
+                                    @if($status === 'ongoing')
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                                        LIVE HARI INI
+                                    </span>
+                                    @elseif($status === 'upcoming')
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">
+                                        AKAN DATANG
+                                    </span>
+                                    @else
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                        SELESAI
+                                    </span>
+                                    @endif
+                                </div>
+
+                                <span class="text-xs font-semibold text-gray-500">
+                                    {{ $zt->start_date ? $zt->start_date->format('d M Y') : 'Terjadwal' }}
+                                </span>
+                            </div>
+
+                            <!-- Title & Description -->
+                            <div>
+                                <h3 class="text-sm font-bold text-gray-900 dark:text-white leading-snug">
+                                    {{ $zt->title }}
+                                </h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">
+                                    {{ $zt->description }}
+                                </p>
+                            </div>
+
+                            <!-- Instructor & Time -->
+                            <div class="bg-gray-50 dark:bg-gray-750 p-3 rounded-xl space-y-2 text-xs">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ $zt->instructor }}</span>
+                                    <span class="text-gray-400 text-[11px]">({{ $zt->instructor_title ?? 'Narasumber' }})</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-[11px]">
+                                    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>{{ $zt->time_info ?? '13:00 - 16:30 WIB' }}</span>
+                                    <span class="text-gray-300">&bull;</span>
+                                    <span>Sisa Kuota: {{ $zt->remaining_quota }} peserta</span>
+                                </div>
+                            </div>
+
+                            <!-- Zoom Credentials Box -->
+                            <div class="p-3 bg-blue-50/70 dark:bg-blue-950/40 rounded-xl border border-blue-200/80 dark:border-blue-900/60 space-y-1.5 text-xs text-blue-950 dark:text-blue-200">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-semibold text-blue-800 dark:text-blue-300">Tautan Resmi Zoom Meeting:</span>
+                                    <span class="text-[10px] text-blue-600 dark:text-blue-400">Ruang Kelas Disnak Jatim</span>
+                                </div>
+                                <div class="flex items-center justify-between font-mono text-[11px] bg-white dark:bg-gray-800 p-2 rounded-lg border border-blue-100 dark:border-blue-800">
+                                    <span>Meeting ID: <strong>{{ $zt->zoom_meeting_id ?? '883 9218 2019' }}</strong></span>
+                                    <span>Passcode: <strong>{{ $zt->zoom_passcode ?? 'JATIM2026' }}</strong></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="pt-3 border-t border-gray-100 dark:border-gray-700 flex flex-wrap items-center gap-2">
+                            <!-- Direct Join Zoom Link -->
+                            @if(!empty($zt->zoom_link))
+                            <a
+                                href="{{ $zt->zoom_link }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
+                                <span>Gabung Zoom</span>
+                            </a>
+                            @endif
+
+                            <!-- Unduh Silabus / Dokumen PDF -->
+                            <a
+                                href="{{ route('pelatihan.document.download', ['type' => 'zoom', 'id' => $zt->id]) }}"
+                                class="inline-flex items-center gap-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 rounded-xl text-xs font-semibold text-gray-700 transition"
+                                title="Unduh Silabus &amp; Slide Materi"
+                            >
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                                <span>Materi (PDF)</span>
+                            </a>
+
+                            <!-- Daftar Pelatihan jika belum terdaftar -->
+                            @if($currentUser && $currentUser->isPeternak())
+                                @if(!$isRegistered)
+                                <form action="{{ route('pelatihan.register', $zt) }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="tab" value="zoom">
+                                    <button
+                                        type="submit"
+                                        class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
+                                    >
+                                        Daftar Sesi
+                                    </button>
+                                </form>
+                                @else
+                                <span class="px-2.5 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-xs font-bold">
+                                    Terdaftar &check;
+                                </span>
+                                @endif
+                            @endif
+
+                            @if($currentUser && $currentUser->isAdmin())
+                            <form action="{{ route('pelatihan.destroy', $zt) }}" method="POST" onsubmit="return confirm('Hapus sesi Zoom ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <input type="hidden" name="tab" value="zoom">
+                                <button type="submit" class="p-2 text-gray-400 hover:text-red-600 transition" title="Hapus Sesi Zoom">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                                </button>
+                            </form>
+                            @endif
+                        </div>
+                    </div>
+                    @empty
+                    <div class="col-span-full py-12 text-center bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                        <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300">Belum ada sesi pembelajaran Zoom mendatang</h4>
+                        <p class="text-xs text-gray-400 mt-1">Admin dinas akan memperbarui jadwal Bimtek daring secara berkala.</p>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
+            @elseif($activeTab === 'kuis')
+            <!-- ========================================== -->
+            <!-- TAB 3: KUIS & PENGERJAAN SOAL-SOAL EVALUASI -->
+            <!-- ========================================== -->
+            <div class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2 py-0.5 rounded bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-300 text-[11px] font-bold">
+                                {{ $currentUser && $currentUser->isAdmin() ? 'Pengelolaan Kurikulum' : 'Evaluasi Mandiri' }}
+                            </span>
+                            <span class="text-xs text-gray-500">Passing Grade: 70%</span>
+                        </div>
+                        <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                            {{ $currentUser && $currentUser->isAdmin() ? 'Bank Soal & Kuis Evaluasi Pembelajaran' : 'Kuis & Soal Uji Pemahaman Materi Peternak' }}
+                        </h2>
+                        <p class="text-xs text-gray-500">
+                            {{ $currentUser && $currentUser->isAdmin()
+                                ? 'Kelola bank soal evaluasi pemahaman modul. Tambahkan butir pertanyaan pilihan ganda (A, B, C, D) dan pantau capaian nilai peternak.'
+                                : 'Kerjakan soal-soal pilihan ganda setelah menonton video pembelajaran untuk menguji kesiapan dan pemahaman SOP peternakan.' }}
+                        </p>
+                    </div>
+
+                    @if($currentUser && $currentUser->isAdmin())
+                    <button
+                        type="button"
+                        onclick="document.getElementById('modal-buat-soal-admin').classList.remove('hidden')"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        <span>Tambah Butir Soal Baru</span>
+                    </button>
+                    @endif
+                </div>
+
+                <!-- Quiz List Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                    @forelse($quizzes as $quiz)
+                    @php
+                        $userAttempt = $quizAttempts->where('learning_quiz_id', $quiz->id)->sortByDesc('score')->first();
+                        $qCount = $quiz->questions->count();
+                    @endphp
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700 p-5 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 uppercase">
+                                    {{ $quiz->learningMaterial?->topic ?? 'MODUL TERNAK' }}
+                                </span>
+
+                                @if($currentUser && $currentUser->isAdmin())
+                                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-purple-700 bg-purple-100 dark:bg-purple-950 dark:text-purple-300 px-2.5 py-0.5 rounded-full">
+                                    Bank Soal ({{ $qCount }} Butir)
+                                </span>
+                                @elseif($userAttempt)
+                                    @if($userAttempt->passed)
+                                    <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full">
+                                        &check; LULUS (Skor: {{ $userAttempt->score }})
+                                    </span>
+                                    @else
+                                    <span class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full">
+                                        Perlu Mengulang (Skor: {{ $userAttempt->score }})
+                                    </span>
+                                    @endif
+                                @else
+                                <span class="text-[11px] text-gray-400">Belum Dikerjakan</span>
+                                @endif
+                            </div>
+
+                            <div>
+                                <h3 class="text-sm font-bold text-gray-900 dark:text-white leading-snug">
+                                    {{ $quiz->title }}
+                                </h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">
+                                    {{ $quiz->description ?? 'Evaluasi komprehensif butir-butir soal teknis modul pembelajaran peternakan.' }}
+                                </p>
+                            </div>
+
+                            <!-- Quiz Metrics -->
+                            <div class="grid grid-cols-3 gap-2 p-2.5 bg-gray-50 dark:bg-gray-750 rounded-xl text-center text-xs">
+                                <div>
+                                    <span class="text-[10px] text-gray-400 block">Jumlah Soal</span>
+                                    <span class="font-bold text-gray-800 dark:text-gray-200">{{ $qCount }} Butir</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-gray-400 block">Batas Nilai</span>
+                                    <span class="font-bold text-gray-800 dark:text-gray-200">{{ $quiz->passing_score }}%</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-gray-400 block">Waktu Ujian</span>
+                                    <span class="font-bold text-gray-800 dark:text-gray-200">{{ $quiz->time_limit_minutes ?? 15 }} Mnt</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between gap-2">
+                            <span class="text-[11px] text-gray-400 truncate">
+                                Modul: {{ $quiz->learningMaterial?->title }}
+                            </span>
+
+                            <div class="flex items-center gap-2">
+                                @if($currentUser && $currentUser->isAdmin())
+                                <button
+                                    type="button"
+                                    onclick="openAdminManageQuestionsModal({{ json_encode($quiz) }}, {{ json_encode($quiz->questions) }})"
+                                    class="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-xs font-semibold transition cursor-pointer"
+                                    title="Lihat &amp; Kelola Butir Soal"
+                                >
+                                    <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+                                    <span>Kelola ({{ $qCount }})</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="openAdminAddQuestionModal({{ $quiz->id }})"
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+                                    title="Tambah Butir Soal ke Kuis Ini"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                    <span>+ Butir Soal</span>
+                                </button>
+                                @else
+                                <button
+                                    type="button"
+                                    onclick="openQuizRunnerModal({{ json_encode($quiz) }}, {{ json_encode($quiz->questions) }})"
+                                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 011.13-1.897L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
+                                    <span>{{ $userAttempt ? 'Ulangi Kuis' : 'Kerjakan Soal' }}</span>
+                                </button>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="col-span-full py-12 text-center bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                        <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/></svg>
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300">Belum ada kuis yang tersedia</h4>
+                        <p class="text-xs text-gray-400 mt-1">Admin dinas akan menambahkan butir-butir evaluasi kuis untuk setiap modul.</p>
+                    </div>
+                    @endforelse
+                </div>
+
+                <!-- Admin Oversight: Riwayat Pengerjaan Kuis Peternak -->
+                @if($currentUser && $currentUser->isAdmin())
+                <div class="pt-6 space-y-3.5 border-t border-gray-200 dark:border-gray-800">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">
+                        Daftar Hasil Nilai &amp; Evaluasi Kuis Peternak Milenial
+                    </h3>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700 overflow-hidden shadow-2xs">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left text-gray-600 dark:text-gray-300">
+                                <thead class="text-[11px] text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-700/60 border-b border-gray-200 dark:border-gray-700">
+                                    <tr>
+                                        <th class="px-4 py-3">Nama Peternak</th>
+                                        <th class="px-4 py-3">Modul Kuis</th>
+                                        <th class="px-4 py-3 text-center">Skor</th>
+                                        <th class="px-4 py-3">Status</th>
+                                        <th class="px-4 py-3 text-right">Waktu Pengerjaan</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                                    @forelse($quizAttempts as $att)
+                                    <tr class="hover:bg-gray-50/80 transition">
+                                        <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">
+                                            {{ $att->user?->name ?? 'Peternak' }}
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-600 dark:text-gray-300">
+                                            {{ $att->quiz?->title }}
+                                        </td>
+                                        <td class="px-4 py-3 text-center font-bold {{ $att->passed ? 'text-emerald-600' : 'text-red-500' }}">
+                                            {{ $att->score }} / 100
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $att->passed ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                                {{ $att->passed ? 'LULUS' : 'MENGULANG' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-right text-gray-400">
+                                            {{ $att->completed_at ? $att->completed_at->format('d M Y H:i') : '-' }}
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="5" class="px-4 py-6 text-center text-gray-400">
+                                            Belum ada peternak yang menyelesaikan kuis evaluasi.
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                @empty
-                <div class="text-center text-gray-400 py-10 text-xs bg-gray-50 dark:bg-gray-750/30 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
-                    Belum ada sertifikat digital yang diterbitkan di dalam database.
-                </div>
-                @endforelse
+                @endif
             </div>
+
+            @elseif($activeTab === 'sertifikat')
+            <!-- ========================================== -->
+            <!-- TAB 4: SERTIFIKAT DIGITAL RESMI DINAS -->
+            <!-- ========================================== -->
+            <div class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 text-[11px] font-bold">
+                                Terverifikasi E-Signature
+                            </span>
+                            <span class="text-xs text-gray-500">Dinas Peternakan Provinsi Jawa Timur</span>
+                        </div>
+                        <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                            {{ $currentUser && $currentUser->isAdmin() ? 'Basis Data Sertifikat Digital Pelatihan' : 'Sertifikat Kompetensi Digital Saya' }}
+                        </h2>
+                        <p class="text-xs text-gray-500">
+                            Bukti kelulusan dan kompetensi resmi dari keikutsertaan program Bimtek peternak milenial.
+                        </p>
+                    </div>
+
+                    @if($currentUser && $currentUser->isAdmin())
+                    <button
+                        type="button"
+                        onclick="document.getElementById('form-terbitkan-sertifikat').classList.toggle('hidden')"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        <span>Terbitkan Sertifikat Baru</span>
+                    </button>
+                    @endif
+                </div>
+
+                <!-- Form Terbitkan Sertifikat (Admin) -->
+                @if($currentUser && $currentUser->isAdmin())
+                <div id="form-terbitkan-sertifikat" class="hidden bg-emerald-50/70 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-800 p-5 shadow-xs">
+                    <form action="{{ route('pelatihan.certificates.issue') }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+                        @csrf
+                        <input type="hidden" name="tab" value="sertifikat">
+                        <div>
+                            <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Penerima Peternak <span class="text-red-500">*</span></label>
+                            <select name="user_id" required class="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
+                                @foreach ($peternakUsers as $pu)
+                                    <option value="{{ $pu->id }}">{{ $pu->name }} ({{ $pu->email }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Program Pelatihan <span class="text-red-500">*</span></label>
+                            <select name="training_id" required class="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
+                                @foreach ($trainings as $t)
+                                    <option value="{{ $t->id }}">{{ $t->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Judul Sertifikasi</label>
+                            <input type="text" name="title" placeholder="cth: Sertifikasi Peternak Sapi Perah Higienis" class="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-3 rounded-lg transition shadow-xs">
+                                Terbitkan E-Sertifikat
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                @endif
+
+                <!-- Certificate Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @forelse($certificates as $cert)
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-emerald-300/80 dark:border-emerald-700/60 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold">
+                                    {{ $cert->certificate_number }}
+                                </span>
+                                <span class="text-xs text-gray-400">
+                                    {{ $cert->issued_date ? $cert->issued_date->format('d M Y') : '2026' }}
+                                </span>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-gray-900 dark:text-white leading-snug">{{ $cert->title }}</h3>
+                                <p class="text-xs text-emerald-800 dark:text-emerald-300 mt-1">Diberikan kepada: <strong>{{ $cert->recipient_name }}</strong></p>
+                            </div>
+                            <div class="text-[11px] text-gray-500 border-t border-emerald-100 dark:border-gray-700 pt-2 flex items-center justify-between">
+                                <span>Verifikator: {{ $cert->verified_by }}</span>
+                                <span class="text-emerald-600 font-bold">&check; Valid</span>
+                            </div>
+                        </div>
+
+                        @if($currentUser && $currentUser->isAdmin())
+                        <div class="pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                            <form action="{{ route('pelatihan.certificates.destroy', $cert) }}" method="POST" onsubmit="return confirm('Hapus sertifikat ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <input type="hidden" name="tab" value="sertifikat">
+                                <button type="submit" class="text-xs text-red-600 hover:text-red-800 font-medium">Hapus</button>
+                            </form>
+                        </div>
+                        @endif
+                    </div>
+                    @empty
+                    <div class="col-span-full py-12 text-center bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                        <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.496m5.007 0a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H9.496a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300">Belum ada sertifikat digital yang diterbitkan</h4>
+                        <p class="text-xs text-gray-400 mt-1">Sertifikat akan diterbitkan resmi oleh Dinas Peternakan Jatim setelah Anda menyelesaikan modul &amp; bimtek.</p>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+            @endif
+
         </div>
-    @endif
+
+        <!-- Right Side Panel: "Your Profile" & Aktivitas Belajar (Ottertag Frame 26) -->
+        <div class="lg:col-span-4 xl:col-span-3 space-y-5">
+
+            <!-- Profile Summary Card: Admin Manager Panel vs Peternak Learner Profile -->
+            @if($currentUser && $currentUser->isAdmin())
+            <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-200/90 dark:border-gray-700 p-5 shadow-2xs space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Panel Pengelola Pelatihan</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">ADMIN DINAS</span>
+                </div>
+
+                <!-- Admin Profile Header -->
+                <div class="flex flex-col items-center text-center space-y-2">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 p-0.5 flex items-center justify-center shadow-md">
+                        <div class="w-full h-full rounded-full bg-white dark:bg-gray-800 p-1 flex items-center justify-center overflow-hidden">
+                            <img
+                                src="{{ asset('img/Peternak Milenial.png') }}"
+                                alt="Admin Avatar"
+                                class="w-full h-full object-contain"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">
+                            {{ $currentUser->name }}
+                        </h3>
+                        <p class="text-[11px] text-gray-400 mt-0.5">
+                            Administrator Dinas Peternakan Jawa Timur
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Admin LMS Operations Metrics -->
+                <div class="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-2.5">
+                    <div class="flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-gray-300">
+                        <span>Ringkasan Program LMS</span>
+                        <span class="text-indigo-600 font-bold">Aktif Dikelola</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="p-2.5 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-xl border border-indigo-100 dark:border-indigo-900/40 text-center">
+                            <span class="text-[10px] text-indigo-600 dark:text-indigo-400 block font-medium">Modul Video</span>
+                            <span class="font-extrabold text-indigo-900 dark:text-indigo-200 text-sm">{{ $totalMaterialsCount }} Modul</span>
+                        </div>
+                        <div class="p-2.5 bg-purple-50/70 dark:bg-purple-950/40 rounded-xl border border-purple-100 dark:border-purple-900/40 text-center">
+                            <span class="text-[10px] text-purple-600 dark:text-purple-400 block font-medium">Bank Kuis</span>
+                            <span class="font-extrabold text-purple-900 dark:text-purple-200 text-sm">{{ $quizzes->count() }} Kuis</span>
+                        </div>
+                        <div class="p-2.5 bg-blue-50/70 dark:bg-blue-950/40 rounded-xl border border-blue-100 dark:border-blue-900/40 text-center">
+                            <span class="text-[10px] text-blue-600 dark:text-blue-400 block font-medium">Sesi Zoom</span>
+                            <span class="font-extrabold text-blue-900 dark:text-blue-200 text-sm">{{ $zoomTrainings->count() }} Sesi</span>
+                        </div>
+                        <div class="p-2.5 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-900/40 text-center">
+                            <span class="text-[10px] text-emerald-600 dark:text-emerald-400 block font-medium">Pendaftar</span>
+                            <span class="font-extrabold text-emerald-900 dark:text-emerald-200 text-sm">{{ $allRegistrations->count() }} Orang</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Quick Actions (Menambahkan Pelatihan) -->
+                <div class="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500 block">Aksi Pengelola LMS</span>
+
+                    <button
+                        type="button"
+                        onclick="document.getElementById('modal-upload-materi-admin').classList.remove('hidden')"
+                        class="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-semibold text-xs transition cursor-pointer"
+                    >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        <span>+ Unggah Video &amp; Dokumen</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="document.getElementById('modal-jadwalkan-zoom-admin').classList.remove('hidden')"
+                        class="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-semibold text-xs transition cursor-pointer"
+                    >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
+                        <span>+ Jadwalkan Sesi Zoom</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="document.getElementById('modal-buat-soal-admin').classList.remove('hidden')"
+                        class="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-semibold text-xs transition cursor-pointer"
+                    >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 011.13-1.897L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
+                        <span>+ Tambah Butir Soal</span>
+                    </button>
+                </div>
+            </div>
+            @else
+            <!-- Profile Summary Card with Circular Progress Ring (Peternak Learner) -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-200/90 dark:border-gray-700 p-5 shadow-2xs space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Profil Pembelajar</span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                </div>
+
+                <!-- Avatar with Progress Circle -->
+                <div class="flex flex-col items-center text-center space-y-2">
+                    <div class="relative w-20 h-20 flex items-center justify-center">
+                        <svg class="w-20 h-20 -rotate-90">
+                            <circle cx="40" cy="40" r="34" stroke="currentColor" stroke-width="5" class="text-gray-100 dark:text-gray-700" fill="transparent"/>
+                            <circle
+                                cx="40"
+                                cy="40"
+                                r="34"
+                                stroke="currentColor"
+                                stroke-width="5"
+                                stroke-dasharray="213"
+                                stroke-dashoffset="{{ 213 - (213 * max(10, $watchProgressPct)) / 100 }}"
+                                stroke-linecap="round"
+                                class="text-indigo-600 transition-all duration-1000"
+                                fill="transparent"
+                            />
+                        </svg>
+                        <div class="absolute inset-1 rounded-full overflow-hidden bg-gray-100">
+                            <img
+                                src="{{ asset('img/Peternak Milenial.png') }}"
+                                alt="User Avatar"
+                                class="w-full h-full object-contain p-1"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">
+                            {{ $greeting }}, {{ $currentUser ? explode(' ', $currentUser->name)[0] : 'Peternak' }}!
+                        </h3>
+                        <p class="text-[11px] text-gray-400 mt-0.5">
+                            {{ $currentUser ? $currentUser->role_label : 'Peternak Milenial' }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Mini Activity Indicators (Ottertag Chart Columns) -->
+                <div class="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-2">
+                    <div class="flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-gray-300">
+                        <span>Aktivitas Belajar Pekan Ini</span>
+                        <span class="text-indigo-600 font-bold">{{ $watchedCount }} Modul</span>
+                    </div>
+
+                    <!-- 7 Bar Charts (Sen, Sel, Rab, Kam, Jum, Sab, Min) -->
+                    <div class="h-20 flex items-end justify-between gap-1.5 pt-2 px-1">
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <div class="w-full bg-purple-200 dark:bg-purple-900/50 rounded-t-md" style="height: 35%"></div>
+                            <span class="text-[9px] text-gray-400">Sn</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <div class="w-full bg-purple-300 dark:bg-purple-900/70 rounded-t-md" style="height: 55%"></div>
+                            <span class="text-[9px] text-gray-400">Sl</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <div class="w-full bg-purple-400 rounded-t-md" style="height: 40%"></div>
+                            <span class="text-[9px] text-gray-400">Rb</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <div class="w-full bg-purple-600 rounded-t-md" style="height: 80%"></div>
+                            <span class="text-[9px] text-gray-400">Km</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <div class="w-full bg-purple-700 rounded-t-md" style="height: 95%"></div>
+                            <span class="text-[9px] text-gray-400">Jm</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <div class="w-full bg-purple-400 rounded-t-md" style="height: 60%"></div>
+                            <span class="text-[9px] text-gray-400">Sb</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <div class="w-full bg-indigo-500 rounded-t-md" style="height: 75%"></div>
+                            <span class="text-[9px] text-gray-400">Mg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats List -->
+                <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+                    <div class="p-2.5 bg-gray-50 dark:bg-gray-750 rounded-xl text-center">
+                        <span class="text-[10px] text-gray-400 block">Sertifikat</span>
+                        <span class="font-extrabold text-emerald-600 text-sm">{{ $certificates->count() }} Terbit</span>
+                    </div>
+                    <div class="p-2.5 bg-gray-50 dark:bg-gray-750 rounded-xl text-center">
+                        <span class="text-[10px] text-gray-400 block">Kuis Lulus</span>
+                        <span class="font-extrabold text-purple-600 text-sm">{{ $passedQuizzesCount }} Modul</span>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- Mentor List Quick Widget (Ottertag "Your Mentor" Sidebar) -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-200/90 dark:border-gray-700 p-5 shadow-2xs space-y-3.5">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500">Mentor &amp; Dokter Jaga</h4>
+                    <span class="text-[10px] text-primary-700 font-semibold">Tersedia</span>
+                </div>
+
+                <div class="space-y-3">
+                    @foreach(array_slice($mentors, 0, 3) as $m)
+                    <div class="flex items-center justify-between gap-2.5">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <img src="{{ $m['avatar'] }}" alt="{{ $m['name'] }}" class="w-8 h-8 rounded-full object-cover border border-gray-200 shrink-0"/>
+                            <div class="min-w-0">
+                                <span class="text-xs font-bold text-gray-900 dark:text-white block truncate">{{ $m['name'] }}</span>
+                                <span class="text-[10px] text-gray-400 block truncate">{{ $m['specialty'] }}</span>
+                            </div>
+                        </div>
+                        <a
+                            href="{{ route('konsultasi') }}"
+                            class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-purple-100 text-purple-700 hover:bg-purple-200 transition shrink-0"
+                        >
+                            Tanya
+                        </a>
+                    </div>
+                    @endforeach
+                </div>
+
+                <a
+                    href="{{ route('konsultasi') }}"
+                    class="block text-center w-full py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-bold text-xs rounded-xl transition"
+                >
+                    Lihat Semua Dokter &amp; Mentor
+                </a>
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
+
+<!-- ============================================================== -->
+<!-- MODAL 1: VIDEO PLAYER MODAL & RINGKASAN MATERI                 -->
+<!-- ============================================================== -->
+<div id="modal-video-player" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[92vh] flex flex-col">
+        <!-- Modal Video Header -->
+        <div class="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <div>
+                <span id="vp-topic" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+                    TOPIC
+                </span>
+                <h3 id="vp-title" class="text-sm sm:text-base font-bold text-gray-900 dark:text-white mt-1">
+                    Judul Video Pembelajaran
+                </h3>
+            </div>
+            <button
+                type="button"
+                onclick="closeVideoPlayerModal()"
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-xl font-bold p-1"
+            >
+                &times;
+            </button>
+        </div>
+
+        <!-- Video Player Iframe Container (Responsive 16:9) -->
+        <div class="relative aspect-video w-full bg-black">
+            <iframe
+                id="vp-iframe"
+                src=""
+                class="w-full h-full"
+                title="Video Pembelajaran"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+            ></iframe>
+        </div>
+
+        <!-- Details & Actions -->
+        <div class="p-4 sm:p-5 overflow-y-auto space-y-3.5 flex-1">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-700 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <img src="{{ asset('img/dokter.png') }}" alt="Instructor" class="w-8 h-8 rounded-full border border-gray-200"/>
+                    <div>
+                        <span id="vp-instructor" class="text-xs font-bold text-gray-800 dark:text-gray-200 block">Nama Instruktur</span>
+                        <span id="vp-institution" class="text-[11px] text-gray-400 block">Dinas Peternakan Jatim</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <!-- Download Attached Document -->
+                    <a
+                        id="vp-doc-btn"
+                        href="#"
+                        class="inline-flex items-center gap-1.5 px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl text-xs font-semibold transition"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                        <span>Unduh Dokumen SOP (PDF)</span>
+                    </a>
+
+                    <!-- Mark Progress (Peternak Only) -->
+                    @if($currentUser && $currentUser->isAdmin())
+                    <span class="inline-flex items-center gap-1.5 px-3 py-2 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-semibold border border-indigo-200 dark:border-indigo-800">
+                        <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span>Pratinjau Pengelola Dinas</span>
+                    </span>
+                    @else
+                    <form id="vp-progress-form" method="POST" action="" class="inline">
+                        @csrf
+                        <button
+                            type="submit"
+                            class="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer"
+                        >
+                            &check; Tandai Selesai Menonton
+                        </button>
+                    </form>
+                    @endif
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">Deskripsi &amp; Poin Pembelajaran</h4>
+                <p id="vp-description" class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Deskripsi materi video...
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL 2: QUIZ RUNNER INTERAKTIF (MENGERJAKAN SOAL-SOAL)        -->
+<!-- ============================================================== -->
+<div id="modal-quiz-runner" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[92vh] flex flex-col">
+        <!-- Header Kuis -->
+        <div class="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-purple-50/50 dark:bg-purple-950/30">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-200 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                    KUIS EVALUASI PEMBELAJARAN
+                </span>
+                <h3 id="qr-title" class="text-sm sm:text-base font-bold text-gray-900 dark:text-white mt-1">
+                    Judul Kuis
+                </h3>
+            </div>
+            <button
+                type="button"
+                onclick="document.getElementById('modal-quiz-runner').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer"
+            >
+                &times;
+            </button>
+        </div>
+
+        <!-- Result Card (shown after submission) -->
+        <div id="qr-result-box" class="hidden p-5 bg-white dark:bg-gray-800 text-center space-y-3 border-b border-gray-100 dark:border-gray-700">
+            <div id="qr-result-icon" class="w-14 h-14 rounded-full mx-auto flex items-center justify-center text-2xl font-bold"></div>
+            <div>
+                <h4 id="qr-result-heading" class="text-base font-extrabold">Hasil Kuis Anda</h4>
+                <p id="qr-result-message" class="text-xs text-gray-500 mt-0.5"></p>
+            </div>
+            <div class="inline-flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/60 rounded-xl text-xs">
+                <span>Skor: <strong id="qr-result-score" class="text-sm">0</strong>/100</span>
+                <span>&bull;</span>
+                <span>Benar: <strong id="qr-result-correct">0</strong> dari <span id="qr-result-total">0</span> soal</span>
+            </div>
+        </div>
+
+        <!-- Quiz Form Body -->
+        <form id="qr-form" method="POST" action="" class="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1">
+            @csrf
+            <div id="qr-questions-container" class="space-y-6">
+                <!-- Dynamically rendered questions with option A, B, C, D -->
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <span class="text-[11px] text-gray-400">Pilih salah satu jawaban yang paling tepat.</span>
+                <button
+                    type="submit"
+                    class="px-5 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs shadow-md transition cursor-pointer"
+                >
+                    Kirim Jawaban &amp; Lihat Nilai
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL 3: ADMIN UPLOAD MODUL & DOKUMEN VIDEO BARU               -->
+<!-- ============================================================== -->
+@if($currentUser && $currentUser->isAdmin())
+<div id="modal-upload-materi-admin" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[92vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 mb-4">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-primary-100 text-primary-800">
+                    ADMIN LMS STUDIO
+                </span>
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mt-1">
+                    Unggah Video Pembelajaran &amp; Dokumen SOP
+                </h3>
+            </div>
+            <button
+                type="button"
+                onclick="document.getElementById('modal-upload-materi-admin').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 text-xl font-bold cursor-pointer"
+            >
+                &times;
+            </button>
+        </div>
+
+        <form action="{{ route('pelatihan.materials.store') }}" method="POST" enctype="multipart/form-data" class="space-y-3.5 text-xs">
+            @csrf
+            <input type="hidden" name="tab" value="pembelajaran">
+            <input type="hidden" name="category" value="video_praktik">
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Judul Video / Modul <span class="text-red-500">*</span></label>
+                <input type="text" name="title" required placeholder="cth: Teknik Pengolahan Silase Berkualitas Tinggi" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Topik Pembelajaran <span class="text-red-500">*</span></label>
+                    <select name="topic" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                        <option value="Manajemen Pakan">Manajemen Pakan</option>
+                        <option value="Produksi & Mutu Susu">Produksi & Mutu Susu</option>
+                        <option value="Kesehatan Ternak">Kesehatan Ternak</option>
+                        <option value="Bibit & Budidaya">Bibit & Budidaya</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Tingkat Kesulitan</label>
+                    <select name="level" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                        <option value="Dasar">Dasar (Pemula)</option>
+                        <option value="Menengah">Menengah</option>
+                        <option value="Lanjutan">Lanjutan</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Nama Instruktur / Pemateri <span class="text-red-500">*</span></label>
+                    <input type="text" name="instructor_name" required value="Dr. Ir. Budi Santoso, M.Sc" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Instansi / Asal Lembaga <span class="text-red-500">*</span></label>
+                    <input type="text" name="author_institution" required value="BBPP Batu & Disnak Jatim" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Tautan Video (YouTube / Link Video) <span class="text-red-500">*</span></label>
+                    <input type="text" name="video_url" required value="https://www.youtube.com/watch?v=dQw4w9WgXcQ" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Durasi Video</label>
+                    <input type="text" name="duration" value="22 Menit" placeholder="cth: 25 Menit" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Unggah Dokumen Materi / SOP (PDF / DOCX)</label>
+                <input type="file" name="document_file" accept=".pdf,.doc,.docx" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2 text-xs text-gray-900 dark:text-white file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700">
+                <span class="text-[10px] text-gray-400 mt-0.5 block">File dokumen yang dapat diunduh langsung oleh peternak setelah menonton.</span>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Ringkasan &amp; Deskripsi Materi</label>
+                <textarea name="description" rows="3" placeholder="Jelaskan ringkasan materi, capaian pembelajaran, dan SOP terkait..." class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <button type="button" onclick="document.getElementById('modal-upload-materi-admin').classList.add('hidden')" class="px-4 py-2 rounded-xl text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 transition shadow-xs cursor-pointer">
+                    Simpan &amp; Publikasikan Modul
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL 4: ADMIN JADWALKAN PEMBELAJARAN ZOOM                     -->
+<!-- ============================================================== -->
+<div id="modal-jadwalkan-zoom-admin" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[92vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 mb-4">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                    LIVE ZOOM WEBINAR
+                </span>
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mt-1">
+                    Jadwalkan Sesi Pembelajaran Zoom Baru
+                </h3>
+            </div>
+            <button
+                type="button"
+                onclick="document.getElementById('modal-jadwalkan-zoom-admin').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 text-xl font-bold cursor-pointer"
+            >
+                &times;
+            </button>
+        </div>
+
+        <form action="{{ route('pelatihan.zoom.store') }}" method="POST" enctype="multipart/form-data" class="space-y-3.5 text-xs">
+            @csrf
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Judul Sesi Bimtek Zoom <span class="text-red-500">*</span></label>
+                <input type="text" name="title" required placeholder="cth: Live Zoom: Formulasi Pakan Konsentrat Rendah Emisi" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Narasumber / Instruktur <span class="text-red-500">*</span></label>
+                    <input type="text" name="instructor" required value="Prof. Dr. Ir. Hendrawan, MS" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Jabatan / Lembaga</label>
+                    <input type="text" name="instructor_title" value="Guru Besar Nutrisi Ternak Fapet UB" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Tanggal Mulai <span class="text-red-500">*</span></label>
+                    <input type="date" name="start_date" required value="{{ date('Y-m-d', strtotime('+3 days')) }}" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Tanggal Selesai <span class="text-red-500">*</span></label>
+                    <input type="date" name="end_date" required value="{{ date('Y-m-d', strtotime('+3 days')) }}" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Jam Pelaksanaan <span class="text-red-500">*</span></label>
+                    <input type="text" name="time_info" required value="09:00 - 12:00 WIB" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Tautan / Link Zoom Meeting <span class="text-red-500">*</span></label>
+                <input type="url" name="zoom_link" required value="https://zoom.us/j/99120485123?pwd=pakanmilenial" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Meeting ID</label>
+                    <input type="text" name="zoom_meeting_id" value="991 2048 5123" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Passcode</label>
+                    <input type="text" name="zoom_passcode" value="PAKAN2026" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Kuota Peserta</label>
+                    <input type="number" name="quota" min="10" value="250" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Unggah Dokumen Silabus / Materi Zoom (PDF)</label>
+                <input type="file" name="document_upload" accept=".pdf,.doc,.docx" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2 text-xs text-gray-900 dark:text-white file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Deskripsi &amp; Agenda Bimtek</label>
+                <textarea name="description" rows="3" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">Teknik penyusunan ransum pakan sapi perah berbasis limbah pertanian lokal Jawa Timur untuk menekan emisi gas metana.</textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <button type="button" onclick="document.getElementById('modal-jadwalkan-zoom-admin').classList.add('hidden')" class="px-4 py-2 rounded-xl text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 transition shadow-xs cursor-pointer">
+                    Terbitkan Jadwal Zoom
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL 5: ADMIN TAMBAH BUTIR SOAL KUIS                          -->
+<!-- ============================================================== -->
+<div id="modal-buat-soal-admin" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[92vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 mb-4">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-800">
+                    BANK SOAL EVALUASI
+                </span>
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mt-1">
+                    Tambah Butir Soal Pilihan Ganda (A, B, C, D)
+                </h3>
+            </div>
+            <button
+                type="button"
+                onclick="document.getElementById('modal-buat-soal-admin').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 text-xl font-bold cursor-pointer"
+            >
+                &times;
+            </button>
+        </div>
+
+        <form id="form-tambah-soal" method="POST" action="" class="space-y-3.5 text-xs">
+            @csrf
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Pilih Kuis Modul <span class="text-red-500">*</span></label>
+                <select id="select-target-quiz" required onchange="updateQuizActionUrl(this.value)" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                    @foreach($quizzes as $qz)
+                        <option value="{{ $qz->id }}" data-action="{{ route('pelatihan.quiz.question.store', $qz) }}">
+                            {{ $qz->title }} (Modul: {{ $qz->learningMaterial?->title }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Pertanyaan Soal <span class="text-red-500">*</span></label>
+                <textarea name="question" required rows="2.5" placeholder="Tuliskan butir pertanyaan di sini..." class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Pilihan A <span class="text-red-500">*</span></label>
+                    <input type="text" name="option_a" required placeholder="Opsi A" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Pilihan B <span class="text-red-500">*</span></label>
+                    <input type="text" name="option_b" required placeholder="Opsi B" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Pilihan C <span class="text-red-500">*</span></label>
+                    <input type="text" name="option_c" required placeholder="Opsi C" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Pilihan D <span class="text-red-500">*</span></label>
+                    <input type="text" name="option_d" required placeholder="Opsi D" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Kunci Jawaban Benar <span class="text-red-500">*</span></label>
+                    <select name="correct_answer" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white font-bold text-emerald-700">
+                        <option value="a">A</option>
+                        <option value="b">B</option>
+                        <option value="c">C</option>
+                        <option value="d">D</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Penjelasan / Pembahasan Kunci Jawaban</label>
+                    <input type="text" name="explanation" placeholder="Alasan mengapa jawaban ini benar..." class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <button type="button" onclick="document.getElementById('modal-buat-soal-admin').classList.add('hidden')" class="px-4 py-2 rounded-xl text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-purple-700 hover:bg-purple-800 transition shadow-xs cursor-pointer">
+                    Simpan Butir Soal
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL 6: ADMIN BUAT KUIS BARU UNTUK MODUL                      -->
+<!-- ============================================================== -->
+<div id="modal-buat-kuis-admin" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[92vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 mb-4">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-800">
+                    BANK EVALUASI
+                </span>
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mt-1">
+                    Buat Kuis Baru untuk Modul Video
+                </h3>
+            </div>
+            <button
+                type="button"
+                onclick="document.getElementById('modal-buat-kuis-admin').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 text-xl font-bold cursor-pointer"
+            >
+                &times;
+            </button>
+        </div>
+
+        <form id="form-buat-kuis" method="POST" action="" class="space-y-3.5 text-xs">
+            @csrf
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Judul Kuis Evaluasi <span class="text-red-500">*</span></label>
+                <input type="text" id="bk-title" name="title" required placeholder="cth: Evaluasi Pemahaman Nutrisi Pakan" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Passing Grade (%) <span class="text-red-500">*</span></label>
+                    <input type="number" name="passing_score" min="50" max="100" value="70" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Batas Waktu (Menit)</label>
+                    <input type="number" name="time_limit_minutes" min="1" max="120" value="15" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Deskripsi / Petunjuk Pengerjaan</label>
+                <textarea id="bk-description" name="description" rows="2.5" placeholder="Instruksi pengerjaan bagi peternak..." class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <button type="button" onclick="document.getElementById('modal-buat-kuis-admin').classList.add('hidden')" class="px-4 py-2 rounded-xl text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-purple-700 hover:bg-purple-800 transition shadow-xs cursor-pointer">
+                    Terbitkan Kuis
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL 7: ADMIN KELOLA DAFTAR BUTIR SOAL KUIS                  -->
+<!-- ============================================================== -->
+<div id="modal-kelola-soal-admin" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[92vh] flex flex-col">
+        <div class="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 mb-4 shrink-0">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-800">
+                    BANK SOAL KUIS
+                </span>
+                <h3 id="ks-title" class="text-base font-bold text-gray-900 dark:text-white mt-1">
+                    Kelola Butir Soal Evaluasi
+                </h3>
+            </div>
+            <button
+                type="button"
+                onclick="document.getElementById('modal-kelola-soal-admin').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 text-xl font-bold cursor-pointer"
+            >
+                &times;
+            </button>
+        </div>
+
+        <div class="flex items-center justify-between py-2 px-3 bg-purple-50 dark:bg-purple-950/40 rounded-xl mb-4 shrink-0 text-xs">
+            <span class="text-purple-900 dark:text-purple-300 font-medium">Daftar Pertanyaan Pilihan Ganda</span>
+            <button
+                type="button"
+                onclick="switchToCreateQuestionFromManage()"
+                class="px-3 py-1.5 rounded-lg bg-purple-700 hover:bg-purple-800 text-white font-bold text-[11px] shadow-2xs transition cursor-pointer"
+            >
+                + Tambah Soal Baru
+            </button>
+        </div>
+
+        <div id="ks-questions-list" class="space-y-4 overflow-y-auto flex-1 pr-1">
+            <!-- Dynamically populated questions with delete action -->
+        </div>
+
+        <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end shrink-0">
+            <button
+                type="button"
+                onclick="document.getElementById('modal-kelola-soal-admin').classList.add('hidden')"
+                class="px-5 py-2 rounded-xl text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 cursor-pointer"
+            >
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- JAVASCRIPT LOGIC FOR INTERACTIVE MODALS -->
+<script>
+    let currentManagingQuizId = null;
+
+    function openAdminCreateQuizModal(materialId, materialTitle) {
+        document.getElementById('form-buat-kuis').action = '/pelatihan/materials/' + materialId + '/quiz';
+        document.getElementById('bk-title').value = 'Evaluasi Pemahaman: ' + materialTitle;
+        document.getElementById('bk-description').value = 'Uji pemahaman butir-butir SOP materi ' + materialTitle + '.';
+        document.getElementById('modal-buat-kuis-admin').classList.remove('hidden');
+    }
+
+    function openAdminAddQuestionModal(quizId) {
+        const select = document.getElementById('select-target-quiz');
+        if (select) {
+            select.value = quizId;
+            updateQuizActionUrl(quizId);
+        }
+        document.getElementById('modal-buat-soal-admin').classList.remove('hidden');
+    }
+
+    function openAdminManageQuestionsModal(quiz, questions) {
+        currentManagingQuizId = quiz.id;
+        document.getElementById('ks-title').innerText = quiz.title;
+        const list = document.getElementById('ks-questions-list');
+        list.innerHTML = '';
+
+        if (!questions || questions.length === 0) {
+            list.innerHTML = '<div class="text-center py-8 text-gray-400 text-xs">Belum ada butir pertanyaan untuk kuis ini. Silakan klik tombol "+ Tambah Soal Baru".</div>';
+            document.getElementById('modal-kelola-soal-admin').classList.remove('hidden');
+            return;
+        }
+
+        const token = '{{ csrf_token() }}';
+
+        questions.forEach((q, idx) => {
+            const card = document.createElement('div');
+            card.className = 'p-3.5 bg-gray-50 dark:bg-gray-750 border border-gray-200/80 dark:border-gray-700 rounded-2xl space-y-2.5 text-xs';
+
+            const opts = [
+                { key: 'a', text: q.option_a },
+                { key: 'b', text: q.option_b },
+                { key: 'c', text: q.option_c },
+                { key: 'd', text: q.option_d }
+            ];
+
+            let optHtml = '';
+            opts.forEach(o => {
+                const isCorrect = (o.key === q.correct_answer);
+                optHtml += `
+                    <div class="px-2.5 py-1.5 rounded-lg border text-xs flex items-center justify-between ${isCorrect ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-400 text-emerald-900 dark:text-emerald-200 font-bold' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'}">
+                        <span><strong>${o.key.toUpperCase()}.</strong> ${o.text}</span>
+                        ${isCorrect ? '<span class="text-[10px] bg-emerald-600 text-white px-1.5 py-0.2 rounded font-bold">&check; KUNCI</span>' : ''}
+                    </div>
+                `;
+            });
+
+            card.innerHTML = `
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex items-start gap-2">
+                        <span class="w-5 h-5 rounded-full bg-purple-200 text-purple-900 font-bold text-[11px] flex items-center justify-center shrink-0">
+                            ${idx + 1}
+                        </span>
+                        <p class="font-bold text-gray-900 dark:text-white leading-snug">
+                            ${q.question}
+                        </p>
+                    </div>
+
+                    <form action="/pelatihan/quiz/questions/${q.id}" method="POST" onsubmit="return confirm('Hapus pertanyaan ini?')" class="inline shrink-0">
+                        <input type="hidden" name="_token" value="${token}">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="p-1 text-gray-400 hover:text-red-600 transition cursor-pointer" title="Hapus Butir Soal">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pl-7">
+                    ${optHtml}
+                </div>
+
+                ${q.explanation ? `<div class="pl-7 text-[11px] text-gray-500 italic">Pembahasan: ${q.explanation}</div>` : ''}
+            `;
+
+            list.appendChild(card);
+        });
+
+        document.getElementById('modal-kelola-soal-admin').classList.remove('hidden');
+    }
+
+    function switchToCreateQuestionFromManage() {
+        document.getElementById('modal-kelola-soal-admin').classList.add('hidden');
+        if (currentManagingQuizId) {
+            openAdminAddQuestionModal(currentManagingQuizId);
+        } else {
+            document.getElementById('modal-buat-soal-admin').classList.remove('hidden');
+        }
+    }
+
+    function openVideoPlayerModal(material, embedUrl) {
+        document.getElementById('vp-topic').innerText = (material.topic || 'PETERNAKAN').toUpperCase();
+        document.getElementById('vp-title').innerText = material.title;
+        document.getElementById('vp-instructor').innerText = material.instructor_name || 'Instruktur Ahli Disnak';
+        document.getElementById('vp-institution').innerText = material.author_institution || 'Dinas Peternakan Jatim';
+        document.getElementById('vp-description').innerText = material.description || 'Modul video resmi dinas peternakan.';
+
+        // Set document download link
+        document.getElementById('vp-doc-btn').href = '/pelatihan/dokumen/material/' + material.id;
+
+        // Set progress tracking form action
+        const progressForm = document.getElementById('vp-progress-form');
+        if (progressForm) {
+            progressForm.action = '/pelatihan/materi/' + material.id + '/progress';
+        }
+
+        // Load iframe video
+        const iframe = document.getElementById('vp-iframe');
+        iframe.src = embedUrl || 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+
+        document.getElementById('modal-video-player').classList.remove('hidden');
+    }
+
+    function closeVideoPlayerModal() {
+        const iframe = document.getElementById('vp-iframe');
+        iframe.src = '';
+        document.getElementById('modal-video-player').classList.add('hidden');
+    }
+
+    function openQuizRunnerModal(quiz, questions) {
+        document.getElementById('qr-title').innerText = quiz.title;
+        document.getElementById('qr-form').action = '/pelatihan/kuis/' + quiz.id + '/submit';
+
+        // Reset result box
+        const resultBox = document.getElementById('qr-result-box');
+        resultBox.classList.add('hidden');
+
+        const container = document.getElementById('qr-questions-container');
+        container.innerHTML = '';
+
+        if (!questions || questions.length === 0) {
+            container.innerHTML = '<div class="text-center py-6 text-gray-400 text-xs">Belum ada butir pertanyaan untuk kuis ini.</div>';
+            document.getElementById('modal-quiz-runner').classList.remove('hidden');
+            return;
+        }
+
+        questions.forEach((q, idx) => {
+            const card = document.createElement('div');
+            card.className = 'p-4 rounded-2xl bg-gray-50 dark:bg-gray-750 border border-gray-200/80 dark:border-gray-700 space-y-3';
+
+            card.innerHTML = `
+                <div class="flex items-start gap-2.5">
+                    <span class="w-6 h-6 rounded-full bg-purple-200 text-purple-900 font-bold text-xs flex items-center justify-center shrink-0">
+                        ${idx + 1}
+                    </span>
+                    <p class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white leading-snug">
+                        ${q.question}
+                    </p>
+                </div>
+
+                <div class="space-y-2 pl-8">
+                    <label class="flex items-center gap-3 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-purple-400 transition">
+                        <input type="radio" name="answers[${q.id}]" value="a" required class="w-4 h-4 text-purple-600 focus:ring-purple-500">
+                        <span class="text-xs text-gray-700 dark:text-gray-200"><strong>A.</strong> ${q.option_a}</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-purple-400 transition">
+                        <input type="radio" name="answers[${q.id}]" value="b" class="w-4 h-4 text-purple-600 focus:ring-purple-500">
+                        <span class="text-xs text-gray-700 dark:text-gray-200"><strong>B.</strong> ${q.option_b}</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-purple-400 transition">
+                        <input type="radio" name="answers[${q.id}]" value="c" class="w-4 h-4 text-purple-600 focus:ring-purple-500">
+                        <span class="text-xs text-gray-700 dark:text-gray-200"><strong>C.</strong> ${q.option_c}</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-purple-400 transition">
+                        <input type="radio" name="answers[${q.id}]" value="d" class="w-4 h-4 text-purple-600 focus:ring-purple-500">
+                        <span class="text-xs text-gray-700 dark:text-gray-200"><strong>D.</strong> ${q.option_d}</span>
+                    </label>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        // Set quiz AJAX submission handler
+        const form = document.getElementById('qr-form');
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const resultBox = document.getElementById('qr-result-box');
+                    const iconBox = document.getElementById('qr-result-icon');
+                    const heading = document.getElementById('qr-result-heading');
+                    const msg = document.getElementById('qr-result-message');
+
+                    document.getElementById('qr-result-score').innerText = data.score;
+                    document.getElementById('qr-result-correct').innerText = data.correct_count;
+                    document.getElementById('qr-result-total').innerText = data.total_questions;
+
+                    if (data.passed) {
+                        iconBox.className = 'w-14 h-14 rounded-full mx-auto flex items-center justify-center text-2xl font-bold bg-emerald-100 text-emerald-800';
+                        iconBox.innerHTML = '&check;';
+                        heading.className = 'text-base font-extrabold text-emerald-800';
+                        heading.innerText = 'SELAMAT! ANDA LULUS EVALUASI';
+                        msg.innerText = `Skor Anda melampaui batas minimum kelulusan (${data.passing_score}%). Pemahaman Anda sangat baik.`;
+                    } else {
+                        iconBox.className = 'w-14 h-14 rounded-full mx-auto flex items-center justify-center text-2xl font-bold bg-amber-100 text-amber-800';
+                        iconBox.innerHTML = '!';
+                        heading.className = 'text-base font-extrabold text-amber-800';
+                        heading.innerText = 'BELUM LULUS (PERLU MENGULANG)';
+                        msg.innerText = `Skor Anda belum mencapai batas ${data.passing_score}%. Silakan tonton kembali video pembelajaran dan ulangi kuis.`;
+                    }
+
+                    resultBox.classList.remove('hidden');
+                    resultBox.scrollIntoView({ behavior: 'smooth' });
+
+                    // Highlight review answers
+                    if (data.question_results) {
+                        for (const qId in data.question_results) {
+                            const res = data.question_results[qId];
+                            const cardInputs = document.querySelectorAll(`input[name="answers[${qId}]"]`);
+                            cardInputs.forEach(input => {
+                                const parent = input.closest('label');
+                                if (input.value === res.correct_answer) {
+                                    parent.classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-900', 'font-bold');
+                                } else if (input.value === res.user_answer && !res.is_correct) {
+                                    parent.classList.add('bg-red-50', 'border-red-400', 'text-red-800');
+                                }
+                            });
+                        }
+                    }
+                }
+            })
+            .catch(err => {
+                form.submit(); // fallback to normal form post
+            });
+        };
+
+        document.getElementById('modal-quiz-runner').classList.remove('hidden');
+    }
+
+    function updateQuizActionUrl(quizId) {
+        const select = document.getElementById('select-target-quiz');
+        const selectedOption = select.options[select.selectedIndex];
+        const actionUrl = selectedOption.getAttribute('data-action');
+        document.getElementById('form-tambah-soal').action = actionUrl;
+    }
+
+    // Initialize select action on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const select = document.getElementById('select-target-quiz');
+        if (select) {
+            updateQuizActionUrl(select.value);
+        }
+    });
+</script>
 @endsection

@@ -44,7 +44,11 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
-            $targetRoute = $user->isUmum() ? route('marketplace') : route('dashboard');
+            $targetRoute = match ($user->role) {
+                'umum' => route('marketplace'),
+                'dokter_hewan' => route('dokter-hewan.dashboard'),
+                default => route('dashboard'),
+            };
 
             return redirect()->intended($targetRoute)
                 ->with('success', "Selamat datang kembali, {$user->name}!");

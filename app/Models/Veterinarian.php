@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Veterinarian extends Model
 {
@@ -15,6 +16,7 @@ class Veterinarian extends Model
         'name',
         'specialization',
         'puskeswan',
+        'wilayah_penugasan',
         'strv_number',
         'phone_number',
         'email',
@@ -33,6 +35,16 @@ class Veterinarian extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function assignedHealthReports(): HasMany
+    {
+        return $this->hasMany(AnimalHealthReport::class, 'assigned_veterinarian_id');
+    }
+
+    public function visits(): HasMany
+    {
+        return $this->hasMany(AnimalHealthReportVisit::class, 'veterinarian_id');
     }
 
     public function getInitialsAttribute(): string

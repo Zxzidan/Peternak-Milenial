@@ -146,12 +146,10 @@ test('harga komoditas tabs render successfully according to active tab', functio
     $respUnggulan->assertSee('Daftar Komoditas Unggulan Jawa Timur');
 });
 
-test('layanan darurat page renders successfully', function () {
+test('layanan darurat route redirects to dashboard', function () {
     $response = $this->get(route('darurat'));
 
-    $response->assertStatus(200);
-    $response->assertSee('Pelaporan Darurat', false);
-    $response->assertSee('Kesejahteraan Hewan', false);
+    $response->assertRedirect(route('dashboard'));
 });
 
 test('konsultasi dokter page renders successfully', function () {
@@ -200,7 +198,7 @@ test('flowbite dashboard includes plus jakarta sans and layout controls', functi
     $response->assertSee('mt-14');
     $response->assertSee('id="dropdown-user"', false);
     $response->assertSee('id="sidebar-backdrop"', false);
-    $response->assertSee('id="emergency-modal"', false);
+    $response->assertDontSee('id="emergency-modal"', false);
 });
 
 test('dashboard has collapsible sidebar controls, kpi cards, and charts', function () {
@@ -333,36 +331,35 @@ test('east java sentra peternakan masp api endpoint returns official government 
     $dashboardResponse->assertSee('API Sentra Jatim');
 });
 
-test('emergency report can be created, updated status, and deleted', function () {
-    $postData = [
+test('emergency report model can be created, updated status, and deleted', function () {
+    $user = User::where('role', 'peternak')->first() ?? User::first();
+    $report = EmergencyReport::create([
+        'report_code' => '#EM-2026-TEST',
+        'user_id' => $user->id,
         'incident_type' => 'wabah',
         'livestock_type' => 'sapi_perah',
         'affected_count' => 5,
         'location_address' => 'Kec. Pujon, Kab. Malang',
+        'latitude' => -7.8671,
+        'longitude' => 112.5239,
         'description' => 'Demam tinggi dan lepuh pada mulut serta kuku',
-    ];
+        'status' => 'received',
+    ]);
 
-    $response = $this->post(route('darurat.store'), $postData);
-    $response->assertRedirect(route('darurat'));
-    $response->assertSessionHas('success');
-
-    $report = EmergencyReport::where('location_address', 'Kec. Pujon, Kab. Malang')->first();
     expect($report)->not->toBeNull();
     expect($report->livestock_type)->toBe('sapi_perah');
 
     // Update status
-    $updateResponse = $this->patch(route('darurat.status', $report), [
+    $report->update([
         'status' => 'in_progress',
         'officer_notes' => 'Petugas medikvet telah meluncur ke lokasi',
     ]);
-    $updateResponse->assertRedirect(route('darurat'));
-    $report->refresh();
-    expect($report->status)->toBe('in_progress');
+    expect($report->fresh()->status)->toBe('in_progress');
 
     // Delete
-    $deleteResponse = $this->delete(route('darurat.destroy', $report));
-    $deleteResponse->assertRedirect(route('darurat'));
-    expect(EmergencyReport::find($report->id))->toBeNull();
+    $reportId = $report->id;
+    $report->delete();
+    expect(EmergencyReport::find($reportId))->toBeNull();
 });
 
 test('peternak can register and cancel training registration', function () {
@@ -616,16 +613,30 @@ test('peternak can view veterinarians but is forbidden from mutating veterinaria
 
 test('admin consultation page renders veterinarian cards and management modals', function () {
     $admin = User::where('role', 'admin')->first();
+    $peternak = User::where('role', 'peternak')->first();
 
     $response = $this->actingAs($admin)->get(route('konsultasi', ['tab' => 'dokter']));
     $response->assertOk();
-    $response->assertSee('+ Tambah Dokter Hewan');
+    $response->assertSee('Tambah Dokter Hewan');
+    $response->assertSee('Daftar Dokter Hewan Dinas');
+    $response->assertSee('Daftar Dokter Hewan'); // Dedicated sidebar link
+    $response->assertDontSee('id="dropdown-kesehatan"', false);
+    $response->assertDontSee('https://wa.me/', false);
+    $response->assertDontSee('id="sesi-konsultasi"', false);
     $response->assertSee('Dokter Hewan Jaga &amp; Telemedisin', false);
     $response->assertSee('modal-tambah-dokter');
     $response->assertSee('modal-edit-dokter');
     $response->assertSee('openEditVetModal');
     $response->assertSee('drh. Ratna Kusuma');
     $response->assertSee('drh. Bambang Trihatmojo');
+
+    // Peternak still sees consultation chat, WA link, and dropdown in sidebar
+    $peternakResponse = $this->actingAs($peternak)->get(route('konsultasi', ['tab' => 'dokter']));
+    $peternakResponse->assertOk();
+    $peternakResponse->assertSee('https://wa.me/', false);
+    $peternakResponse->assertSee('id="sesi-konsultasi"', false);
+    $peternakResponse->assertSee('id="dropdown-kesehatan"', false);
+    $peternakResponse->assertDontSee('+ Tambah Dokter Hewan');
 });
 
 test('exhibition booth can be registered and updated', function () {
@@ -993,33 +1004,15 @@ test('admin has full administrative oversight and can verify products, reports, 
     $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
     $peternak = User::where('role', 'peternak')->first() ?? User::factory()->create(['role' => 'peternak']);
 
-    // Admin can access all pages
-    foreach (['dashboard', 'darurat', 'pelatihan', 'marketplace', 'harga-komoditas', 'konsultasi', 'pameran'] as $routeName) {
+    // Admin can access all active pages
+    foreach (['dashboard', 'pelatihan', 'marketplace', 'harga-komoditas', 'konsultasi', 'pameran'] as $routeName) {
         $this->actingAs($admin)->get(route($routeName))->assertStatus(200);
     }
 
-    // Admin can verify emergency report status
-    $report = EmergencyReport::first();
-    $this->actingAs($admin)
-        ->patch(route('darurat.status', $report), ['status' => 'verified'])
-        ->assertRedirect(route('darurat'));
-    expect($report->fresh()->status)->toBe('verified');
-
-    // Admin receives, handles, and verifies reports, but does NOT create reports
-    $daruratResponse = $this->actingAs($admin)->get(route('darurat'));
-    $daruratResponse->assertStatus(200);
-    $daruratResponse->assertDontSee('Buat Laporan Darurat');
-    $daruratResponse->assertSee('Panel Pengawasan');
-
-    $this->actingAs($admin)
-        ->post(route('darurat.store'), [
-            'incident_type' => 'wabah',
-            'livestock_type' => 'sapi_potong',
-            'affected_count' => 5,
-            'location_address' => 'Bojonegoro',
-        ])
-        ->assertRedirect(route('darurat'))
-        ->assertSessionHas('error');
+    // Fitur siaga darurat dialihkan dan tidak muncul di admin
+    $this->actingAs($admin)->get(route('darurat'))->assertRedirect(route('dashboard'));
+    $adminDashboard = $this->actingAs($admin)->get(route('dashboard'));
+    $adminDashboard->assertDontSee('Pantau Darurat');
 
     // Admin can verify marketplace products
     $product = Product::first();
@@ -1044,25 +1037,19 @@ test('admin has full administrative oversight and can verify products, reports, 
 
 test('peternak can access producer features but is blocked from admin mutations with 403', function () {
     $peternak = User::where('role', 'peternak')->first() ?? User::factory()->create(['role' => 'peternak']);
-    $report = EmergencyReport::first();
     $product = Product::first();
     $region = Region::first();
     $commodity = Commodity::first();
 
     // Peternak can access allowed routes
-    foreach (['dashboard', 'darurat', 'pelatihan', 'marketplace', 'harga-komoditas', 'konsultasi', 'pameran'] as $routeName) {
+    foreach (['dashboard', 'pelatihan', 'marketplace', 'harga-komoditas', 'konsultasi', 'pameran'] as $routeName) {
         $this->actingAs($peternak)->get(route($routeName))->assertStatus(200);
     }
 
-    // Peternak CAN see "Buat Laporan Darurat"
-    $peternakDarurat = $this->actingAs($peternak)->get(route('darurat'));
-    $peternakDarurat->assertStatus(200);
-    $peternakDarurat->assertSee('Buat Laporan Darurat');
-
-    // Peternak CANNOT update emergency status (Admin only) -> 403 Forbidden
-    $this->actingAs($peternak)
-        ->patch(route('darurat.status', $report), ['status' => 'resolved'])
-        ->assertStatus(403);
+    // Fitur siaga darurat dialihkan dan tidak muncul di peternak
+    $this->actingAs($peternak)->get(route('darurat'))->assertRedirect(route('dashboard'));
+    $peternakDashboard = $this->actingAs($peternak)->get(route('dashboard'));
+    $peternakDashboard->assertDontSee('Lapor Darurat');
 
     // Peternak CANNOT verify products (Admin only) -> 403 Forbidden
     $this->actingAs($peternak)
@@ -1108,7 +1095,7 @@ test('masyarakat umum is restricted to public features and blocked with 403 on p
     $this->actingAs($umum)->get(route('pameran'))->assertStatus(200);
 
     // Umum CANNOT access internal features -> 403 Forbidden
-    $this->actingAs($umum)->get(route('darurat'))->assertStatus(403);
+    $this->actingAs($umum)->get(route('darurat'))->assertRedirect(route('dashboard'));
     $this->actingAs($umum)->get(route('pelatihan'))->assertStatus(403);
     $this->actingAs($umum)->get(route('konsultasi'))->assertStatus(403);
 

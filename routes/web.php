@@ -1,15 +1,17 @@
 <?php
 
+use App\Http\Controllers\AdminVeterinarianController;
+use App\Http\Controllers\AnimalHealthReportController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommodityPriceController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\EmergencyReportController;
 use App\Http\Controllers\ExhibitionController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TrainingController;
+use App\Http\Controllers\VeterinarianDashboardController;
 use Illuminate\Support\Facades\Route;
 
 // 0. Autentikasi Pengguna (Login, Register, Logout)
@@ -29,29 +31,33 @@ Route::get('/search', [SearchController::class, 'search'])->name('search');
 // 3. Dashboard Peternakan Jatim (Tampilan Disesuaikan Sesuai Role)
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-// 4. Siaga Darurat & Kesejahteraan Hewan (Hanya Admin & Peternak)
-Route::middleware(['role:admin,peternak'])->group(function () {
-    Route::get('/darurat', [EmergencyReportController::class, 'index'])->name('darurat');
-    Route::post('/darurat', [EmergencyReportController::class, 'store'])->name('darurat.store');
-    Route::patch('/darurat/{report}/status', [EmergencyReportController::class, 'updateStatus'])
-        ->middleware('role:admin')
-        ->name('darurat.status');
-    Route::delete('/darurat/{report}', [EmergencyReportController::class, 'destroy'])->name('darurat.destroy');
-});
+// 4. Pengalihan Siaga Darurat (Fitur Telah Dihapus dari Role Admin & Peternak)
+Route::get('/darurat', function () {
+    return redirect()->route('dashboard');
+})->name('darurat');
 
-// 5. Pelatihan & Bimbingan Teknis (Hanya Admin & Peternak)
+// 5. Pembelajaran, Pelatihan & Bimbingan Teknis (LMS Peternak & Admin)
 Route::middleware(['role:admin,peternak'])->group(function () {
     Route::get('/pelatihan', [TrainingController::class, 'index'])->name('pelatihan');
+    Route::get('/pembelajaran', [TrainingController::class, 'index'])->name('pembelajaran');
     Route::post('/pelatihan/{training}/daftar', [TrainingController::class, 'register'])->name('pelatihan.register');
     Route::delete('/pelatihan/registrations/{registration}', [TrainingController::class, 'cancelRegistration'])->name('pelatihan.cancel');
+    Route::post('/pelatihan/materi/{material}/progress', [TrainingController::class, 'updateVideoProgress'])->name('pelatihan.materials.progress');
+    Route::post('/pelatihan/kuis/{quiz}/submit', [TrainingController::class, 'submitQuiz'])->name('pelatihan.quiz.submit');
+    Route::get('/pelatihan/dokumen/{type}/{id}', [TrainingController::class, 'downloadDocument'])->name('pelatihan.document.download');
 
-    // Fitur Khusus Admin Pelatihan
+    // Fitur Khusus Admin Pelatihan & LMS
     Route::middleware('role:admin')->group(function () {
         Route::post('/pelatihan', [TrainingController::class, 'store'])->name('pelatihan.store');
         Route::delete('/pelatihan/{training}', [TrainingController::class, 'destroy'])->name('pelatihan.destroy');
+        Route::post('/pelatihan/zoom-session', [TrainingController::class, 'storeZoomSession'])->name('pelatihan.zoom.store');
         Route::patch('/pelatihan/registrations/{registration}/status', [TrainingController::class, 'updateRegistrationStatus'])->name('pelatihan.registration.status');
         Route::post('/pelatihan/materials', [TrainingController::class, 'storeMaterial'])->name('pelatihan.materials.store');
+        Route::match(['put', 'patch'], '/pelatihan/materials/{material}', [TrainingController::class, 'updateMaterial'])->name('pelatihan.materials.update');
         Route::delete('/pelatihan/materials/{material}', [TrainingController::class, 'destroyMaterial'])->name('pelatihan.materials.destroy');
+        Route::post('/pelatihan/materials/{material}/quiz', [TrainingController::class, 'storeQuiz'])->name('pelatihan.quiz.store');
+        Route::post('/pelatihan/quiz/{quiz}/questions', [TrainingController::class, 'storeQuizQuestion'])->name('pelatihan.quiz.question.store');
+        Route::delete('/pelatihan/quiz/questions/{question}', [TrainingController::class, 'destroyQuizQuestion'])->name('pelatihan.quiz.question.destroy');
         Route::post('/pelatihan/certificates', [TrainingController::class, 'issueCertificate'])->name('pelatihan.certificates.issue');
         Route::delete('/pelatihan/certificates/{certificate}', [TrainingController::class, 'destroyCertificate'])->name('pelatihan.certificates.destroy');
     });
@@ -101,6 +107,37 @@ Route::middleware(['role:admin,peternak'])->group(function () {
         Route::put('/konsultasi/veterinarians/{veterinarian}', [ConsultationController::class, 'updateVeterinarian'])->name('konsultasi.veterinarians.update');
         Route::delete('/konsultasi/veterinarians/{veterinarian}', [ConsultationController::class, 'destroyVeterinarian'])->name('konsultasi.veterinarians.destroy');
     });
+});
+
+// 8.1 Manajemen Akun Dokter Hewan oleh Admin Dinas
+Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dokter-hewan', [AdminVeterinarianController::class, 'index'])->name('veterinarians.index');
+    Route::post('/dokter-hewan', [AdminVeterinarianController::class, 'store'])->name('veterinarians.store');
+    Route::put('/dokter-hewan/{veterinarian}', [AdminVeterinarianController::class, 'update'])->name('veterinarians.update');
+    Route::patch('/dokter-hewan/{veterinarian}/toggle-active', [AdminVeterinarianController::class, 'toggleActive'])->name('veterinarians.toggle-active');
+    Route::delete('/dokter-hewan/{veterinarian}', [AdminVeterinarianController::class, 'destroy'])->name('veterinarians.destroy');
+});
+
+// 8.2 Dashboard & Penanganan Laporan oleh Dokter Hewan (Khusus Role Dokter Hewan)
+Route::middleware(['role:dokter_hewan'])->prefix('dokter-hewan')->name('dokter-hewan.')->group(function () {
+    Route::get('/dashboard', [VeterinarianDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/laporan', [VeterinarianDashboardController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/{report}', [VeterinarianDashboardController::class, 'show'])->name('show');
+    Route::post('/laporan/{report}/response', [VeterinarianDashboardController::class, 'storeResponse'])->name('response.store');
+    Route::post('/laporan/{report}/propose-visit', [VeterinarianDashboardController::class, 'proposeVisit'])->name('visit.propose');
+    Route::post('/laporan/{report}/visits/{visit}/complete', [VeterinarianDashboardController::class, 'recordVisitResult'])->name('visit.complete');
+    Route::patch('/laporan/{report}/status', [VeterinarianDashboardController::class, 'updateStatus'])->name('status.update');
+    Route::get('/kunjungan', [VeterinarianDashboardController::class, 'visits'])->name('kunjungan');
+});
+
+// 8.3 Pelaporan Kesehatan Hewan oleh Peternak
+Route::middleware(['role:peternak,admin,dokter_hewan'])->group(function () {
+    Route::get('/kesehatan-hewan', [AnimalHealthReportController::class, 'index'])->name('kesehatan-hewan.index');
+    Route::get('/kesehatan-hewan/buat', [AnimalHealthReportController::class, 'create'])->name('kesehatan-hewan.create');
+    Route::post('/kesehatan-hewan', [AnimalHealthReportController::class, 'store'])->name('kesehatan-hewan.store');
+    Route::get('/kesehatan-hewan/{report}', [AnimalHealthReportController::class, 'show'])->name('kesehatan-hewan.show');
+    Route::post('/kesehatan-hewan/{report}/reply', [AnimalHealthReportController::class, 'storeReply'])->name('kesehatan-hewan.reply');
+    Route::post('/kesehatan-hewan/{report}/visits/{visit}/confirm', [AnimalHealthReportController::class, 'confirmVisit'])->name('kesehatan-hewan.visit.confirm');
 });
 
 // 9. Pameran & Kalender Terpadu

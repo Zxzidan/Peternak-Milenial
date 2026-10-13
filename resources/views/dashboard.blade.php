@@ -28,29 +28,7 @@
                 <span>38 Kab/Kota Terpadu</span>
             </span>
 
-            @if(auth()->check() && auth()->user()->isAdmin())
-            <a
-                href="{{ route('darurat') }}"
-                class="inline-flex items-center gap-2 text-xs font-semibold {{ $activeEmergencyCount > 0 ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100' }} border rounded-xl px-4 py-2 transition shadow-2xs"
-            >
-                <svg class="w-3.5 h-3.5 {{ $activeEmergencyCount > 0 ? 'text-rose-600' : 'text-slate-500' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                </svg>
-                <span>Siaga Darurat ({{ $activeEmergencyCount }})</span>
-            </a>
-            @elseif(!auth()->check() || !auth()->user()->isUmum())
-            <button
-                type="button"
-                data-modal-target="emergency-modal"
-                data-modal-toggle="emergency-modal"
-                class="inline-flex items-center gap-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl px-4 py-2 transition shadow-xs"
-            >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                </svg>
-                <span>Lapor Darurat</span>
-            </button>
-            @endif
+
         </div>
     </div>
 
@@ -278,6 +256,107 @@
             <p class="text-xs text-slate-400 mt-2">Komoditas unggulan Jawa Timur</p>
         </div>
     </div>
+
+    <!-- Section: Laporan Kesehatan Hewan Saya (Section 6 Master Prompt) -->
+    @if(auth()->check() && auth()->user()->isPeternak())
+    <div class="bg-white rounded-2xl border border-slate-200/90 p-5 lg:p-6 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <h3 class="text-base font-bold text-slate-900">Laporan Kesehatan Hewan Saya</h3>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">Pantau status pemeriksaan dan tanggapan dari Dokter Hewan Dinas</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('kesehatan-hewan.create') }}" class="px-3 py-1.5 bg-primary-700 hover:bg-primary-800 text-white rounded-lg text-xs font-semibold transition shadow-2xs">
+                    + Buat Laporan Baru
+                </a>
+                <a href="{{ route('kesehatan-hewan.index') }}" class="text-xs font-semibold text-primary-700 hover:text-primary-800 px-2 py-1">
+                    Lihat Semua ({{ $peternakMetrics['myHealthReportsCount'] }}) →
+                </a>
+            </div>
+        </div>
+
+        <!-- Ringkasan Statistik Laporan Peternak -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <span class="text-[11px] text-slate-400 block">Total Dibuat</span>
+                <span class="text-lg font-bold text-slate-800 mt-0.5 block">{{ $peternakMetrics['myHealthReportsCount'] }}</span>
+            </div>
+            <div class="p-3 bg-amber-50 rounded-xl border border-amber-100">
+                <span class="text-[11px] text-amber-700 block">Menunggu Respons</span>
+                <span class="text-lg font-bold text-amber-800 mt-0.5 block">{{ $peternakMetrics['myHealthReportsWaiting'] }}</span>
+            </div>
+            <div class="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
+                <span class="text-[11px] text-indigo-700 block">Sudah Dijawab</span>
+                <span class="text-lg font-bold text-indigo-800 mt-0.5 block">{{ $peternakMetrics['myHealthReportsAnswered'] }}</span>
+            </div>
+            <div class="p-3 bg-blue-50 rounded-xl border border-blue-100">
+                <span class="text-[11px] text-blue-700 block">Sedang Ditangani</span>
+                <span class="text-lg font-bold text-blue-800 mt-0.5 block">{{ $peternakMetrics['myHealthReportsInProgress'] }}</span>
+            </div>
+            <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                <span class="text-[11px] text-emerald-700 block">Selesai</span>
+                <span class="text-lg font-bold text-emerald-800 mt-0.5 block">{{ $peternakMetrics['myHealthReportsResolved'] }}</span>
+            </div>
+        </div>
+
+        <!-- Daftar Laporan Terbaru Peternak -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left text-slate-600">
+                <thead class="text-[11px] text-slate-700 uppercase bg-slate-50 border-b border-slate-100">
+                    <tr>
+                        <th class="px-3.5 py-2.5">No. Laporan</th>
+                        <th class="px-3.5 py-2.5">Tanggal</th>
+                        <th class="px-3.5 py-2.5">Jenis Hewan</th>
+                        <th class="px-3.5 py-2.5">Ringkasan Keluhan</th>
+                        <th class="px-3.5 py-2.5">Status Terbaru</th>
+                        <th class="px-3.5 py-2.5">Respons Terakhir</th>
+                        <th class="px-3.5 py-2.5 text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($peternakHealthReports as $phr)
+                    <tr class="hover:bg-slate-50/70 transition">
+                        <td class="px-3.5 py-3 font-mono font-bold text-slate-900">{{ $phr->report_number }}</td>
+                        <td class="px-3.5 py-3 whitespace-nowrap">{{ $phr->created_at->format('d/m/Y') }}</td>
+                        <td class="px-3.5 py-3 font-medium text-slate-800">{{ $phr->livestock_type }}</td>
+                        <td class="px-3.5 py-3 max-w-xs truncate" title="{{ $phr->symptoms }}">{{ $phr->symptoms }}</td>
+                        <td class="px-3.5 py-3 whitespace-nowrap">
+                            <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full border {{ $phr->status_badge_classes }}">
+                                {{ $phr->status_label }}
+                            </span>
+                        </td>
+                        <td class="px-3.5 py-3 whitespace-nowrap text-[11px]">
+                            {{ $phr->last_responded_at ? $phr->last_responded_at->format('d M, H:i') : 'Belum tersedia' }}
+                        </td>
+                        <td class="px-3.5 py-3 text-right whitespace-nowrap">
+                            <div class="flex items-center justify-end gap-1.5">
+                                @if($phr->last_responded_at)
+                                <a href="{{ route('kesehatan-hewan.show', $phr) }}#tanggapan-dokter" class="px-2 py-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-md transition">
+                                    Lihat Tanggapan
+                                </a>
+                                @endif
+                                <a href="{{ route('kesehatan-hewan.show', $phr) }}" class="px-2 py-1 text-[11px] font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition">
+                                    Lihat Detail
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="px-3.5 py-6 text-center text-slate-400 text-xs">
+                            Belum ada laporan kesehatan hewan yang diajukan.
+                            <a href="{{ route('kesehatan-hewan.create') }}" class="text-primary-700 font-semibold underline ml-1">Ajukan Laporan Sekarang</a>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
 
     <!-- Section Utama: MASP -->
     <div id="masp" class="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-7 shadow-xs">

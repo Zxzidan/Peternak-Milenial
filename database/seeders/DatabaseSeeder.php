@@ -16,6 +16,7 @@ use App\Models\Exhibition;
 use App\Models\ExhibitionRegistration;
 use App\Models\HealthRecord;
 use App\Models\LearningMaterial;
+use App\Models\LearningQuiz;
 use App\Models\Livestock;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -23,10 +24,13 @@ use App\Models\PeternakProfile;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductionCenter;
+use App\Models\QuizAttempt;
+use App\Models\QuizQuestion;
 use App\Models\Region;
 use App\Models\Training;
 use App\Models\TrainingRegistration;
 use App\Models\User;
+use App\Models\UserLearningProgress;
 use App\Models\Veterinarian;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -68,7 +72,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'drh. Ratna Kusuma',
             'email' => 'ratna.kusuma@disnak.jatimprov.go.id',
             'phone_number' => '08001347625',
-            'role' => 'admin',
+            'role' => 'dokter_hewan',
             'is_active' => true,
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
@@ -78,7 +82,47 @@ class DatabaseSeeder extends Seeder
             'name' => 'drh. Bambang Trihatmojo',
             'email' => 'bambang@disnak.jatimprov.go.id',
             'phone_number' => '081234567800',
-            'role' => 'admin',
+            'role' => 'dokter_hewan',
+            'is_active' => true,
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
+
+        $drhNurCahyo = User::create([
+            'name' => 'drh. Nur Cahyo, M.Vet',
+            'email' => 'nurcahyo@disnak.jatimprov.go.id',
+            'phone_number' => '081399887766',
+            'role' => 'dokter_hewan',
+            'is_active' => true,
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
+
+        $drhSitiAminah = User::create([
+            'name' => 'drh. Siti Aminah, M.Si',
+            'email' => 'siti.aminah@disnak.jatimprov.go.id',
+            'phone_number' => '081255443322',
+            'role' => 'dokter_hewan',
+            'is_active' => true,
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
+
+        $drhAhmadFauzi = User::create([
+            'name' => 'drh. Ahmad Fauzi',
+            'email' => 'ahmad.fauzi@disnak.jatimprov.go.id',
+            'phone_number' => '081322334455',
+            'role' => 'dokter_hewan',
+            'is_active' => true,
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
+
+        $drhDewiSartika = User::create([
+            'name' => 'drh. Dewi Sartika',
+            'email' => 'dewi.sartika@disnak.jatimprov.go.id',
+            'phone_number' => '081377889900',
+            'role' => 'dokter_hewan',
             'is_active' => true,
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
@@ -154,15 +198,43 @@ class DatabaseSeeder extends Seeder
         $t3 = Training::create([
             'title' => 'Pemasaran Digital & KUR Peternakan',
             'slug' => 'pemasaran-digital-kur-peternakan',
-            'description' => 'Branding produk olahan, akses permodalan KUR, dan integrasi pasar digital.',
-            'instructor' => 'OJK Jatim & Praktisi',
+            'description' => 'Branding produk olahan susu & daging, akses permodalan KUR Bank Jatim, dan optimasi etalase digital.',
+            'instructor' => 'Dr. Ir. Budi Santoso, M.Sc',
+            'instructor_title' => 'Widyaiswara Ahli Utama BBPP Batu',
             'start_date' => '2026-10-28',
             'end_date' => '2026-10-28',
             'time_info' => '13:00 - 16:30 WIB',
-            'location' => 'Zoom Webinar Disnak',
+            'location' => 'Zoom Cloud Meetings Disnak Jatim',
             'is_online' => true,
+            'zoom_link' => 'https://zoom.us/j/88392182019?pwd=disnakjatim2026',
+            'zoom_meeting_id' => '883 9218 2019',
+            'zoom_passcode' => 'JATIM2026',
+            'document_path' => 'materials/silabus-zoom-bimtek.pdf',
+            'document_name' => 'Silabus-Bimtek-Pemasaran-KUR-2026.pdf',
             'quota' => 250,
             'remaining_quota' => 85,
+            'cost_type' => 'daring',
+            'status' => 'open',
+        ]);
+
+        $t4 = Training::create([
+            'title' => 'Live Zoom: Formulasi Pakan Konsentrat Rendah Emisi',
+            'slug' => 'live-zoom-formulasi-pakan-rendah-emisi',
+            'description' => 'Teknik penyusunan ransum pakan sapi perah berbasis limbah pertanian lokal Jawa Timur untuk menekan emisi gas metana.',
+            'instructor' => 'Prof. Dr. Ir. Hendrawan, MS',
+            'instructor_title' => 'Guru Besar Nutrisi Ternak Fapet UB',
+            'start_date' => '2026-11-05',
+            'end_date' => '2026-11-05',
+            'time_info' => '09:00 - 12:00 WIB',
+            'location' => 'Zoom Cloud Meetings Disnak Jatim',
+            'is_online' => true,
+            'zoom_link' => 'https://zoom.us/j/99120485123?pwd=pakanmilenial',
+            'zoom_meeting_id' => '991 2048 5123',
+            'zoom_passcode' => 'PAKAN2026',
+            'document_path' => 'materials/sop-formulasi-pakan.pdf',
+            'document_name' => 'Panduan-Ransum-Pakan-Konsentrat-UB.pdf',
+            'quota' => 300,
+            'remaining_quota' => 140,
             'cost_type' => 'daring',
             'status' => 'open',
         ]);
@@ -175,34 +247,211 @@ class DatabaseSeeder extends Seeder
             'registered_at' => now()->subDays(2),
         ]);
 
-        LearningMaterial::create([
-            'title' => 'SOP Budidaya Sapi Perah Berkelanjutan',
-            'slug' => 'sop-budidaya-sapi-perah-berkelanjutan',
-            'category' => 'modul_pdf',
-            'file_path' => 'materials/sop-sapi-perah-ub.pdf',
-            'file_size' => '4.8 MB',
-            'author_institution' => 'Fakultas Peternakan UB',
-            'downloads_count' => 342,
+        TrainingRegistration::create([
+            'training_id' => $t3->id,
+            'user_id' => $peternakSlamet->id,
+            'registration_code' => 'REG-ZOOM-0112',
+            'status' => 'confirmed',
+            'registered_at' => now()->subDay(),
         ]);
 
-        LearningMaterial::create([
-            'title' => 'Teknologi Silase & Hay Ternak',
+        // 3. Modul Video & Materi Pembelajaran (LMS)
+        $m1 = LearningMaterial::create([
+            'title' => 'Teknologi Silase & Formulasi Hay Ternak Ruminansia',
             'slug' => 'teknologi-silase-hay-ternak',
-            'category' => 'modul_pdf',
-            'file_path' => 'materials/silase-bbpp-batu.pdf',
-            'file_size' => '3.1 MB',
-            'author_institution' => 'BBPP Batu',
+            'description' => 'Panduan lengkap fermentasi hijauan pakan ternak (HPT) rumput odot & jagung secara anaerobik untuk menjamin ketersediaan pakan berkualitas di musim kemarau.',
+            'category' => 'video_praktik',
+            'topic' => 'Manajemen Pakan',
+            'file_path' => 'materials/sop-formulasi-pakan.pdf',
+            'file_size' => '3.8 MB',
+            'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            'thumbnail' => 'img/bestseller/1.png',
+            'duration' => '24 Menit',
+            'author_institution' => 'BBPP Batu & Disnak Jatim',
+            'instructor_name' => 'Dr. Ir. Budi Santoso, M.Sc',
+            'level' => 'Menengah',
             'downloads_count' => 518,
+            'views_count' => 1420,
         ]);
 
-        LearningMaterial::create([
-            'title' => 'Video Pemerahan Higienis Menekan TPC',
+        $m2 = LearningMaterial::create([
+            'title' => 'SOP Pemerahan Higienis Menekan TPC & Standar Cold Chain',
             'slug' => 'video-pemerahan-higienis-menekan-tpc',
+            'description' => 'Tata cara sanitasi ambing, dipping puting pre & post milking, serta manajemen cooling tank agar mutu susu segar mencapai grade A industri pengolahan susu.',
             'category' => 'video_praktik',
-            'file_path' => 'materials/video-pemerahan-higienis.mp4',
+            'topic' => 'Produksi & Mutu Susu',
+            'file_path' => 'materials/sop-pemerahan-higienis.pdf',
+            'file_size' => '4.2 MB',
+            'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            'thumbnail' => 'img/bestseller/2.png',
             'duration' => '18 Menit',
-            'author_institution' => 'Dinas Peternakan Jatim',
+            'author_institution' => 'Dinas Peternakan Provinsi Jawa Timur',
+            'instructor_name' => 'drh. Ratna Kusuma',
+            'level' => 'Dasar',
             'downloads_count' => 890,
+            'views_count' => 2150,
+        ]);
+
+        $m3 = LearningMaterial::create([
+            'title' => 'Biosekuriti Kandang & Deteksi Dini Penyakit Menular PMK/LSD',
+            'slug' => 'biosekuriti-kandang-deteksi-dini-pmk-lsd',
+            'description' => 'Protokol disinfeksi roda kendaraan, karantina ternak baru, serta identifikasi lesi vesikular pada moncong dan kuku sapi perah.',
+            'category' => 'video_praktik',
+            'topic' => 'Kesehatan Ternak',
+            'file_path' => 'materials/sop-formulasi-pakan.pdf',
+            'file_size' => '2.9 MB',
+            'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            'thumbnail' => 'img/bestseller/3.png',
+            'duration' => '22 Menit',
+            'author_institution' => 'Puskeswan Dinas Peternakan Jatim',
+            'instructor_name' => 'drh. Nur Cahyo, M.Vet',
+            'level' => 'Dasar',
+            'downloads_count' => 640,
+            'views_count' => 1780,
+        ]);
+
+        $m4 = LearningMaterial::create([
+            'title' => 'SOP Budidaya & Seleksi Bibit Unggul Sapi Perah FH',
+            'slug' => 'sop-budidaya-sapi-perah-berkelanjutan',
+            'description' => 'Pedoman pemuliaan, recording pedigree, dan seleksi calon induk sapi perah Friesian Holstein berproduksi tinggi di sentra Jawa Timur.',
+            'category' => 'modul_pdf',
+            'topic' => 'Bibit & Budidaya',
+            'file_path' => 'materials/sop-formulasi-pakan.pdf',
+            'file_size' => '5.1 MB',
+            'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            'thumbnail' => 'img/bestseller/4.png',
+            'duration' => '30 Menit',
+            'author_institution' => 'Fakultas Peternakan Universitas Brawijaya',
+            'instructor_name' => 'Prof. Dr. Ir. Trinil Susilawati',
+            'level' => 'Lanjutan',
+            'downloads_count' => 412,
+            'views_count' => 980,
+        ]);
+
+        // Kuis & Soal untuk Modul 1 (Silase)
+        $q1 = LearningQuiz::create([
+            'learning_material_id' => $m1->id,
+            'title' => 'Evaluasi Pemahaman: Teknologi Silase & Hay Ternak',
+            'description' => 'Kuis evaluasi mandiri untuk menguji pemahaman teknis fermentasi silase, kadar air optimal, dan deteksi kualitas pakan hijauan.',
+            'passing_score' => 70,
+            'time_limit_minutes' => 15,
+            'is_active' => true,
+        ]);
+
+        QuizQuestion::create([
+            'learning_quiz_id' => $q1->id,
+            'question' => 'Berapa kadar air hijauan yang paling ideal sebelum dicacah dan dipadatkan ke dalam drum/silo silase?',
+            'option_a' => '20% - 30%',
+            'option_b' => '60% - 70%',
+            'option_c' => '85% - 95%',
+            'option_d' => 'Kurang dari 10%',
+            'correct_answer' => 'b',
+            'explanation' => 'Kadar air optimal untuk fermentasi silase anaerobik adalah 60-70%. Kadar air terlalu tinggi dapat memicu pembusukan clostridia, sedangkan terlalu rendah menyulitkan pemadatan.',
+            'order' => 1,
+        ]);
+
+        QuizQuestion::create([
+            'learning_quiz_id' => $q1->id,
+            'question' => 'Mikroorganisme yang berperan mengonversi gula terlarut menjadi asam pengawet pada proses silase adalah...',
+            'option_a' => 'Bakteri Asam Laktat (BAL)',
+            'option_b' => 'Escherichia coli',
+            'option_c' => 'Bacillus anthracis',
+            'option_d' => 'Aspergillus flavus',
+            'correct_answer' => 'a',
+            'explanation' => 'Bakteri Asam Laktat (Lactobacillus sp.) menghasilkan asam laktat yang menurunkan pH silo hingga 3.8-4.2 sehingga pakan awet dan tidak busuk.',
+            'order' => 2,
+        ]);
+
+        QuizQuestion::create([
+            'learning_quiz_id' => $q1->id,
+            'question' => 'Ciri fisik silase yang berhasil dengan kualitas sangat baik saat wadah dibuka adalah...',
+            'option_a' => 'Berbau busuk menyengat dan berlendir hitam',
+            'option_b' => 'Berbau asam harum buah segar dan berwarna hijau kekuningan',
+            'option_c' => 'Ditumbuhi jamur putih tebal dan bersuhu panas',
+            'option_d' => 'Hitam kecokelatan basah berlumpur',
+            'correct_answer' => 'b',
+            'explanation' => 'Silase berkualitas baik beraroma harum asam segar (seperti tape/buah), tidak berlendir, dan warnanya tetap cerah hijau kekuningan.',
+            'order' => 3,
+        ]);
+
+        QuizQuestion::create([
+            'learning_quiz_id' => $q1->id,
+            'question' => 'Berapa lama waktu minimal penyimpanan anaerobik sebelum silase matang sempurna dan aman diberikan ke ternak?',
+            'option_a' => '2 hari',
+            'option_b' => '7 hari',
+            'option_c' => '21 hari (3 minggu)',
+            'option_d' => '6 bulan',
+            'correct_answer' => 'c',
+            'explanation' => 'Proses fermentasi asam laktat stabil sempurna berlangsung dalam rentang 21 hari (3 minggu) dalam kondisi kedap udara (anaerobik).',
+            'order' => 4,
+        ]);
+
+        // Kuis & Soal untuk Modul 2 (Pemerahan Higienis)
+        $q2 = LearningQuiz::create([
+            'learning_material_id' => $m2->id,
+            'title' => 'Evaluasi Pemahaman: SOP Pemerahan Higienis & Mutu Susu',
+            'description' => 'Uji kompetensi peternak milenial mengenai sanitasi puting, pencegahan mastitis, dan pemeliharaan rantai dingin (cold chain).',
+            'passing_score' => 70,
+            'time_limit_minutes' => 15,
+            'is_active' => true,
+        ]);
+
+        QuizQuestion::create([
+            'learning_quiz_id' => $q2->id,
+            'question' => 'Tindakan sanitasi puting yang wajib dilakukan segera setelah selesai memerah (post-milking) adalah...',
+            'option_a' => 'Membilas dengan air kran mentah',
+            'option_b' => 'Teat dipping menggunakan larutan antiseptik iodin',
+            'option_c' => 'Mengoleskan minyak goreng pada puting',
+            'option_d' => 'Membiarkan puting mengering secara alami di kandang',
+            'correct_answer' => 'b',
+            'explanation' => 'Teat dipping setelah memerah menutup sfingter puting yang masih terbuka dan membunuh bakteri lingkungan penyebab mastitis.',
+            'order' => 1,
+        ]);
+
+        QuizQuestion::create([
+            'learning_quiz_id' => $q2->id,
+            'question' => 'Berapa suhu penyimpanan susu segar di Milk Cooling Tank agar perkembangbiakan bakteri terhambat?',
+            'option_a' => '4°C atau lebih rendah',
+            'option_b' => '15°C - 20°C',
+            'option_c' => '25°C - 30°C',
+            'option_d' => 'Suhu ruang 37°C',
+            'correct_answer' => 'a',
+            'explanation' => 'Suhu 4°C adalah standar rantai dingin (cold chain) untuk mempertahankan mutu susu dan menjaga angka TPC (Total Plate Count) tetap rendah.',
+            'order' => 2,
+        ]);
+
+        // Catatan Progres Belajar Awal Peternak Slamet
+        UserLearningProgress::create([
+            'user_id' => $peternakSlamet->id,
+            'learning_material_id' => $m1->id,
+            'is_watched' => true,
+            'watch_percentage' => 100,
+            'last_watched_at' => now()->subDay(),
+        ]);
+
+        UserLearningProgress::create([
+            'user_id' => $peternakSlamet->id,
+            'learning_material_id' => $m2->id,
+            'is_watched' => true,
+            'watch_percentage' => 100,
+            'last_watched_at' => now()->subHours(6),
+        ]);
+
+        // Hasil Pengerjaan Kuis Awal Peternak Slamet (Skor 100 - Lulus)
+        QuizAttempt::create([
+            'learning_quiz_id' => $q1->id,
+            'user_id' => $peternakSlamet->id,
+            'score' => 100,
+            'total_questions' => 4,
+            'correct_answers_count' => 4,
+            'user_answers' => [
+                '1' => 'b',
+                '2' => 'a',
+                '3' => 'b',
+                '4' => 'c',
+            ],
+            'passed' => true,
+            'completed_at' => now()->subHours(5),
         ]);
 
         Certificate::create([
@@ -667,7 +916,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Veterinarian::create([
-            'user_id' => null,
+            'user_id' => $drhNurCahyo->id,
             'name' => 'drh. Nur Cahyo, M.Vet',
             'specialization' => 'Spesialis Unggas, Domba & Biosekuriti',
             'puskeswan' => 'Puskeswan Pare, Kab. Kediri',
@@ -680,7 +929,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Veterinarian::create([
-            'user_id' => null,
+            'user_id' => $drhSitiAminah->id,
             'name' => 'drh. Siti Aminah, M.Si',
             'specialization' => 'Spesialis Sapi Potong & Nutrisi Ternak',
             'puskeswan' => 'Puskeswan Dander, Kab. Bojonegoro',
@@ -693,7 +942,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Veterinarian::create([
-            'user_id' => null,
+            'user_id' => $drhAhmadFauzi->id,
             'name' => 'drh. Ahmad Fauzi',
             'specialization' => 'Spesialis Penyakit Menular & Vaksinasi',
             'puskeswan' => 'Puskeswan Pandaan, Kab. Pasuruan',
@@ -706,7 +955,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Veterinarian::create([
-            'user_id' => null,
+            'user_id' => $drhDewiSartika->id,
             'name' => 'drh. Dewi Sartika',
             'specialization' => 'Spesialis Inseminasi Buatan & Kebuntingan',
             'puskeswan' => 'Puskeswan Sukorejo, Kab. Pasuruan',

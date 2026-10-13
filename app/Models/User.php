@@ -78,6 +78,11 @@ class User extends Authenticatable
         return $this->role === 'umum';
     }
 
+    public function isDokterHewan(): bool
+    {
+        return $this->role === 'dokter_hewan';
+    }
+
     public function hasRole(string|array ...$roles): bool
     {
         $flattened = [];
@@ -98,6 +103,7 @@ class User extends Authenticatable
             'admin' => 'Admin Dinas Peternakan Jatim',
             'peternak' => 'Peternak Milenial',
             'umum' => 'Masyarakat Umum',
+            'dokter_hewan' => 'Dokter Hewan Dinas',
             default => ucfirst((string) $this->role),
         };
     }
@@ -105,6 +111,16 @@ class User extends Authenticatable
     public function peternakProfile(): HasOne
     {
         return $this->hasOne(PeternakProfile::class);
+    }
+
+    public function veterinarianProfile(): HasOne
+    {
+        return $this->hasOne(Veterinarian::class);
+    }
+
+    public function animalHealthReports(): HasMany
+    {
+        return $this->hasMany(AnimalHealthReport::class);
     }
 
     public function products(): HasMany
@@ -150,5 +166,15 @@ class User extends Authenticatable
     public function exhibitionRegistrations(): HasMany
     {
         return $this->hasMany(ExhibitionRegistration::class);
+    }
+
+    public function quizAttempts(): HasMany
+    {
+        return $this->hasMany(QuizAttempt::class);
+    }
+
+    public function learningProgress(): HasMany
+    {
+        return $this->hasMany(UserLearningProgress::class);
     }
 }

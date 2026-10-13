@@ -12,6 +12,7 @@ use App\Models\Veterinarian;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class ConsultationController extends Controller
@@ -80,7 +81,7 @@ class ConsultationController extends Controller
             'message' => ['required', 'string', 'max:1000'],
         ]);
 
-        $vet = User::where('role', 'admin')->first();
+        $vet = User::where('role', 'dokter_hewan')->first() ?? User::where('role', 'admin')->first();
 
         $consultation = Consultation::create([
             'user_id' => $currentUser->id,
@@ -117,7 +118,7 @@ class ConsultationController extends Controller
         ]);
 
         // If veterinarian/admin answers, set status to answered
-        if ($sender->isAdmin()) {
+        if ($sender->isDokterHewan() || $sender->isAdmin()) {
             $consultation->update(['status' => 'answered', 'veterinarian_id' => $sender->id]);
         }
 
@@ -132,7 +133,7 @@ class ConsultationController extends Controller
      */
     public function storeHealthRecord(Request $request): RedirectResponse
     {
-        if (auth()->check() && ! auth()->user()->isAdmin()) {
+        if (auth()->check() && ! auth()->user()->hasRole('admin', 'dokter_hewan')) {
             abort(403, 'Hanya Petugas Dinas atau Dokter Hewan yang berwenang menerbitkan rekam medis resmi.');
         }
 
@@ -290,10 +291,28 @@ class ConsultationController extends Controller
             'consultation_hours' => ['nullable', 'string', 'max:100'],
         ]);
 
+        $user = null;
+        if (! empty($validated['email'])) {
+            $user = User::where('email', $validated['email'])->first();
+            if (! $user) {
+                $user = User::create([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'phone_number' => $validated['phone_number'],
+                    'role' => 'dokter_hewan',
+                    'is_active' => true,
+                    'email_verified_at' => now(),
+                    'password' => Hash::make('password123'),
+                ]);
+            }
+        }
+
         $vet = Veterinarian::create([
+            'user_id' => $user?->id,
             'name' => $validated['name'],
             'specialization' => $validated['specialization'],
             'puskeswan' => $validated['puskeswan'],
+            'wilayah_penugasan' => $validated['puskeswan'],
             'strv_number' => $validated['strv_number'] ?? null,
             'phone_number' => $validated['phone_number'],
             'email' => $validated['email'] ?? null,
@@ -303,7 +322,7 @@ class ConsultationController extends Controller
         ]);
 
         return redirect()->route('konsultasi', ['tab' => 'dokter'])
-            ->with('success', "Dokter hewan '{$vet->name}' berhasil ditambahkan ke direktori.");
+            ->with('success', "Dokter hewan '{$vet->name}' berhasil didaftarkan dengan akun Dokter Hewan Dinas.");
     }
 
     /**

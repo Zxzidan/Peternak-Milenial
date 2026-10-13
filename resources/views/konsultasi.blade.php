@@ -18,7 +18,9 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-snug">
-                    @if($activeTab === 'dokter')
+                    @if(auth()->check() && auth()->user()->isAdmin())
+                        Daftar Dokter Hewan Dinas
+                    @elseif($activeTab === 'dokter')
                         Konsultasi Dokter Hewan
                     @elseif($activeTab === 'rekam_medis')
                         Rekam Medis &amp; E-Tag Ternak
@@ -27,7 +29,9 @@
                     @endif
                 </h1>
                 <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed">
-                    @if($activeTab === 'dokter')
+                    @if(auth()->check() && auth()->user()->isAdmin())
+                        Manajemen dan direktori resmi dokter hewan Puskeswan Dinas Peternakan Jawa Timur untuk penugasan dan pelayanan peternak.
+                    @elseif($activeTab === 'dokter')
                         Layanan telemedisin veteriner langsung bersama dokter hewan resmi Dinas Peternakan Jawa Timur.
                     @elseif($activeTab === 'rekam_medis')
                         Buku riwayat kesehatan digital, pencatatan vaksinasi, dan identifikasi barcode E-Tag ternak.
@@ -47,7 +51,7 @@
                         class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 px-3.5 py-2 rounded-lg transition shadow-xs"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                        <span>+ Tambah Dokter Hewan</span>
+                        <span>Tambah Dokter Hewan</span>
                     </button>
                     @endif
                 @elseif($activeTab === 'rekam_medis')
@@ -76,13 +80,6 @@
                     >
                         + Tambah Data Penyakit
                     </button>
-                    @else
-                    <a
-                        href="{{ url('/darurat') }}"
-                        class="inline-flex items-center text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800 px-3 py-2 rounded-lg transition"
-                    >
-                        Siaga Darurat 24/7
-                    </a>
                     @endif
                 @endif
             </div>
@@ -101,7 +98,7 @@
     @endif
 
     {{-- ======================================================== --}}
-    {{-- TAB 1: KONSULTASI DOKTER HEWAN                           --}}
+    {{-- TAB 1: KONSULTASI / DAFTAR DOKTER HEWAN                  --}}
     {{-- ======================================================== --}}
     @if($activeTab === 'dokter')
     <!-- Direktori Dokter Hewan Jaga Header -->
@@ -114,7 +111,11 @@
                 </span>
             </h2>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                Konsultasikan keluhan kesehatan ternak Anda langsung kepada dokter hewan resmi Dinas Peternakan Jawa Timur.
+                @if(auth()->check() && auth()->user()->isAdmin())
+                    Manajemen direktori resmi dokter hewan Puskeswan Dinas Peternakan Jawa Timur yang bertugas melayani peternak milenial.
+                @else
+                    Konsultasikan keluhan kesehatan ternak Anda langsung kepada dokter hewan resmi Dinas Peternakan Jawa Timur.
+                @endif
             </p>
         </div>
         @if(auth()->check() && auth()->user()->isAdmin())
@@ -124,7 +125,7 @@
             class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 px-3.5 py-2 rounded-lg transition shadow-xs self-start sm:self-auto shrink-0"
         >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-            <span>+ Tambah Dokter Hewan</span>
+            <span>Tambah Dokter Hewan</span>
         </button>
         @endif
     </div>
@@ -201,7 +202,37 @@
                 </div>
             </div>
 
-            <div class="mt-5 pt-3.5 border-t border-gray-100 dark:border-gray-700/60 flex flex-col gap-2">
+            <div class="mt-4 pt-3.5 border-t border-gray-100 dark:border-gray-700/60">
+                @if(auth()->check() && auth()->user()->isAdmin())
+                <!-- Action Khusus Admin: Edit & Hapus (Tanpa Tombol WhatsApp / Konsultasi) -->
+                <div class="flex items-center justify-end gap-2">
+                    <button
+                        type="button"
+                        onclick="openEditVetModal({{ json_encode($vet) }})"
+                        class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:text-primary-700 dark:hover:text-primary-400 bg-gray-50 dark:bg-gray-700/60 hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 transition shadow-2xs"
+                    >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                        <span>Edit</span>
+                    </button>
+                    <form
+                        action="{{ route('konsultasi.veterinarians.destroy', $vet) }}"
+                        method="POST"
+                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus {{ $vet->name }} dari daftar dokter hewan?')"
+                        class="inline"
+                    >
+                        @csrf
+                        @method('DELETE')
+                        <button
+                            type="submit"
+                            class="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/50 px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-800/60 transition shadow-2xs"
+                        >
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                            <span>Hapus</span>
+                        </button>
+                    </form>
+                </div>
+                @else
+                <!-- Action Peternak: WhatsApp & Konsultasi Telemedisin Langsung -->
                 <div class="flex items-center gap-2">
                     @php
                         $waNumber = preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $vet->phone_number));
@@ -224,34 +255,6 @@
                         <span>Konsultasi</span>
                     </a>
                 </div>
-
-                @if(auth()->check() && auth()->user()->isAdmin())
-                <div class="flex items-center justify-end gap-2 pt-1 border-t border-gray-100 dark:border-gray-700/60">
-                    <button
-                        type="button"
-                        onclick="openEditVetModal({{ json_encode($vet) }})"
-                        class="text-[11px] font-medium text-gray-600 dark:text-gray-300 hover:text-primary-600 flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
-                    >
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
-                        <span>Edit</span>
-                    </button>
-                    <form
-                        action="{{ route('konsultasi.veterinarians.destroy', $vet) }}"
-                        method="POST"
-                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus {{ $vet->name }} dari daftar dokter hewan?')"
-                        class="inline"
-                    >
-                        @csrf
-                        @method('DELETE')
-                        <button
-                            type="submit"
-                            class="text-[11px] font-medium text-red-600 dark:text-red-400 hover:text-red-700 flex items-center gap-1 px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition"
-                        >
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
-                            <span>Hapus</span>
-                        </button>
-                    </form>
-                </div>
                 @endif
             </div>
         </div>
@@ -268,7 +271,8 @@
         @endforelse
     </div>
 
-    <!-- Sesi Percakapan Dokter Hewan & Konsultasi Medis -->
+    @if(!auth()->check() || !auth()->user()->isAdmin())
+    <!-- Sesi Percakapan Dokter Hewan & Konsultasi Medis (Khusus Peternak) -->
     <div id="sesi-konsultasi" class="bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-4 sm:p-5 shadow-xs">
         @if ($consultation)
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 gap-2 mb-4">
@@ -372,7 +376,7 @@
         @endif
     </div>
 
-    <!-- Ringkasan Rekam Medis Terkini -->
+    <!-- Ringkasan Rekam Medis Terkini (Khusus Peternak) -->
     <div class="bg-white rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-4 sm:p-5 shadow-xs">
         <div class="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 mb-3.5">
             <div>
@@ -412,6 +416,7 @@
             @endforelse
         </div>
     </div>
+    @endif
     @endif
 
     {{-- ======================================================== --}}
@@ -839,21 +844,21 @@
         </div>
     </div>
 
-    <!-- Banner Siaga Darurat Reaksi Cepat -->
-    <div class="p-4 sm:p-5 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50/70 dark:bg-red-950/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+    <!-- Banner Pelaporan Kasus Kesehatan Ternak -->
+    <div class="p-4 sm:p-5 rounded-xl border border-primary-200 dark:border-primary-900/60 bg-primary-50/70 dark:bg-primary-950/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
         <div class="flex items-start gap-3">
-            <div class="w-9 h-9 rounded-lg bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-300 flex items-center justify-center shrink-0">
+            <div class="w-9 h-9 rounded-lg bg-primary-100 dark:bg-primary-900/60 text-primary-700 dark:text-primary-300 flex items-center justify-center shrink-0">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
             </div>
             <div>
-                <h4 class="text-xs sm:text-sm font-bold text-red-900 dark:text-red-200">Ternak Mengalami Gejala Menular Serius?</h4>
-                <p class="text-xs text-red-700 dark:text-red-400 mt-0.5 leading-relaxed">
-                    Segera lakukan karantina mandiri dan kirim laporan darurat ke Unit Reaksi Cepat Disnak Jawa Timur.
+                <h4 class="text-xs sm:text-sm font-bold text-primary-900 dark:text-primary-200">Ternak Mengalami Gejala Sakit atau Penyakit Menular?</h4>
+                <p class="text-xs text-primary-700 dark:text-primary-400 mt-0.5 leading-relaxed">
+                    Segera lakukan karantina mandiri dan kirim laporan pemeriksaan klinis langsung ke Dokter Hewan Dinas Jawa Timur.
                 </p>
             </div>
         </div>
-        <a href="{{ url('/darurat') }}" class="inline-flex items-center justify-center text-xs font-semibold text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition shadow-xs shrink-0">
-            Lapor Siaga Darurat 24/7 &rarr;
+        <a href="{{ route('kesehatan-hewan.create') }}" class="inline-flex items-center justify-center text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 px-4 py-2 rounded-lg transition shadow-xs shrink-0">
+            Lapor Kesehatan Ternak &rarr;
         </a>
     </div>
     @endif

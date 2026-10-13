@@ -111,6 +111,116 @@
                     </a>
                 </li>
             </ul>
+            @elseif(auth()->check() && auth()->user()->isDokterHewan())
+            <!-- Menu Khusus Dokter Hewan Dinas: Dashboard Klinis & Kunjungan Lapangan -->
+            <ul class="space-y-1 font-medium">
+                <li>
+                    <a
+                        href="{{ route('dokter-hewan.dashboard') }}"
+                        class="sidebar-link flex items-center px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('dokter-hewan/dashboard*') && !request()->has('tab') ? 'bg-primary-50 text-primary-800 border-primary-200/90 font-semibold shadow-2xs' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}"
+                        title="Dashboard Medis"
+                    >
+                        <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 {{ request()->is('dokter-hewan/dashboard*') && !request()->has('tab') ? 'text-primary-700' : 'text-gray-400 group-hover:text-primary-700' }}" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25-2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                        </svg>
+                        <span class="sidebar-label flex-1 ms-2.5 whitespace-nowrap">
+                            Dashboard Dokter
+                        </span>
+                    </a>
+                </li>
+
+                <li>
+                    <button
+                        type="button"
+                        class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('dokter-hewan/laporan*') || (request()->is('dokter-hewan/dashboard*') && request()->has('tab')) ? 'bg-primary-50 text-primary-800 border-primary-200/90 font-semibold shadow-2xs' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}"
+                        aria-controls="dropdown-dokter-laporan"
+                        data-collapse-toggle="dropdown-dokter-laporan"
+                        title="Laporan Klinis Ternak"
+                    >
+                        <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                        <span class="sidebar-label flex-1 ms-2.5 text-left whitespace-nowrap">
+                            Laporan Kesehatan
+                        </span>
+                        <svg class="sidebar-dropdown-icon w-3.5 h-3.5 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <ul id="dropdown-dokter-laporan" class="py-1 space-y-0.5">
+                        <li>
+                            <a href="{{ route('dokter-hewan.dashboard', ['tab' => 'masuk']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'masuk' ? 'text-primary-700 font-semibold bg-gray-50' : 'text-gray-600 hover:text-primary-700 hover:bg-gray-100' }}">
+                                Laporan Masuk
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('dokter-hewan.dashboard', ['tab' => 'ditangani']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'ditangani' ? 'text-primary-700 font-semibold bg-gray-50' : 'text-gray-600 hover:text-primary-700 hover:bg-gray-100' }}">
+                                Sedang Ditangani
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('dokter-hewan.dashboard', ['tab' => 'dijawab']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'dijawab' ? 'text-primary-700 font-semibold bg-gray-50' : 'text-gray-600 hover:text-primary-700 hover:bg-gray-100' }}">
+                                Sudah Dijawab
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('dokter-hewan.dashboard', ['tab' => 'kunjungan']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'kunjungan' ? 'text-primary-700 font-semibold bg-gray-50' : 'text-gray-600 hover:text-primary-700 hover:bg-gray-100' }}">
+                                Menunggu Kunjungan
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('dokter-hewan.dashboard', ['tab' => 'selesai']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'selesai' ? 'text-primary-700 font-semibold bg-gray-50' : 'text-gray-600 hover:text-primary-700 hover:bg-gray-100' }}">
+                                Penanganan Selesai
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a
+                        href="{{ route('dokter-hewan.kunjungan') }}"
+                        class="sidebar-link flex items-center px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('dokter-hewan/kunjungan*') ? 'bg-orange-50 text-orange-800 border-orange-200/90 font-semibold shadow-2xs' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}"
+                        title="Jadwal Kunjungan Lapangan"
+                    >
+                        <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 {{ request()->is('dokter-hewan/kunjungan*') ? 'text-orange-600' : 'text-gray-400 group-hover:text-orange-600' }}" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+                        </svg>
+                        <span class="sidebar-label flex-1 ms-2.5 whitespace-nowrap">
+                            Kunjungan Lapangan
+                        </span>
+                    </a>
+                </li>
+
+                <li>
+                    <a
+                        href="{{ url('/konsultasi?tab=rekam_medis') }}"
+                        class="sidebar-link flex items-center px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('konsultasi*') && request('tab') === 'rekam_medis' ? 'bg-primary-50 text-primary-800 border-primary-200/80 font-semibold shadow-2xs' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}"
+                        title="Rekam Medis E-Tag"
+                    >
+                        <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 text-gray-400 group-hover:text-primary-700" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                        </svg>
+                        <span class="sidebar-label flex-1 ms-2.5 whitespace-nowrap">
+                            Rekam Medis (E-Tag)
+                        </span>
+                    </a>
+                </li>
+
+                <li>
+                    <a
+                        href="{{ url('/konsultasi?tab=penyakit') }}"
+                        class="sidebar-link flex items-center px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('konsultasi*') && request('tab') === 'penyakit' ? 'bg-primary-50 text-primary-800 border-primary-200/80 font-semibold shadow-2xs' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}"
+                        title="Pedoman Penyakit Hewan"
+                    >
+                        <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 text-gray-400 group-hover:text-primary-700" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                        </svg>
+                        <span class="sidebar-label flex-1 ms-2.5 whitespace-nowrap">
+                            Pedoman Penyakit
+                        </span>
+                    </a>
+                </li>
+            </ul>
             @else
             <ul class="space-y-1 font-medium">
                 <!-- 1. Dashboard -->
@@ -129,90 +239,45 @@
                     </a>
                 </li>
 
-                <!-- 2. Siaga Darurat (Dropdown Collapse - Hanya Admin & Peternak) -->
-                @if(!auth()->check() || auth()->user()->hasRole('admin', 'peternak'))
-                <li>
-                    <button
-                        type="button"
-                        class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('darurat*') ? 'bg-red-50 text-red-700 border-red-200/80 font-semibold dark:bg-red-950/60 dark:text-red-300 dark:border-red-800/60 shadow-2xs' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-red-700 dark:text-gray-300 dark:hover:bg-gray-700/60 dark:hover:text-white' }}"
-                        aria-controls="dropdown-darurat"
-                        data-collapse-toggle="dropdown-darurat"
-                        title="Siaga Darurat"
-                    >
-                        <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 {{ request()->is('darurat*') ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400' }}" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                        </svg>
-                        <span class="sidebar-label flex-1 ms-2.5 text-left whitespace-nowrap">
-                            Siaga Darurat
-                        </span>
-                        <span class="sidebar-badge mr-1.5 px-1.5 py-0.5 text-[10px] font-bold text-red-700 bg-red-100 rounded-md dark:bg-red-900/60 dark:text-red-300 leading-none shrink-0">
-                            24/7
-                        </span>
-                        <svg class="sidebar-dropdown-icon w-3.5 h-3.5 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
-                    <ul id="dropdown-darurat" class="{{ request()->is('darurat*') ? '' : 'hidden' }} py-1 space-y-0.5">
-                        @if(auth()->check() && auth()->user()->isAdmin())
-                        <li>
-                            <a href="{{ url('/darurat?tab=masuk') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('darurat*') && (request('tab') === 'masuk' || !request()->has('tab'))) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
-                                Laporan Masuk
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ url('/darurat?tab=ditangani') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('darurat*') && in_array(request('tab'), ['ditangani', 'dijawab'])) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
-                                Laporan Dijawab
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ url('/darurat?tab=riwayat') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('darurat*') && in_array(request('tab'), ['riwayat', 'history'])) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
-                                History Laporan
-                            </a>
-                        </li>
-                        @else
-                        <li>
-                            <a href="{{ url('/darurat') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request()->fullUrlIs(url('/darurat')) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
-                                Laporan Darurat
-                            </a>
-                        </li>
-                        @endif
-                    </ul>
-                </li>
-                @endif
 
                 <!-- 3. Pelatihan & Bimtek (Dropdown Collapse - Hanya Admin & Peternak) -->
                 @if(!auth()->check() || auth()->user()->hasRole('admin', 'peternak'))
                 <li>
                     <button
                         type="button"
-                        class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('pelatihan*') ? 'bg-gray-100 border-gray-200/80 font-semibold text-gray-900 dark:bg-gray-700/60 dark:text-white dark:border-gray-600' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-primary-700 dark:text-gray-300 dark:hover:bg-gray-700/60 dark:hover:text-white' }}"
+                        class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ (request()->is('pelatihan*') || request()->is('pembelajaran*')) ? 'bg-gray-100 border-gray-200/80 font-semibold text-gray-900 dark:bg-gray-700/60 dark:text-white dark:border-gray-600' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-primary-700 dark:text-gray-300 dark:hover:bg-gray-700/60 dark:hover:text-white' }}"
                         aria-controls="dropdown-pelatihan"
                         data-collapse-toggle="dropdown-pelatihan"
-                        title="Pelatihan & Bimtek"
+                        title="Pembelajaran & Bimtek"
                     >
                         <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 text-gray-500 dark:text-gray-400 group-hover:text-primary-700 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
                         </svg>
                         <span class="sidebar-label flex-1 ms-2.5 text-left whitespace-nowrap">
-                            Pelatihan & Bimtek
+                            Pembelajaran & Bimtek
                         </span>
                         <svg class="sidebar-dropdown-icon w-3.5 h-3.5 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                         </svg>
                     </button>
-                    <ul id="dropdown-pelatihan" class="{{ request()->is('pelatihan*') ? '' : 'hidden' }} py-1 space-y-0.5">
+                    <ul id="dropdown-pelatihan" class="{{ (request()->is('pelatihan*') || request()->is('pembelajaran*')) ? '' : 'hidden' }} py-1 space-y-0.5">
                         <li>
-                            <a href="{{ url('/pelatihan?tab=jadwal') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('pelatihan*') && (request('tab') === 'jadwal' || !request()->has('tab'))) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
-                                Jadwal Bimtek
+                            <a href="{{ url('/pelatihan?tab=pembelajaran') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && (request('tab') === 'pembelajaran' || request('tab') === 'modul' || !request()->has('tab'))) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                Video &amp; Modul Belajar
                             </a>
                         </li>
                         <li>
-                            <a href="{{ url('/pelatihan?tab=modul') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('pelatihan*') && request('tab') === 'modul') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
-                                Modul &amp; Video
+                            <a href="{{ url('/pelatihan?tab=zoom') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && (request('tab') === 'zoom' || request('tab') === 'jadwal')) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                Jadwal Kelas Zoom
                             </a>
                         </li>
                         <li>
-                            <a href="{{ url('/pelatihan?tab=sertifikat') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('pelatihan*') && request('tab') === 'sertifikat') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                            <a href="{{ url('/pelatihan?tab=kuis') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && request('tab') === 'kuis') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                Kuis &amp; Soal Evaluasi
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url('/pelatihan?tab=sertifikat') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && request('tab') === 'sertifikat') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
                                 Sertifikat Digital
                             </a>
                         </li>
@@ -295,12 +360,32 @@
                     </a>
                 </li>
 
-                <!-- 6. Kesehatan Hewan (Dropdown Collapse - Hanya Admin & Peternak) -->
-                @if(!auth()->check() || auth()->user()->hasRole('admin', 'peternak'))
+                <!-- 6. Akun Dokter Hewan (Khusus Admin: Kelola Akun & Penugasan Dokter Hewan) -->
+                @if(auth()->check() && auth()->user()->isAdmin())
+                <li>
+                    <a
+                        href="{{ route('admin.veterinarians.index') }}"
+                        class="sidebar-link flex items-center justify-between px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('admin/dokter-hewan*') ? 'bg-primary-50 text-primary-800 border-primary-200/90 font-semibold shadow-2xs dark:bg-primary-950/60 dark:text-primary-300 dark:border-primary-800/60' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-primary-700 dark:text-gray-300 dark:hover:bg-gray-700/60 dark:hover:text-white' }}"
+                        title="Buat & Kelola Akun Dokter Hewan"
+                    >
+                        <div class="flex items-center min-w-0">
+                            <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 {{ request()->is('admin/dokter-hewan*') ? 'text-primary-700 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400 group-hover:text-primary-700 dark:group-hover:text-white' }}" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                            </svg>
+                            <span class="sidebar-label flex-1 ms-2.5 text-left whitespace-nowrap">
+                                Kelola Akun Dokter
+                            </span>
+                        </div>
+                        <span class="sidebar-badge px-1.5 py-0.5 text-[10px] font-bold text-primary-700 bg-primary-100 rounded-md dark:bg-primary-900/60 dark:text-primary-300 leading-none shrink-0">
+                            Admin
+                        </span>
+                    </a>
+                </li>
+                @elseif(!auth()->check() || auth()->user()->isPeternak())
                 <li>
                     <button
                         type="button"
-                        class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('konsultasi*') ? 'bg-gray-100 border-gray-200/80 font-semibold text-gray-900 dark:bg-gray-700/60 dark:text-white dark:border-gray-600' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-primary-700 dark:text-gray-300 dark:hover:bg-gray-700/60 dark:hover:text-white' }}"
+                        class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ (request()->is('konsultasi*') || request()->is('kesehatan-hewan*')) ? 'bg-gray-100 border-gray-200/80 font-semibold text-gray-900 dark:bg-gray-700/60 dark:text-white dark:border-gray-600' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-primary-700 dark:text-gray-300 dark:hover:bg-gray-700/60 dark:hover:text-white' }}"
                         aria-controls="dropdown-kesehatan"
                         data-collapse-toggle="dropdown-kesehatan"
                         title="Kesehatan Hewan"
@@ -315,9 +400,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                         </svg>
                     </button>
-                    <ul id="dropdown-kesehatan" class="{{ request()->is('konsultasi*') ? '' : 'hidden' }} py-1 space-y-0.5">
+                    <ul id="dropdown-kesehatan" class="{{ (request()->is('konsultasi*') || request()->is('kesehatan-hewan*')) ? '' : 'hidden' }} py-1 space-y-0.5">
                         <li>
-                            <a href="{{ url('/konsultasi?tab=dokter') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('konsultasi*') && (request('tab') === 'dokter' || !request()->has('tab'))) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                            <a href="{{ route('kesehatan-hewan.index') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request()->is('kesehatan-hewan*') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                Laporan Kesehatan
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url('/konsultasi?tab=dokter') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request()->is('konsultasi*') && (request('tab') === 'dokter' || !request()->has('tab')) && !request()->is('kesehatan-hewan*')) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
                                 Dokter Hewan
                             </a>
                         </li>
@@ -359,14 +449,7 @@
                     Informasi & Layanan
                 </span>
                 <ul class="space-y-0.5 text-xs font-medium">
-                    <li>
-                        <a href="{{ url('/darurat#panduan') }}" class="sidebar-link flex items-center px-2.5 py-1.5 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors" title="Panduan Bencana">
-                            <svg class="sidebar-icon w-3.5 h-3.5 mr-2 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                            </svg>
-                            <span class="sidebar-label">Panduan Bencana</span>
-                        </a>
-                    </li>
+
                     <li>
                         <a href="https://disnak.jatimprov.go.id" target="_blank" rel="noopener noreferrer" class="sidebar-link flex items-center px-2.5 py-1.5 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors" title="Portal Disnak Jatim">
                             <svg class="sidebar-icon w-3.5 h-3.5 mr-2 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">

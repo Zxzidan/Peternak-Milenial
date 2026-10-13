@@ -98,8 +98,6 @@
         </main>
     </div>
 
-    <!-- Emergency Report Modal Component -->
-    <x-modal-emergency />
 
     <!-- ApexCharts Library -->
     <script src="{{ asset('js/apexcharts.min.js') }}"></script>
