@@ -45,6 +45,7 @@ Route::middleware(['role:admin,peternak'])->group(function () {
     Route::post('/pelatihan/materi/{material}/progress', [TrainingController::class, 'updateVideoProgress'])->name('pelatihan.materials.progress');
     Route::post('/pelatihan/kuis/{quiz}/submit', [TrainingController::class, 'submitQuiz'])->name('pelatihan.quiz.submit');
     Route::get('/pelatihan/dokumen/{type}/{id}', [TrainingController::class, 'downloadDocument'])->name('pelatihan.document.download');
+    Route::get('/pelatihan/certificates/{training}/download', [TrainingController::class, 'downloadCertificate'])->name('pelatihan.certificates.download');
 
     // Fitur Khusus Admin Pelatihan & LMS
     Route::middleware('role:admin')->group(function () {
@@ -59,6 +60,8 @@ Route::middleware(['role:admin,peternak'])->group(function () {
         Route::post('/pelatihan/quiz/{quiz}/questions', [TrainingController::class, 'storeQuizQuestion'])->name('pelatihan.quiz.question.store');
         Route::delete('/pelatihan/quiz/questions/{question}', [TrainingController::class, 'destroyQuizQuestion'])->name('pelatihan.quiz.question.destroy');
         Route::post('/pelatihan/certificates', [TrainingController::class, 'issueCertificate'])->name('pelatihan.certificates.issue');
+        Route::get('/pelatihan/certificates/{training}/preview', [TrainingController::class, 'previewCertificate'])->name('pelatihan.certificates.preview');
+        Route::delete('/pelatihan/trainings/{training}/certificate', [TrainingController::class, 'destroyCertificateTemplate'])->name('pelatihan.certificates.template.destroy');
         Route::delete('/pelatihan/certificates/{certificate}', [TrainingController::class, 'destroyCertificate'])->name('pelatihan.certificates.destroy');
     });
 });

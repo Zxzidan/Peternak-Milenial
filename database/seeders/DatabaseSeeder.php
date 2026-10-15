@@ -177,6 +177,8 @@ class DatabaseSeeder extends Seeder
             'remaining_quota' => 14,
             'cost_type' => 'gratis_apbd',
             'status' => 'open',
+            'has_certificate' => true,
+            'certificate_title' => 'Sertifikasi Formulasi Pakan Ransum & Silase Modern',
         ]);
 
         $t2 = Training::create([
@@ -215,6 +217,8 @@ class DatabaseSeeder extends Seeder
             'remaining_quota' => 85,
             'cost_type' => 'daring',
             'status' => 'open',
+            'has_certificate' => true,
+            'certificate_title' => 'Sertifikasi Kompetensi Pemasaran Digital & Finansial Peternakan',
         ]);
 
         $t4 = Training::create([

@@ -31,6 +31,8 @@ class Training extends Model
         'banner_image',
         'document_path',
         'document_name',
+        'has_certificate',
+        'certificate_title',
     ];
 
     protected function casts(): array
@@ -39,6 +41,7 @@ class Training extends Model
             'start_date' => 'date',
             'end_date' => 'date',
             'is_online' => 'boolean',
+            'has_certificate' => 'boolean',
             'quota' => 'integer',
             'remaining_quota' => 'integer',
         ];

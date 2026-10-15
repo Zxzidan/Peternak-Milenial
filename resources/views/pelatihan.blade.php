@@ -47,31 +47,33 @@
     </div>
     @endif
 
-    <!-- 1. Top Bar: Search Bar, Category Filter & Status Badges (Ottertag Style) -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
-        <!-- Search & Filter Controls -->
-        <form method="GET" action="{{ route('pelatihan') }}" class="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 max-w-2xl">
-            <input type="hidden" name="tab" value="{{ $activeTab }}">
-            <div class="relative flex-1">
-                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
-                    </svg>
-                </div>
-                <input
-                    type="text"
-                    name="search"
-                    value="{{ $searchQuery }}"
-                    placeholder="Cari modul video, materi pakan, atau narasumber..."
-                    class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-2xs transition"
-                />
-            </div>
+    <!-- 1. Search Bar & Filter Controls -->
+    <form method="GET" action="{{ route('pelatihan') }}" class="w-full flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        <input type="hidden" name="tab" value="{{ $activeTab }}">
 
-            <div class="flex items-center gap-2">
+        <!-- Search Input Field -->
+        <div class="relative flex-1">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                </svg>
+            </div>
+            <input
+                type="text"
+                name="search"
+                value="{{ $searchQuery }}"
+                placeholder="Cari modul video, materi pakan, atau narasumber..."
+                class="w-full h-11 pl-10 pr-4 bg-white dark:bg-gray-800 border border-gray-200/90 dark:border-gray-700 rounded-xl text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-600/30 focus:border-primary-600 shadow-2xs transition"
+            />
+        </div>
+
+        <!-- Topic Filter & Search Actions -->
+        <div class="flex items-center gap-2 shrink-0">
+            <div class="relative">
                 <select
                     name="topic"
                     onchange="this.form.submit()"
-                    class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-xs rounded-xl px-3 py-2.5 focus:ring-primary-600 focus:border-primary-600 shadow-2xs transition"
+                    class="appearance-none h-11 bg-white dark:bg-gray-800 border border-gray-200/90 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-xl pl-3.5 pr-8 focus:outline-none focus:ring-2 focus:ring-primary-600/30 focus:border-primary-600 shadow-2xs transition cursor-pointer"
                 >
                     <option value="all" {{ $selectedTopic === 'all' ? 'selected' : '' }}>Semua Topik Modul</option>
                     <option value="Manajemen Pakan" {{ $selectedTopic === 'Manajemen Pakan' ? 'selected' : '' }}>Manajemen Pakan</option>
@@ -79,86 +81,29 @@
                     <option value="Kesehatan Ternak" {{ $selectedTopic === 'Kesehatan Ternak' ? 'selected' : '' }}>Kesehatan Ternak</option>
                     <option value="Bibit & Budidaya" {{ $selectedTopic === 'Bibit & Budidaya' ? 'selected' : '' }}>Bibit & Budidaya</option>
                 </select>
-                <button
-                    type="submit"
-                    class="px-4 py-2.5 bg-primary-700 hover:bg-primary-800 text-white rounded-xl text-xs font-semibold shadow-2xs transition cursor-pointer"
-                >
-                    Cari
-                </button>
-            </div>
-        </form>
-
-        <!-- Top Widgets: Watched Progress, Quiz Avg, Zoom Sessions (Ottertag Metric Cards) -->
-        <div class="flex items-center gap-2.5 overflow-x-auto pb-1 sm:pb-0">
-            @if($currentUser && $currentUser->isAdmin())
-            <!-- Admin Widget 1: Modul Diterbitkan -->
-            <div class="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 shadow-2xs shrink-0">
-                <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
-                </div>
-                <div>
-                    <span class="text-[10px] text-gray-500 dark:text-gray-400 block font-medium">Modul Diterbitkan</span>
-                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $totalMaterialsCount }} Modul Video</span>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-gray-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
                 </div>
             </div>
 
-            <!-- Admin Widget 2: Bank Kuis & Soal -->
-            <div class="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 shadow-2xs shrink-0">
-                <div class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/70 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xs">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
-                <div>
-                    <span class="text-[10px] text-gray-500 dark:text-gray-400 block font-medium">Bank Soal Kuis</span>
-                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $quizzes->count() }} Kuis ({{ $quizzes->sum(fn($q) => $q->questions->count()) }} Soal)</span>
-                </div>
-            </div>
+            <button
+                type="submit"
+                class="inline-flex items-center justify-center gap-1.5 h-11 px-4 sm:px-5 bg-primary-700 hover:bg-primary-800 text-white rounded-xl text-xs font-semibold shadow-2xs hover:shadow-xs transition cursor-pointer shrink-0"
+            >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+                <span>Cari</span>
+            </button>
 
-            <!-- Admin Widget 3: Peserta Bimtek -->
-            <div class="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 shadow-2xs shrink-0">
-                <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
-                </div>
-                <div>
-                    <span class="text-[10px] text-gray-500 dark:text-gray-400 block font-medium">Pendaftar Pelatihan</span>
-                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $allRegistrations->count() }} Peternak</span>
-                </div>
-            </div>
-            @else
-            <!-- Widget 1: Video Ditonton -->
-            <div class="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 shadow-2xs shrink-0">
-                <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
-                </div>
-                <div>
-                    <span class="text-[10px] text-gray-500 dark:text-gray-400 block font-medium">Modul Ditonton</span>
-                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $watchedCount }}/{{ $totalMaterialsCount }} Selesai ({{ $watchProgressPct }}%)</span>
-                </div>
-            </div>
-
-            <!-- Widget 2: Kuis Evaluasi -->
-            <div class="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 shadow-2xs shrink-0">
-                <div class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/70 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xs">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
-                <div>
-                    <span class="text-[10px] text-gray-500 dark:text-gray-400 block font-medium">Rata-rata Kuis</span>
-                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $averageScore }} / 100 ({{ $passedQuizzesCount }} Lulus)</span>
-                </div>
-            </div>
-
-            <!-- Widget 3: Live Zoom -->
-            <div class="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 shadow-2xs shrink-0">
-                <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
-                </div>
-                <div>
-                    <span class="text-[10px] text-gray-500 dark:text-gray-400 block font-medium">Jadwal Zoom</span>
-                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $upcomingZoomCount }} Sesi Terbuka</span>
-                </div>
-            </div>
+            @if($searchQuery || $selectedTopic !== 'all')
+            <a
+                href="{{ route('pelatihan', ['tab' => $activeTab]) }}"
+                class="inline-flex items-center justify-center h-11 px-3.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-750 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl text-xs font-medium transition shrink-0"
+            >
+                Reset
+            </a>
             @endif
         </div>
-    </div>
+    </form>
 
     <!-- 2. Hero Indigo Gradient Banner (Ottertag Inspired) with Quick Actions -->
     <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#9333EA] p-5 sm:p-8 text-white shadow-md">
@@ -172,50 +117,85 @@
         </div>
 
         <div class="relative z-10 max-w-2xl space-y-3">
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-xs text-[11px] font-semibold text-white">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                <span>E-Learning Peternak Milenial Jatim</span>
-            </div>
+           
             <h1 class="text-xl sm:text-3xl font-extrabold tracking-tight leading-snug">
-                Peningkatan Kapasitas &amp; Sertifikasi Peternak Muda Jawa Timur
+                @if($activeTab === 'pembelajaran')
+                    Video &amp; Modul Pembelajaran Mandiri
+                @elseif($activeTab === 'zoom')
+                    Jadwal Pembelajaran &amp; Kelas Zoom Interaktif
+                @elseif($activeTab === 'kuis')
+                    Bank Soal &amp; Kuis Evaluasi Pembelajaran
+                @elseif($activeTab === 'sertifikat')
+                    Sertifikat Digital &amp; Verifikasi E-Signature
+                @endif
             </h1>
             @if($currentUser && $currentUser->isAdmin())
             <p class="text-xs sm:text-sm text-indigo-100 leading-relaxed max-w-xl">
-                Kelola kurikulum video pembelajaran, jadwalkan Bimtek daring via Zoom beserta dokumen materi, susun butir bank soal evaluasi kuis, dan pantau kelulusan kompetensi peternak milenial.
+                @if($activeTab === 'pembelajaran')
+                    Kelola kurikulum video pembelajaran, jadwalkan Bimtek daring via Zoom beserta dokumen materi, susun butir bank soal evaluasi kuis, dan pantau kelulusan kompetensi peternak milenial.
+                @elseif($activeTab === 'zoom')
+                    Kelola jadwal bimbingan teknis interaktif tatap maya melalui Zoom Meeting bersama instruktur ahli BBPP Batu dan bagikan dokumen silabus resmi.
+                @elseif($activeTab === 'kuis')
+                    Kelola bank soal evaluasi pemahaman modul. Tambahkan butir pertanyaan pilihan ganda (A, B, C, D) dan pantau capaian nilai kompetensi peternak.
+                @elseif($activeTab === 'sertifikat')
+                    Terbitkan e-sertifikat kompetensi resmi ber-barcode dengan tanda tangan digital dan sistem verifikasi otomatis Dinas Peternakan Jawa Timur.
+                @endif
             </p>
 
             <div class="pt-2 flex flex-wrap items-center gap-2.5">
+                @if($activeTab === 'pembelajaran')
                 <button
                     type="button"
                     onclick="document.getElementById('modal-upload-materi-admin').classList.remove('hidden')"
                     class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs shadow-xs hover:bg-indigo-50 transition cursor-pointer"
                 >
                     <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                    <span>+ Unggah Video &amp; Dokumen</span>
+                    <span>Unggah Video &amp; Dokumen</span>
                 </button>
+                @elseif($activeTab === 'zoom')
                 <button
                     type="button"
                     onclick="document.getElementById('modal-jadwalkan-zoom-admin').classList.remove('hidden')"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-950/40 border border-white/30 text-white font-semibold text-xs hover:bg-indigo-950/60 transition cursor-pointer"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs shadow-xs hover:bg-indigo-50 transition cursor-pointer"
                 >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
-                    <span>+ Jadwalkan Sesi Zoom</span>
+                    <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
+                    <span>Jadwalkan Sesi Zoom Baru</span>
                 </button>
+                @elseif($activeTab === 'kuis')
                 <button
                     type="button"
                     onclick="document.getElementById('modal-buat-soal-admin').classList.remove('hidden')"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-950/50 border border-white/30 text-white font-semibold text-xs hover:bg-purple-950/70 transition cursor-pointer"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs shadow-xs hover:bg-indigo-50 transition cursor-pointer"
                 >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 011.13-1.897L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
-                    <span>+ Tambah Butir Soal</span>
+                    <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 011.13-1.897L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
+                    <span>Tambah Butir Soal Baru</span>
                 </button>
+                @elseif($activeTab === 'sertifikat')
+                <button
+                    type="button"
+                    onclick="openCreateCertificateModal()"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs shadow-xs hover:bg-indigo-50 transition cursor-pointer"
+                >
+                    <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                    <span>Buat Sertifikat Baru</span>
+                </button>
+                @endif
             </div>
             @else
             <p class="text-xs sm:text-sm text-indigo-100 leading-relaxed max-w-xl">
-                Akses video pembelajaran resmi, unduh dokumen panduan SOP standar BBPP Batu &amp; Fapet UB, kerjakan soal kuis pemahaman, dan ikuti kelas daring interaktif via Zoom.
+                @if($activeTab === 'pembelajaran')
+                    Akses video pembelajaran resmi, unduh dokumen panduan SOP standar BBPP Batu &amp; Fapet UB, kerjakan soal kuis pemahaman, dan ikuti kelas daring interaktif via Zoom.
+                @elseif($activeTab === 'zoom')
+                    Ikuti bimbingan teknis daring interaktif tatap maya bersama instruktur ahli BBPP Batu dan narasumber perbankan/industri peternakan.
+                @elseif($activeTab === 'kuis')
+                    Kerjakan butir soal pilihan ganda evaluasi setelah menyimak modul pembelajaran untuk menguji kesiapan dan pemahaman SOP peternakan Anda.
+                @elseif($activeTab === 'sertifikat')
+                    Unduh e-sertifikat kelulusan digital resmi ber-barcode hasil keikutsertaan pelatihan dan bimbingan teknis Dinas Peternakan Jawa Timur.
+                @endif
             </p>
 
             <div class="pt-2 flex flex-wrap items-center gap-2.5">
+                @if($activeTab === 'pembelajaran')
                 <a
                     href="#section-modul-video"
                     class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs shadow-xs hover:bg-indigo-50 transition cursor-pointer"
@@ -230,40 +210,52 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
                     <span>Lihat Jadwal Zoom ({{ $upcomingZoomCount }})</span>
                 </a>
+                @elseif($activeTab === 'zoom')
+                <a
+                    href="#section-zoom"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs shadow-xs hover:bg-indigo-50 transition cursor-pointer"
+                >
+                    <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
+                    <span>Lihat Sesi Zoom Terbuka</span>
+                </a>
+                @elseif($activeTab === 'kuis')
+                <a
+                    href="#section-kuis"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs shadow-xs hover:bg-indigo-50 transition cursor-pointer"
+                >
+                    <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Mulai Kuis Evaluasi</span>
+                </a>
+                @elseif($activeTab === 'sertifikat')
+                <a
+                    href="#section-sertifikat"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs shadow-xs hover:bg-indigo-50 transition cursor-pointer"
+                >
+                    <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/></svg>
+                    <span>Cek Sertifikat Kelulusan</span>
+                </a>
+                @endif
             </div>
             @endif
         </div>
     </div>
 
-    <!-- 3. Navigation Tabs (Pill Tab System) -->
+    <!-- 3. Current Section Breadcrumb Header (Navigation Managed Exclusively via Sidebar) -->
     <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
-        <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto">
-            <a
-                href="{{ route('pelatihan', ['tab' => 'pembelajaran', 'topic' => $selectedTopic]) }}"
-                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap {{ $activeTab === 'pembelajaran' ? 'bg-primary-700 text-white shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900' }}"
-            >
-                Video &amp; Modul Pembelajaran
-            </a>
-            <a
-                href="{{ route('pelatihan', ['tab' => 'zoom']) }}"
-                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5 {{ $activeTab === 'zoom' ? 'bg-primary-700 text-white shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900' }}"
-            >
-                <span>Jadwal Kelas Zoom</span>
-                <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $activeTab === 'zoom' ? 'bg-white text-primary-800' : 'bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300' }}">{{ $zoomTrainings->count() }}</span>
-            </a>
-            <a
-                href="{{ route('pelatihan', ['tab' => 'kuis']) }}"
-                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5 {{ $activeTab === 'kuis' ? 'bg-primary-700 text-white shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900' }}"
-            >
-                <span>Kuis &amp; Soal Evaluasi</span>
-                <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $activeTab === 'kuis' ? 'bg-white text-primary-800' : 'bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300' }}">{{ $quizzes->count() }}</span>
-            </a>
-            <a
-                href="{{ route('pelatihan', ['tab' => 'sertifikat']) }}"
-                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap {{ $activeTab === 'sertifikat' ? 'bg-primary-700 text-white shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900' }}"
-            >
-                Sertifikat Digital
-            </a>
+        <div class="flex items-center gap-2 text-xs sm:text-sm">
+            <span class="font-medium text-gray-500 dark:text-gray-400">Pelatihan &amp; Bimbingan Teknis</span>
+            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+            <span class="font-bold text-gray-900 dark:text-white">
+                @if($activeTab === 'pembelajaran')
+                    Video &amp; Pembelajaran
+                @elseif($activeTab === 'zoom')
+                    Jadwal Kelas Zoom
+                @elseif($activeTab === 'kuis')
+                    Kuis &amp; Soal Evaluasi
+                @elseif($activeTab === 'sertifikat')
+                    Sertifikat Digital
+                @endif
+            </span>
         </div>
 
         @if($currentUser && $currentUser->isAdmin())
@@ -273,11 +265,11 @@
         @endif
     </div>
 
-    <!-- 4. Main Content Area with 2-Column Layout (Learning Area + Right Profile Ottertag Panel) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-7 items-start">
+    <!-- 4. Main Content Area (Full width for Admin, 2-Column for Peternak) -->
+    <div class="grid grid-cols-1 {{ ($currentUser && $currentUser->isAdmin()) ? '' : 'lg:grid-cols-12' }} gap-6 sm:gap-7 items-start">
 
-        <!-- Left / Center Column: Courses / Zoom / Quizzes (9 cols on lg) -->
-        <div class="lg:col-span-8 xl:col-span-9 space-y-7">
+        <!-- Left / Main Column: Courses / Zoom / Quizzes -->
+        <div class="{{ ($currentUser && $currentUser->isAdmin()) ? 'w-full' : 'lg:col-span-8 xl:col-span-9' }} space-y-7">
 
             @if($activeTab === 'pembelajaran')
             <!-- ========================================== -->
@@ -447,7 +439,7 @@
                                     title="Tambah Butir Soal ke Kuis Modul Ini"
                                 >
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                                    <span>+ Soal</span>
+                                    <span>Soal</span>
                                 </button>
                                 @else
                                 <button
@@ -457,7 +449,7 @@
                                     title="Buat Kuis Evaluasi untuk Modul Ini"
                                 >
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                                    <span>+ Kuis</span>
+                                    <span>Kuis</span>
                                 </button>
                                 @endif
 
@@ -510,62 +502,6 @@
                     @endforelse
                 </div>
 
-                <!-- Mentor / Instruktur Ahli Table (Ottertag "Your Mentor" Table) -->
-                <div class="pt-6 space-y-3.5 border-t border-gray-200 dark:border-gray-800">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
-                                Instruktur &amp; Narasumber Bimbingan Teknis
-                            </h3>
-                            <p class="text-xs text-gray-500">Pakar terakreditasi dari BBPP Batu, Fakultas Peternakan UB, dan Dokter Hewan Dinas.</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700 overflow-hidden shadow-2xs">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-xs text-left text-gray-600 dark:text-gray-300">
-                                <thead class="text-[11px] text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-700/60 border-b border-gray-200 dark:border-gray-700">
-                                    <tr>
-                                        <th class="px-4 py-3">Nama Instruktur &amp; Instansi</th>
-                                        <th class="px-4 py-3">Spesialisasi</th>
-                                        <th class="px-4 py-3">Materi Diampu</th>
-                                        <th class="px-4 py-3 text-right">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                                    @foreach($mentors as $mentor)
-                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-700/40 transition">
-                                        <td class="px-4 py-3.5 flex items-center gap-3">
-                                            <img src="{{ $mentor['avatar'] }}" alt="{{ $mentor['name'] }}" class="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"/>
-                                            <div>
-                                                <span class="font-bold text-gray-900 dark:text-white block">{{ $mentor['name'] }}</span>
-                                                <span class="text-[11px] text-gray-400 block">{{ $mentor['institution'] }}</span>
-                                            </div>
-                                        </td>
-                                        <td class="px-4 py-3.5">
-                                            <span class="px-2.5 py-1 rounded-md text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">
-                                                {{ $mentor['specialty'] }}
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-3.5 font-medium text-gray-700 dark:text-gray-200">
-                                            {{ $mentor['courses_count'] }} Modul &amp; Sesi Bimtek
-                                        </td>
-                                        <td class="px-4 py-3.5 text-right">
-                                            <a
-                                                href="{{ route('konsultasi') }}"
-                                                class="px-3 py-1.5 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 hover:bg-primary-100 rounded-lg text-[11px] font-semibold transition"
-                                            >
-                                                Konsultasi
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
             @elseif($activeTab === 'zoom')
@@ -582,7 +518,7 @@
                             <span class="text-xs text-gray-500">Live Zoom Meetings</span>
                         </div>
                         <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-                            Jadwal Pembelajaran &amp; Pelatihan Daring via Zoom
+                            Jadwal Pembelajaran &amp; Kelas Zoom Interaktif
                         </h2>
                         <p class="text-xs text-gray-500">
                             Ikuti webinar interaktif tatap maya bersama instruktur ahli BBPP Batu dan narasumber perbankan/industri susu.
@@ -834,13 +770,18 @@
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between gap-2">
-                            <span class="text-[11px] text-gray-400 truncate">
-                                Modul: {{ $quiz->learningMaterial?->title }}
-                            </span>
-
+                        <div class="pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-end gap-2">
                             <div class="flex items-center gap-2">
                                 @if($currentUser && $currentUser->isAdmin())
+                                <button
+                                    type="button"
+                                    onclick="openAdminQuizResultsModal({{ json_encode($quiz) }}, {{ json_encode($quiz->attempts) }})"
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xs font-semibold transition cursor-pointer"
+                                    title="Lihat Peternak yang Sudah Mengerjakan &amp; Nilai Kuis"
+                                >
+                                    <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>Hasil Nilai ({{ $quiz->attempts->count() }})</span>
+                                </button>
                                 <button
                                     type="button"
                                     onclick="openAdminManageQuestionsModal({{ json_encode($quiz) }}, {{ json_encode($quiz->questions) }})"
@@ -857,7 +798,7 @@
                                     title="Tambah Butir Soal ke Kuis Ini"
                                 >
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                                    <span>+ Butir Soal</span>
+                                    <span>Butir Soal</span>
                                 </button>
                                 @else
                                 <button
@@ -881,58 +822,6 @@
                     @endforelse
                 </div>
 
-                <!-- Admin Oversight: Riwayat Pengerjaan Kuis Peternak -->
-                @if($currentUser && $currentUser->isAdmin())
-                <div class="pt-6 space-y-3.5 border-t border-gray-200 dark:border-gray-800">
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">
-                        Daftar Hasil Nilai &amp; Evaluasi Kuis Peternak Milenial
-                    </h3>
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700 overflow-hidden shadow-2xs">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-xs text-left text-gray-600 dark:text-gray-300">
-                                <thead class="text-[11px] text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-700/60 border-b border-gray-200 dark:border-gray-700">
-                                    <tr>
-                                        <th class="px-4 py-3">Nama Peternak</th>
-                                        <th class="px-4 py-3">Modul Kuis</th>
-                                        <th class="px-4 py-3 text-center">Skor</th>
-                                        <th class="px-4 py-3">Status</th>
-                                        <th class="px-4 py-3 text-right">Waktu Pengerjaan</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                                    @forelse($quizAttempts as $att)
-                                    <tr class="hover:bg-gray-50/80 transition">
-                                        <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">
-                                            {{ $att->user?->name ?? 'Peternak' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-gray-600 dark:text-gray-300">
-                                            {{ $att->quiz?->title }}
-                                        </td>
-                                        <td class="px-4 py-3 text-center font-bold {{ $att->passed ? 'text-emerald-600' : 'text-red-500' }}">
-                                            {{ $att->score }} / 100
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $att->passed ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
-                                                {{ $att->passed ? 'LULUS' : 'MENGULANG' }}
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-3 text-right text-gray-400">
-                                            {{ $att->completed_at ? $att->completed_at->format('d M Y H:i') : '-' }}
-                                        </td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="5" class="px-4 py-6 text-center text-gray-400">
-                                            Belum ada peternak yang menyelesaikan kuis evaluasi.
-                                        </td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                @endif
             </div>
 
             @elseif($activeTab === 'sertifikat')
@@ -949,93 +838,176 @@
                             <span class="text-xs text-gray-500">Dinas Peternakan Provinsi Jawa Timur</span>
                         </div>
                         <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-                            {{ $currentUser && $currentUser->isAdmin() ? 'Basis Data Sertifikat Digital Pelatihan' : 'Sertifikat Kompetensi Digital Saya' }}
+                            {{ $currentUser && $currentUser->isAdmin() ? 'Manajemen E-Sertifikat Pelatihan' : 'Sertifikat Kompetensi Digital Saya' }}
                         </h2>
                         <p class="text-xs text-gray-500">
-                            Bukti kelulusan dan kompetensi resmi dari keikutsertaan program Bimtek peternak milenial.
+                            {{ $currentUser && $currentUser->isAdmin() ? 'Terbitkan dan kelola e-sertifikat resmi berbasis nama program pelatihan untuk peternak milenial.' : 'Bukti kelulusan dan kompetensi resmi dari keikutsertaan program Bimtek peternak milenial.' }}
                         </p>
                     </div>
 
                     @if($currentUser && $currentUser->isAdmin())
                     <button
                         type="button"
-                        onclick="document.getElementById('form-terbitkan-sertifikat').classList.toggle('hidden')"
+                        onclick="openCreateCertificateModal()"
                         class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                        <span>Terbitkan Sertifikat Baru</span>
+                        <span>Buat Sertifikat Baru</span>
                     </button>
+                    @else
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-xs font-semibold border border-emerald-200 dark:border-emerald-800">
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>E-Sertifikasi Berbasis Pelatihan</span>
+                        </span>
+                    </div>
                     @endif
                 </div>
 
-                <!-- Form Terbitkan Sertifikat (Admin) -->
-                @if($currentUser && $currentUser->isAdmin())
-                <div id="form-terbitkan-sertifikat" class="hidden bg-emerald-50/70 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-800 p-5 shadow-xs">
-                    <form action="{{ route('pelatihan.certificates.issue') }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
-                        @csrf
-                        <input type="hidden" name="tab" value="sertifikat">
-                        <div>
-                            <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Penerima Peternak <span class="text-red-500">*</span></label>
-                            <select name="user_id" required class="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                                @foreach ($peternakUsers as $pu)
-                                    <option value="{{ $pu->id }}">{{ $pu->name }} ({{ $pu->email }})</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Program Pelatihan <span class="text-red-500">*</span></label>
-                            <select name="training_id" required class="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                                @foreach ($trainings as $t)
-                                    <option value="{{ $t->id }}">{{ $t->title }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Judul Sertifikasi</label>
-                            <input type="text" name="title" placeholder="cth: Sertifikasi Peternak Sapi Perah Higienis" class="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white">
-                        </div>
-                        <div class="flex items-end">
-                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-3 rounded-lg transition shadow-xs">
-                                Terbitkan E-Sertifikat
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                @endif
+                <!-- Training Certificate Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    @forelse($certificateTrainings as $training)
+                    @php
+                        $userCert = $currentUser ? $training->certificates->firstWhere('user_id', $currentUser->id) : null;
+                    @endphp
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 {{ $training->has_certificate ? 'border-emerald-500/40 hover:border-emerald-500/70' : 'border-gray-200 dark:border-gray-700' }} p-5 shadow-xs transition hover:shadow-md flex flex-col justify-between relative overflow-hidden group">
+                        <!-- Decorative subtle background emblem -->
+                        <div class="absolute -right-6 -bottom-6 w-32 h-32 {{ $training->has_certificate ? 'bg-emerald-50 dark:bg-emerald-950/20' : 'bg-gray-50 dark:bg-gray-800' }} rounded-full opacity-60 pointer-events-none group-hover:scale-110 transition"></div>
 
-                <!-- Certificate Cards Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    @forelse($certificates as $cert)
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-emerald-300/80 dark:border-emerald-700/60 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between">
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between">
-                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold">
-                                    {{ $cert->certificate_number }}
+                        <div class="space-y-3 relative z-10">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                @if($training->has_certificate)
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[10px] font-extrabold border border-emerald-200 dark:border-emerald-800">
+                                    <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    {{ $currentUser && $currentUser->isAdmin() ? 'E-Sertifikat Aktif' : 'E-Sertifikat Siap Unduh' }}
                                 </span>
-                                <span class="text-xs text-gray-400">
-                                    {{ $cert->issued_date ? $cert->issued_date->format('d M Y') : '2026' }}
+                                @else
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-[10px] font-bold border border-gray-200 dark:border-gray-600">
+                                    Belum Ada E-Sertifikat
                                 </span>
+                                @endif
+
+                                @if($currentUser && $currentUser->isAdmin())
+                                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-200 font-bold">
+                                        {{ $training->certificates->count() }} Peternak Mengunduh
+                                    </span>
+                                @elseif($userCert)
+                                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-200 font-bold">
+                                        No: {{ $userCert->certificate_number }}
+                                    </span>
+                                @else
+                                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                        No. Sertifikat Otomatis
+                                    </span>
+                                @endif
                             </div>
+
                             <div>
-                                <h3 class="text-sm font-bold text-gray-900 dark:text-white leading-snug">{{ $cert->title }}</h3>
-                                <p class="text-xs text-emerald-800 dark:text-emerald-300 mt-1">Diberikan kepada: <strong>{{ $cert->recipient_name }}</strong></p>
+                                <h3 class="text-base font-bold text-gray-900 dark:text-white leading-snug group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition">
+                                    {{ $training->has_certificate && $training->certificate_title ? $training->certificate_title : $training->title }}
+                                </h3>
+                                <p class="text-xs text-gray-500 mt-1 line-clamp-2">
+                                    {{ $training->description ?? 'Program sertifikasi kompetensi peternak milenial oleh Dinas Peternakan Provinsi Jawa Timur.' }}
+                                </p>
                             </div>
-                            <div class="text-[11px] text-gray-500 border-t border-emerald-100 dark:border-gray-700 pt-2 flex items-center justify-between">
-                                <span>Verifikator: {{ $cert->verified_by }}</span>
-                                <span class="text-emerald-600 font-bold">&check; Valid</span>
+
+                            <div class="space-y-1.5 text-xs text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700/80 pt-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-400 text-[11px]">Program Pelatihan:</span>
+                                    <span class="font-medium text-gray-800 dark:text-gray-200 text-[11px] truncate max-w-[200px]">{{ $training->title }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-400 text-[11px]">Instruktur / Pemateri:</span>
+                                    <span class="font-medium text-gray-800 dark:text-gray-200 text-[11px]">{{ $training->instructor ?? 'Dinas Peternakan Jatim' }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-400 text-[11px]">Metode Bimtek:</span>
+                                    <span class="font-medium text-[11px] {{ $training->is_online ? 'text-indigo-600 dark:text-indigo-400' : 'text-emerald-600 dark:text-emerald-400' }}">
+                                        {{ $training->is_online ? 'Daring via Zoom' : 'Tatap Muka Lapangan' }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-400 text-[11px]">Status Penerbitan:</span>
+                                    <span class="font-bold text-[11px] {{ $training->has_certificate ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' }} flex items-center gap-1">
+                                        {{ $training->has_certificate ? '✓ Terverifikasi Resmi Disnak Jatim' : 'Belum Dibuatkan Sertifikat' }}
+                                    </span>
+                                </div>
                             </div>
+
+                            @if($currentUser && $currentUser->isAdmin() && $training->certificates->count() > 0)
+                            <div class="mt-2 pt-2 border-t border-dashed border-gray-200 dark:border-gray-700">
+                                <details class="text-[11px] text-gray-500">
+                                    <summary class="cursor-pointer font-medium text-emerald-700 dark:text-emerald-400 hover:underline">
+                                        Daftar {{ $training->certificates->count() }} Penerima E-Sertifikat
+                                    </summary>
+                                    <ul class="mt-2 space-y-1 pl-2 max-h-28 overflow-y-auto">
+                                        @foreach($training->certificates as $cert)
+                                        <li class="flex items-center justify-between text-[10px] text-gray-600 dark:text-gray-300 py-0.5 border-b border-gray-50 dark:border-gray-800">
+                                            <span>{{ $cert->recipient_name }}</span>
+                                            <span class="font-mono text-emerald-700 dark:text-emerald-400 font-semibold">{{ $cert->certificate_number }}</span>
+                                        </li>
+                                        @endforeach
+                                    </ul>
+                                </details>
+                            </div>
+                            @endif
                         </div>
 
-                        @if($currentUser && $currentUser->isAdmin())
-                        <div class="pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-end">
-                            <form action="{{ route('pelatihan.certificates.destroy', $cert) }}" method="POST" onsubmit="return confirm('Hapus sertifikat ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <input type="hidden" name="tab" value="sertifikat">
-                                <button type="submit" class="text-xs text-red-600 hover:text-red-800 font-medium">Hapus</button>
-                            </form>
+                        <!-- Card Action Footer -->
+                        <div class="pt-4 mt-3 border-t border-gray-100 dark:border-gray-700/80 relative z-10 flex items-center justify-between gap-3">
+                            @if($currentUser && $currentUser->isAdmin())
+                                {{-- ADMIN ACTIONS: MEMBUAT & MENGELOLA SERTIFIKAT (BUKAN MENDOWNLOAD) --}}
+                                @if($training->has_certificate)
+                                <span class="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">
+                                    E-Sertifikat Aktif
+                                </span>
+                                <div class="flex items-center gap-2">
+                                    <a
+                                        href="{{ route('pelatihan.certificates.preview', $training) }}"
+                                        target="_blank"
+                                        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-xs font-semibold shadow-2xs transition"
+                                    >
+                                        <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                        <span>Pratinjau Format</span>
+                                    </a>
+                                    <form action="{{ route('pelatihan.certificates.template.destroy', $training) }}" method="POST" onsubmit="return confirm('Nonaktifkan e-sertifikat untuk pelatihan ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" name="tab" value="sertifikat">
+                                        <button type="submit" class="inline-flex items-center px-2.5 py-2 rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 text-xs font-semibold transition cursor-pointer">
+                                            Nonaktifkan
+                                        </button>
+                                    </form>
+                                </div>
+                                @else
+                                <span class="text-[11px] text-gray-400">
+                                    Belum diterbitkan
+                                </span>
+                                <button
+                                    type="button"
+                                    onclick="openCreateCertificateModal({{ $training->id }}, '{{ addslashes($training->title) }}')"
+                                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition cursor-pointer"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                    <span>Buat Sertifikat</span>
+                                </button>
+                                @endif
+                            @else
+                                {{-- PESERTA ACTIONS: MENDOWNLOAD SERTIFIKAT --}}
+                                <span class="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">
+                                    {{ $userCert ? 'Telah Diterbitkan' : 'Siap Diunduh' }}
+                                </span>
+
+                                <a
+                                    href="{{ route('pelatihan.certificates.download', $training) }}"
+                                    target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs shadow-xs hover:shadow transition shrink-0"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.5V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                                    <span>Download Sertifikat</span>
+                                </a>
+                            @endif
                         </div>
-                        @endif
                     </div>
                     @empty
                     <div class="col-span-full py-12 text-center bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
@@ -1050,99 +1022,10 @@
 
         </div>
 
+        @if(!$currentUser || !$currentUser->isAdmin())
         <!-- Right Side Panel: "Your Profile" & Aktivitas Belajar (Ottertag Frame 26) -->
         <div class="lg:col-span-4 xl:col-span-3 space-y-5">
 
-            <!-- Profile Summary Card: Admin Manager Panel vs Peternak Learner Profile -->
-            @if($currentUser && $currentUser->isAdmin())
-            <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-200/90 dark:border-gray-700 p-5 shadow-2xs space-y-4">
-                <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Panel Pengelola Pelatihan</span>
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">ADMIN DINAS</span>
-                </div>
-
-                <!-- Admin Profile Header -->
-                <div class="flex flex-col items-center text-center space-y-2">
-                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 p-0.5 flex items-center justify-center shadow-md">
-                        <div class="w-full h-full rounded-full bg-white dark:bg-gray-800 p-1 flex items-center justify-center overflow-hidden">
-                            <img
-                                src="{{ asset('img/Peternak Milenial.png') }}"
-                                alt="Admin Avatar"
-                                class="w-full h-full object-contain"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">
-                            {{ $currentUser->name }}
-                        </h3>
-                        <p class="text-[11px] text-gray-400 mt-0.5">
-                            Administrator Dinas Peternakan Jawa Timur
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Admin LMS Operations Metrics -->
-                <div class="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-2.5">
-                    <div class="flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-gray-300">
-                        <span>Ringkasan Program LMS</span>
-                        <span class="text-indigo-600 font-bold">Aktif Dikelola</span>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2 text-xs">
-                        <div class="p-2.5 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-xl border border-indigo-100 dark:border-indigo-900/40 text-center">
-                            <span class="text-[10px] text-indigo-600 dark:text-indigo-400 block font-medium">Modul Video</span>
-                            <span class="font-extrabold text-indigo-900 dark:text-indigo-200 text-sm">{{ $totalMaterialsCount }} Modul</span>
-                        </div>
-                        <div class="p-2.5 bg-purple-50/70 dark:bg-purple-950/40 rounded-xl border border-purple-100 dark:border-purple-900/40 text-center">
-                            <span class="text-[10px] text-purple-600 dark:text-purple-400 block font-medium">Bank Kuis</span>
-                            <span class="font-extrabold text-purple-900 dark:text-purple-200 text-sm">{{ $quizzes->count() }} Kuis</span>
-                        </div>
-                        <div class="p-2.5 bg-blue-50/70 dark:bg-blue-950/40 rounded-xl border border-blue-100 dark:border-blue-900/40 text-center">
-                            <span class="text-[10px] text-blue-600 dark:text-blue-400 block font-medium">Sesi Zoom</span>
-                            <span class="font-extrabold text-blue-900 dark:text-blue-200 text-sm">{{ $zoomTrainings->count() }} Sesi</span>
-                        </div>
-                        <div class="p-2.5 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-900/40 text-center">
-                            <span class="text-[10px] text-emerald-600 dark:text-emerald-400 block font-medium">Pendaftar</span>
-                            <span class="font-extrabold text-emerald-900 dark:text-emerald-200 text-sm">{{ $allRegistrations->count() }} Orang</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Admin Quick Actions (Menambahkan Pelatihan) -->
-                <div class="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-2">
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500 block">Aksi Pengelola LMS</span>
-
-                    <button
-                        type="button"
-                        onclick="document.getElementById('modal-upload-materi-admin').classList.remove('hidden')"
-                        class="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-semibold text-xs transition cursor-pointer"
-                    >
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                        <span>+ Unggah Video &amp; Dokumen</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        onclick="document.getElementById('modal-jadwalkan-zoom-admin').classList.remove('hidden')"
-                        class="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-semibold text-xs transition cursor-pointer"
-                    >
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
-                        <span>+ Jadwalkan Sesi Zoom</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        onclick="document.getElementById('modal-buat-soal-admin').classList.remove('hidden')"
-                        class="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-semibold text-xs transition cursor-pointer"
-                    >
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 011.13-1.897L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
-                        <span>+ Tambah Butir Soal</span>
-                    </button>
-                </div>
-            </div>
-            @else
             <!-- Profile Summary Card with Circular Progress Ring (Peternak Learner) -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-200/90 dark:border-gray-700 p-5 shadow-2xs space-y-4">
                 <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
@@ -1168,7 +1051,7 @@
                                 fill="transparent"
                             />
                         </svg>
-                        <div class="absolute inset-1 rounded-full overflow-hidden bg-gray-100">
+                        <div class="absolute inset-1 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
                             <img
                                 src="{{ asset('img/Peternak Milenial.png') }}"
                                 alt="User Avatar"
@@ -1230,53 +1113,18 @@
                 <!-- Quick Stats List -->
                 <div class="grid grid-cols-2 gap-2 text-xs pt-1">
                     <div class="p-2.5 bg-gray-50 dark:bg-gray-750 rounded-xl text-center">
-                        <span class="text-[10px] text-gray-400 block">Sertifikat</span>
-                        <span class="font-extrabold text-emerald-600 text-sm">{{ $certificates->count() }} Terbit</span>
+                        <span class="text-[10px] text-gray-400 block font-medium">Sertifikat</span>
+                        <span class="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">{{ $certificates->count() }} Terbit</span>
                     </div>
                     <div class="p-2.5 bg-gray-50 dark:bg-gray-750 rounded-xl text-center">
-                        <span class="text-[10px] text-gray-400 block">Kuis Lulus</span>
-                        <span class="font-extrabold text-purple-600 text-sm">{{ $passedQuizzesCount }} Modul</span>
+                        <span class="text-[10px] text-gray-400 block font-medium">Kuis Lulus</span>
+                        <span class="font-extrabold text-purple-600 dark:text-purple-400 text-sm">{{ $passedQuizzesCount }} Modul</span>
                     </div>
                 </div>
-            </div>
-            @endif
-
-            <!-- Mentor List Quick Widget (Ottertag "Your Mentor" Sidebar) -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-200/90 dark:border-gray-700 p-5 shadow-2xs space-y-3.5">
-                <div class="flex items-center justify-between">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500">Mentor &amp; Dokter Jaga</h4>
-                    <span class="text-[10px] text-primary-700 font-semibold">Tersedia</span>
-                </div>
-
-                <div class="space-y-3">
-                    @foreach(array_slice($mentors, 0, 3) as $m)
-                    <div class="flex items-center justify-between gap-2.5">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <img src="{{ $m['avatar'] }}" alt="{{ $m['name'] }}" class="w-8 h-8 rounded-full object-cover border border-gray-200 shrink-0"/>
-                            <div class="min-w-0">
-                                <span class="text-xs font-bold text-gray-900 dark:text-white block truncate">{{ $m['name'] }}</span>
-                                <span class="text-[10px] text-gray-400 block truncate">{{ $m['specialty'] }}</span>
-                            </div>
-                        </div>
-                        <a
-                            href="{{ route('konsultasi') }}"
-                            class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-purple-100 text-purple-700 hover:bg-purple-200 transition shrink-0"
-                        >
-                            Tanya
-                        </a>
-                    </div>
-                    @endforeach
-                </div>
-
-                <a
-                    href="{{ route('konsultasi') }}"
-                    class="block text-center w-full py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-bold text-xs rounded-xl transition"
-                >
-                    Lihat Semua Dokter &amp; Mentor
-                </a>
             </div>
 
         </div>
+        @endif
 
     </div>
 
@@ -1773,6 +1621,67 @@
 </div>
 
 <!-- ============================================================== -->
+<!-- MODAL: ADMIN BUAT / TERBITKAN E-SERTIFIKAT PELATIHAN            -->
+<!-- ============================================================== -->
+<div id="modal-buat-sertifikat-admin" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[92vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 mb-4">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                    E-SERTIFIKASI DINAS
+                </span>
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mt-1">
+                    Buat E-Sertifikat Pelatihan Baru
+                </h3>
+            </div>
+            <button
+                type="button"
+                onclick="document.getElementById('modal-buat-sertifikat-admin').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 text-xl font-bold cursor-pointer"
+            >
+                &times;
+            </button>
+        </div>
+
+        <p class="text-xs text-gray-500 mb-4 leading-relaxed">
+            Sertifikat dibuat berbasis nama program pelatihan. Setelah diterbitkan, seluruh peserta dapat langsung mengunduh sertifikat resmi dengan nomor sertifikat otomatis yang berbeda.
+        </p>
+
+        <form method="POST" action="{{ route('pelatihan.certificates.issue') }}" class="space-y-4 text-xs">
+            @csrf
+            <input type="hidden" name="tab" value="sertifikat">
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Pilih Program Pelatihan <span class="text-red-500">*</span></label>
+                <select name="training_id" id="modal-cert-training-id" required onchange="handleTrainingSelectChange(this)" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white font-medium">
+                    <option value="">-- Pilih Program Pelatihan --</option>
+                    @foreach($trainings as $t)
+                        <option value="{{ $t->id }}" data-title="{{ $t->title }}">
+                            {{ $t->title }} {{ $t->has_certificate ? '✓ (Sudah Ada Sertifikat)' : '' }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Judul Sertifikasi / Kompetensi</label>
+                <input type="text" name="title" id="modal-cert-title" placeholder="cth: Sertifikasi Kompetensi Peternak Sapi Perah Higienis" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                <span class="text-[11px] text-gray-400 mt-1 block">Jika dikosongkan, otomatis menggunakan format: Sertifikasi Kompetensi: [Nama Pelatihan].</span>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <button type="button" onclick="document.getElementById('modal-buat-sertifikat-admin').classList.add('hidden')" class="px-4 py-2 rounded-xl text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition shadow-xs cursor-pointer">
+                    Terbitkan E-Sertifikat
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================== -->
 <!-- MODAL 7: ADMIN KELOLA DAFTAR BUTIR SOAL KUIS                  -->
 <!-- ============================================================== -->
 <div id="modal-kelola-soal-admin" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
@@ -1814,6 +1723,63 @@
             <button
                 type="button"
                 onclick="document.getElementById('modal-kelola-soal-admin').classList.add('hidden')"
+                class="px-5 py-2 rounded-xl text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 cursor-pointer"
+            >
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL 8: ADMIN LIHAT HASIL EVALUASI & NILAI KUIS PETERNAK     -->
+<!-- ============================================================== -->
+<div id="modal-hasil-kuis-admin" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[92vh] flex flex-col">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 mb-4 shrink-0">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                    HASIL EVALUASI &amp; NILAI KUIS
+                </span>
+                <h3 id="hr-quiz-title" class="text-base font-bold text-gray-900 dark:text-white mt-1">
+                    Judul Kuis
+                </h3>
+                <p class="text-xs text-gray-500 mt-0.5">
+                    Batas Minimum Kelulusan: <span id="hr-quiz-passing" class="font-bold text-emerald-600">70%</span> &bull; Total Mengerjakan: <span id="hr-quiz-count" class="font-bold text-gray-800 dark:text-gray-200">0</span> Peternak
+                </p>
+            </div>
+            <button
+                type="button"
+                onclick="document.getElementById('modal-hasil-kuis-admin').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-xl font-bold cursor-pointer"
+            >
+                &times;
+            </button>
+        </div>
+
+        <!-- Table Container -->
+        <div class="overflow-y-auto flex-1 border border-gray-100 dark:border-gray-700 rounded-2xl">
+            <table class="w-full text-xs text-left text-gray-600 dark:text-gray-300">
+                <thead class="text-[11px] text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-750 border-b border-gray-100 dark:border-gray-700 sticky top-0">
+                    <tr>
+                        <th class="px-4 py-3">Nama Peternak</th>
+                        <th class="px-4 py-3 text-center">Skor</th>
+                        <th class="px-4 py-3 text-center">Status</th>
+                        <th class="px-4 py-3 text-right">Waktu Pengerjaan</th>
+                    </tr>
+                </thead>
+                <tbody id="hr-attempts-list" class="divide-y divide-gray-100 dark:divide-gray-700">
+                    <!-- Dynamically populated via JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end shrink-0 mt-4">
+            <button
+                type="button"
+                onclick="document.getElementById('modal-hasil-kuis-admin').classList.add('hidden')"
                 class="px-5 py-2 rounded-xl text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 cursor-pointer"
             >
                 Tutup
@@ -1910,6 +1876,71 @@
         });
 
         document.getElementById('modal-kelola-soal-admin').classList.remove('hidden');
+    }
+
+    function openAdminQuizResultsModal(quiz, attempts) {
+        document.getElementById('hr-quiz-title').innerText = quiz.title;
+        document.getElementById('hr-quiz-passing').innerText = (quiz.passing_score || 70) + '%';
+        document.getElementById('hr-quiz-count').innerText = (attempts && attempts.length) ? attempts.length : 0;
+
+        const list = document.getElementById('hr-attempts-list');
+        list.innerHTML = '';
+
+        if (!attempts || attempts.length === 0) {
+            list.innerHTML = `
+                <tr>
+                    <td colspan="4" class="px-4 py-8 text-center text-gray-400 text-xs">
+                        Belum ada peternak yang mengerjakan kuis evaluasi ini.
+                    </td>
+                </tr>
+            `;
+            document.getElementById('modal-hasil-kuis-admin').classList.remove('hidden');
+            return;
+        }
+
+        attempts.forEach(att => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-50/80 dark:hover:bg-gray-700/40 transition';
+
+            const peternakName = att.user ? att.user.name : 'Peternak';
+            const isPassed = Boolean(att.passed);
+            const score = att.score;
+
+            let formattedTime = '-';
+            if (att.completed_at) {
+                const d = new Date(att.completed_at);
+                if (!isNaN(d.getTime())) {
+                    const day = String(d.getDate()).padStart(2, '0');
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                    const month = months[d.getMonth()];
+                    const year = d.getFullYear();
+                    const hours = String(d.getHours()).padStart(2, '0');
+                    const minutes = String(d.getMinutes()).padStart(2, '0');
+                    formattedTime = `${day} ${month} ${year} ${hours}:${minutes}`;
+                }
+            }
+
+            tr.innerHTML = `
+                <td class="px-4 py-3.5 font-semibold text-gray-900 dark:text-white">
+                    ${peternakName}
+                </td>
+                <td class="px-4 py-3.5 text-center font-bold ${isPassed ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}">
+                    ${score} / 100
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isPassed ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300'}">
+                        ${isPassed ? 'LULUS' : 'MENGULANG'}
+                    </span>
+                </td>
+                <td class="px-4 py-3.5 text-right text-gray-400">
+                    ${formattedTime}
+                </td>
+            `;
+
+            list.appendChild(tr);
+        });
+
+        document.getElementById('modal-hasil-kuis-admin').classList.remove('hidden');
     }
 
     function switchToCreateQuestionFromManage() {
@@ -2076,6 +2107,30 @@
         const selectedOption = select.options[select.selectedIndex];
         const actionUrl = selectedOption.getAttribute('data-action');
         document.getElementById('form-tambah-soal').action = actionUrl;
+    }
+
+    // Certificate Modal Helpers
+    function openCreateCertificateModal(trainingId = null, trainingTitle = '') {
+        const modal = document.getElementById('modal-buat-sertifikat-admin');
+        if (!modal) return;
+        const select = document.getElementById('modal-cert-training-id');
+        const titleInput = document.getElementById('modal-cert-title');
+        if (trainingId && select) {
+            select.value = trainingId;
+            if (titleInput && trainingTitle) {
+                titleInput.value = 'Sertifikasi Kompetensi: ' + trainingTitle;
+            }
+        }
+        modal.classList.remove('hidden');
+    }
+
+    function handleTrainingSelectChange(select) {
+        const selectedOption = select.options[select.selectedIndex];
+        const trainingTitle = selectedOption.getAttribute('data-title');
+        const titleInput = document.getElementById('modal-cert-title');
+        if (trainingTitle && titleInput && !titleInput.value) {
+            titleInput.value = 'Sertifikasi Kompetensi: ' + trainingTitle;
+        }
     }
 
     // Initialize select action on load

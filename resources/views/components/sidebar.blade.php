@@ -262,22 +262,22 @@
                     </button>
                     <ul id="dropdown-pelatihan" class="{{ (request()->is('pelatihan*') || request()->is('pembelajaran*')) ? '' : 'hidden' }} py-1 space-y-0.5">
                         <li>
-                            <a href="{{ url('/pelatihan?tab=pembelajaran') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && (request('tab') === 'pembelajaran' || request('tab') === 'modul' || !request()->has('tab'))) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
-                                Video &amp; Modul Belajar
+                            <a href="{{ url('/pelatihan?tab=pembelajaran') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && (request('tab') === 'pembelajaran' || request('tab') === 'modul' || !request()->has('tab'))) ? 'text-primary-700 font-semibold bg-gray-100 dark:bg-gray-700/60 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                Video &amp; Pembelajaran
                             </a>
                         </li>
                         <li>
-                            <a href="{{ url('/pelatihan?tab=zoom') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && (request('tab') === 'zoom' || request('tab') === 'jadwal')) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                            <a href="{{ url('/pelatihan?tab=zoom') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && (request('tab') === 'zoom' || request('tab') === 'jadwal')) ? 'text-primary-700 font-semibold bg-gray-100 dark:bg-gray-700/60 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
                                 Jadwal Kelas Zoom
                             </a>
                         </li>
                         <li>
-                            <a href="{{ url('/pelatihan?tab=kuis') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && request('tab') === 'kuis') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                            <a href="{{ url('/pelatihan?tab=kuis') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && request('tab') === 'kuis') ? 'text-primary-700 font-semibold bg-gray-100 dark:bg-gray-700/60 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
                                 Kuis &amp; Soal Evaluasi
                             </a>
                         </li>
                         <li>
-                            <a href="{{ url('/pelatihan?tab=sertifikat') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && request('tab') === 'sertifikat') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                            <a href="{{ url('/pelatihan?tab=sertifikat') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && request('tab') === 'sertifikat') ? 'text-primary-700 font-semibold bg-gray-100 dark:bg-gray-700/60 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
                                 Sertifikat Digital
                             </a>
                         </li>

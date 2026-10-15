@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Certificate;
 use App\Models\LearningMaterial;
 use App\Models\LearningQuiz;
 use App\Models\QuizAttempt;
@@ -34,7 +35,7 @@ test('learning route alias /pembelajaran works seamlessly', function () {
     $response = $this->actingAs($peternak)->get(route('pembelajaran'));
 
     $response->assertOk();
-    $response->assertSee('E-Learning Peternak Milenial Jatim');
+    $response->assertSee('Pembelajaran &amp; Bimbingan Teknis', false);
 });
 
 test('peternak can track video watch progress', function () {
@@ -207,8 +208,9 @@ test('admin sees trainer management controls and does not see quiz taking button
     $response = $this->actingAs($admin)->get(route('pelatihan', ['tab' => 'kuis']));
 
     $response->assertOk();
-    $response->assertSee('Panel Pengelola Pelatihan');
-    $response->assertSee('+ Butir Soal');
+    $response->assertSee('Bank Soal &amp; Kuis Evaluasi Pembelajaran', false);
+    $response->assertSee('Hasil Nilai');
+    $response->assertSee('Butir Soal');
     $response->assertDontSee('Kerjakan Soal');
 });
 
@@ -219,7 +221,7 @@ test('peternak sees quiz taking button and does not see admin creation controls'
 
     $response->assertOk();
     $response->assertSee('Kerjakan Soal');
-    $response->assertDontSee('+ Tambah Butir Soal Baru');
+    $response->assertDontSee('Tambah Butir Soal Baru');
 });
 
 test('admin can create a new quiz for a learning material', function () {
@@ -248,4 +250,92 @@ test('admin can create a new quiz for a learning material', function () {
     expect($createdQuiz)->not->toBeNull();
     expect($createdQuiz->title)->toBe('Kuis Pemahaman Budidaya Kambing PE');
     expect($createdQuiz->passing_score)->toBe(75);
+});
+
+test('sidebar has dedicated sub-navigation for Pembelajaran & Bimtek and page renders dedicated section without in-page tab bar', function () {
+    $admin = User::where('role', 'admin')->first();
+
+    // 1. Visit Video & Pembelajaran
+    $responsePembelajaran = $this->actingAs($admin)->get(route('pelatihan', ['tab' => 'pembelajaran']));
+    $responsePembelajaran->assertOk();
+    $responsePembelajaran->assertSee('Video &amp; Pembelajaran', false);
+    $responsePembelajaran->assertSee('Video &amp; Modul Pembelajaran Mandiri', false);
+    $responsePembelajaran->assertSee('Unggah Video &amp; Dokumen', false);
+
+    // 2. Visit Jadwal Kelas Zoom
+    $responseZoom = $this->actingAs($admin)->get(route('pelatihan', ['tab' => 'zoom']));
+    $responseZoom->assertOk();
+    $responseZoom->assertSee('Jadwal Pembelajaran &amp; Kelas Zoom Interaktif', false);
+    $responseZoom->assertSee('Jadwalkan Sesi Zoom Baru', false);
+
+    // 3. Visit Kuis & Soal Evaluasi
+    $responseKuis = $this->actingAs($admin)->get(route('pelatihan', ['tab' => 'kuis']));
+    $responseKuis->assertOk();
+    $responseKuis->assertSee('Bank Soal &amp; Kuis Evaluasi Pembelajaran', false);
+    $responseKuis->assertSee('Tambah Butir Soal Baru', false);
+
+    // 4. Visit Sertifikat Digital as Admin (Admin creates & manages, does not download)
+    $responseSertifikat = $this->actingAs($admin)->get(route('pelatihan', ['tab' => 'sertifikat']));
+    $responseSertifikat->assertOk();
+    $responseSertifikat->assertSee('Manajemen E-Sertifikat Pelatihan', false);
+    $responseSertifikat->assertSee('Buat Sertifikat Baru', false);
+    $responseSertifikat->assertDontSee('Download Sertifikat', false);
+});
+
+test('admin can create and preview training certificate, while peternak directly downloads with unique number', function () {
+    $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+    $training = Training::create([
+        'title' => 'Teknologi Fermentasi Pakan Ternak Ruminansia',
+        'slug' => 'teknologi-fermentasi-pakan-ternak-ruminansia-'.time(),
+        'description' => 'Panduan fermentasi pakan ternak hijauan.',
+        'instructor' => 'Dr. Hendro Wibowo',
+        'start_date' => now()->toDateString(),
+        'end_date' => now()->addDays(2)->toDateString(),
+        'location' => 'BBPP Batu',
+        'quota' => 50,
+        'has_certificate' => false,
+    ]);
+
+    // Admin creates certificate for this training based on training name
+    $createResponse = $this->actingAs($admin)->post(route('pelatihan.certificates.issue'), [
+        'training_id' => $training->id,
+        'title' => 'Sertifikasi Ahli Fermentasi Pakan Ternak Jatim',
+        'tab' => 'sertifikat',
+    ]);
+
+    $createResponse->assertRedirect(route('pelatihan', ['tab' => 'sertifikat']));
+    $training->refresh();
+    expect($training->has_certificate)->toBeTrue();
+    expect($training->certificate_title)->toBe('Sertifikasi Ahli Fermentasi Pakan Ternak Jatim');
+
+    // Admin can preview template
+    $previewResponse = $this->actingAs($admin)->get(route('pelatihan.certificates.preview', $training));
+    $previewResponse->assertOk();
+    $previewResponse->assertSee('Mode Pratinjau Format (Admin)');
+    $previewResponse->assertSee($training->certificate_title);
+
+    // Two participants download the certificate
+    $peternak1 = User::factory()->create(['name' => 'Ahmad Subagyo', 'role' => 'peternak']);
+    $peternak2 = User::factory()->create(['name' => 'Bambang Sudarsono', 'role' => 'peternak']);
+
+    // Peternak 1 downloads
+    $response1 = $this->actingAs($peternak1)->get(route('pelatihan.certificates.download', $training));
+    $response1->assertOk();
+    $response1->assertSee('Ahmad Subagyo');
+    $response1->assertSee($training->certificate_title);
+    $response1->assertSee('DISNAK-JTM-');
+
+    // Peternak 2 downloads
+    $response2 = $this->actingAs($peternak2)->get(route('pelatihan.certificates.download', $training));
+    $response2->assertOk();
+    $response2->assertSee('Bambang Sudarsono');
+    $response2->assertSee($training->certificate_title);
+    $response2->assertSee('DISNAK-JTM-');
+
+    $cert1 = Certificate::where('user_id', $peternak1->id)->where('training_id', $training->id)->first();
+    $cert2 = Certificate::where('user_id', $peternak2->id)->where('training_id', $training->id)->first();
+
+    expect($cert1)->not->toBeNull();
+    expect($cert2)->not->toBeNull();
+    expect($cert1->certificate_number)->not->toBe($cert2->certificate_number);
 });

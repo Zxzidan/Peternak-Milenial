@@ -48,43 +48,82 @@ class TrainingController extends Controller
         $materials = $materialsQuery->latest()->get();
 
         // 2. Sesi Pembelajaran & Bimtek Daring via Zoom
-        $zoomTrainings = Training::withCount('registrations')
+        $zoomQuery = Training::withCount('registrations')
             ->where(function ($q) {
                 $q->where('is_online', true)->orWhereNotNull('zoom_link');
-            })
-            ->orderBy('start_date')
-            ->get();
+            });
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $zoomQuery->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('instructor', 'like', "%{$search}%");
+            });
+        }
+
+        $zoomTrainings = $zoomQuery->orderBy('start_date')->get();
 
         // 3. Seluruh Program Bimtek (Termasuk Tatap Muka Lapangan)
         $trainings = Training::withCount('registrations')
+            ->with(['certificates.user'])
             ->orderBy('start_date')
             ->get();
 
+        // E-Sertifikat Pelatihan: Peternak hanya melihat pelatihan yang telah dibuatkan sertifikat oleh Admin
+        $certificateTrainings = $currentUser && $currentUser->isPeternak()
+            ? $trainings->filter(fn ($t) => $t->has_certificate || $t->certificates->where('user_id', $currentUser->id)->isNotEmpty())
+            : $trainings;
+
         // 4. Kuis Evaluasi Pembelajaran
-        $quizzes = LearningQuiz::with(['learningMaterial', 'questions', 'attempts.user'])
-            ->where('is_active', true)
-            ->latest()
-            ->get();
+        $quizzesQuery = LearningQuiz::with(['learningMaterial', 'questions', 'attempts.user'])
+            ->where('is_active', true);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $quizzesQuery->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('learningMaterial', function ($mq) use ($search) {
+                        $mq->where('title', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $quizzes = $quizzesQuery->latest()->get();
 
         // 5. Sertifikat Digital & Riwayat Pengerjaan Kuis
+        $certQuery = Certificate::with(['training', 'user']);
+
+        if ($currentUser && $currentUser->isPeternak()) {
+            $certQuery->where('user_id', $currentUser->id);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $certQuery->where(function ($q) use ($search) {
+                $q->where('certificate_number', 'like', "%{$search}%")
+                    ->orWhere('title', 'like', "%{$search}%")
+                    ->orWhere('recipient_name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($currentUser && ($currentUser->isAdmin() || $currentUser->isPeternak())) {
+            $certificates = $certQuery->latest('issued_date')->get();
+        } else {
+            $certificates = collect();
+        }
+
         if ($currentUser && $currentUser->isAdmin()) {
-            $certificates = Certificate::with(['training', 'user'])
-                ->latest('issued_date')
-                ->get();
             $quizAttempts = QuizAttempt::with(['quiz.learningMaterial', 'user'])
                 ->latest()
                 ->get();
         } elseif ($currentUser && $currentUser->isPeternak()) {
-            $certificates = Certificate::with(['training', 'user'])
-                ->where('user_id', $currentUser->id)
-                ->latest('issued_date')
-                ->get();
             $quizAttempts = QuizAttempt::with(['quiz.learningMaterial', 'user'])
                 ->where('user_id', $currentUser->id)
                 ->latest()
                 ->get();
         } else {
-            $certificates = collect();
             $quizAttempts = collect();
         }
 
@@ -159,6 +198,7 @@ class TrainingController extends Controller
             'materials' => $materials,
             'zoomTrainings' => $zoomTrainings,
             'trainings' => $trainings,
+            'certificateTrainings' => $certificateTrainings,
             'quizzes' => $quizzes,
             'certificates' => $certificates,
             'myRegistrations' => $myRegistrations,
@@ -804,50 +844,82 @@ class TrainingController extends Controller
     /**
      * Issue a digital certificate for a peternak (Admin only).
      */
+    /**
+     * Issue/create a certificate for a training program (Admin only).
+     * Based on training name - no individual recipient selection required.
+     */
     public function issueCertificate(Request $request): RedirectResponse
     {
         if (auth()->check() && ! auth()->user()->isAdmin()) {
-            abort(403, 'Hanya Admin Dinas yang berwenang menerbitkan sertifikat digital.');
+            abort(403, 'Hanya Admin Dinas yang berwenang membuat sertifikat digital.');
         }
 
         $validated = $request->validate([
-            'user_id' => ['required', 'exists:users,id'],
-            'training_id' => ['nullable', 'exists:trainings,id'],
+            'training_id' => ['required', 'exists:trainings,id'],
             'title' => ['nullable', 'string', 'max:255'],
-            'recipient_name' => ['nullable', 'string', 'max:255'],
-            'issued_date' => ['nullable', 'date'],
-            'certificate_number' => ['nullable', 'string', 'max:100'],
         ]);
 
-        $recipientUser = User::find($validated['user_id']);
-        $training = ! empty($validated['training_id']) ? Training::find($validated['training_id']) : null;
+        $training = Training::findOrFail($validated['training_id']);
+        $certTitle = ! empty($validated['title'])
+            ? $validated['title']
+            : ('Sertifikasi Kompetensi: '.$training->title);
 
-        $recipientName = $validated['recipient_name'] ?? ($recipientUser?->name ?? 'Peternak Binaan');
-        $title = $validated['title'] ?? ($training ? 'Sertifikasi Pelatihan: '.$training->title : 'Sertifikasi Kompetensi Peternak Milenial');
-        $issuedDate = $validated['issued_date'] ?? now()->toDateString();
-        $certNum = ! empty($validated['certificate_number'])
-            ? $validated['certificate_number']
-            : 'DISNAK-JTM-'.date('Y').'-'.str_pad(Certificate::count() + 1, 4, '0', STR_PAD_LEFT);
-
-        Certificate::create([
-            'user_id' => $validated['user_id'],
-            'training_id' => $validated['training_id'] ?? null,
-            'certificate_number' => $certNum,
-            'recipient_name' => $recipientName,
-            'recipient_code' => 'NIK-'.rand(1000, 9999),
-            'title' => $title,
-            'issued_date' => $issuedDate,
-            'verified_by' => 'Dinas Peternakan Provinsi Jawa Timur',
+        $training->update([
+            'has_certificate' => true,
+            'certificate_title' => $certTitle,
         ]);
 
         $targetTab = $request->input('tab', 'sertifikat');
 
         return redirect()->to(route('pelatihan', ['tab' => $targetTab]))
-            ->with('success', "Sertifikat digital '{$certNum}' berhasil diterbitkan untuk {$recipientName}.");
+            ->with('success', "E-Sertifikat resmi untuk program '{$training->title}' berhasil dibuat dan siap diunduh oleh peserta.");
     }
 
     /**
-     * Delete a certificate (Admin only).
+     * Deactivate / delete a training certificate template (Admin only).
+     */
+    public function destroyCertificateTemplate(Training $training): RedirectResponse
+    {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang mengelola sertifikat digital.');
+        }
+
+        $training->update([
+            'has_certificate' => false,
+            'certificate_title' => null,
+        ]);
+
+        $targetTab = request()->query('tab', 'sertifikat');
+
+        return redirect()->to(route('pelatihan', ['tab' => $targetTab]))
+            ->with('success', "E-Sertifikat untuk program '{$training->title}' berhasil dinonaktifkan.");
+    }
+
+    /**
+     * Preview certificate template for admin without claiming a personal certificate.
+     */
+    public function previewCertificate(Training $training): View
+    {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
+            abort(403, 'Hanya Admin Dinas yang berwenang melihat pratinjau sertifikat.');
+        }
+
+        $certificate = new Certificate([
+            'certificate_number' => 'DISNAK-JTM-'.date('Y').'-CONTOH',
+            'recipient_name' => '[Nama Lengkap Peserta]',
+            'recipient_code' => 'NIK-PESERTA-XXXX',
+            'title' => $training->certificate_title ?? ('Sertifikasi Pelatihan: '.$training->title),
+            'issued_date' => now(),
+            'verified_by' => 'Dinas Peternakan Provinsi Jawa Timur',
+        ]);
+
+        $isPreview = true;
+
+        return view('certificates.show', compact('certificate', 'training', 'isPreview'));
+    }
+
+    /**
+     * Delete an issued individual certificate (Admin only).
      */
     public function destroyCertificate(Certificate $certificate): RedirectResponse
     {
@@ -862,5 +934,58 @@ class TrainingController extends Controller
 
         return redirect()->to(route('pelatihan', ['tab' => $targetTab]))
             ->with('success', "Sertifikat digital '{$certNum}' berhasil dihapus.");
+    }
+
+    /**
+     * Download or view the official digital certificate for a specific training (Participant/Peternak).
+     * Automatically assigns a unique certificate number for each participant.
+     */
+    public function downloadCertificate(Request $request, Training $training): View|RedirectResponse
+    {
+        $currentUser = auth()->user();
+
+        if (! $currentUser) {
+            return redirect()->route('login');
+        }
+
+        // Peserta hanya dapat mengunduh jika sertifikat sudah dibuatkan oleh admin
+        if (! $training->has_certificate && ! $currentUser->isAdmin()) {
+            return redirect()->to(route('pelatihan', ['tab' => 'sertifikat']))
+                ->with('error', 'E-Sertifikat untuk pelatihan ini belum diterbitkan oleh Admin.');
+        }
+
+        $targetUserId = $currentUser->id;
+        if ($currentUser->isAdmin() && $request->filled('user_id')) {
+            $targetUserId = $request->integer('user_id');
+        }
+
+        $targetUser = User::find($targetUserId) ?? $currentUser;
+
+        // Retrieve existing certificate or automatically generate a unique one
+        $certificate = Certificate::where('user_id', $targetUser->id)
+            ->where('training_id', $training->id)
+            ->first();
+
+        if (! $certificate) {
+            $certCount = (Certificate::max('id') ?? 0) + 1;
+            $certNum = 'DISNAK-JTM-'.date('Y').'-'.str_pad($certCount, 4, '0', STR_PAD_LEFT);
+            while (Certificate::where('certificate_number', $certNum)->exists()) {
+                $certCount++;
+                $certNum = 'DISNAK-JTM-'.date('Y').'-'.str_pad($certCount, 4, '0', STR_PAD_LEFT);
+            }
+
+            $certificate = Certificate::create([
+                'user_id' => $targetUser->id,
+                'training_id' => $training->id,
+                'certificate_number' => $certNum,
+                'recipient_name' => $targetUser->name,
+                'recipient_code' => $targetUser->nik ?? ('NIK-'.rand(1000, 9999)),
+                'title' => $training->certificate_title ?? ('Sertifikasi Pelatihan: '.$training->title),
+                'issued_date' => now()->toDateString(),
+                'verified_by' => 'Dinas Peternakan Provinsi Jawa Timur',
+            ]);
+        }
+
+        return view('certificates.show', compact('certificate', 'training'));
     }
 }
