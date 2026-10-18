@@ -41,6 +41,8 @@ Route::middleware(['role:admin,peternak'])->group(function () {
     Route::get('/pelatihan', [TrainingController::class, 'index'])->name('pelatihan');
     Route::get('/pembelajaran', [TrainingController::class, 'index'])->name('pembelajaran');
     Route::post('/pelatihan/{training}/daftar', [TrainingController::class, 'register'])->name('pelatihan.register');
+    Route::post('/pelatihan/{training}/daftar-offline', [TrainingController::class, 'registerOffline'])->name('pelatihan.register.offline');
+    Route::get('/pelatihan/registrations/{registration}/dokumen', [TrainingController::class, 'downloadRequirementDocument'])->name('pelatihan.registration.document');
     Route::delete('/pelatihan/registrations/{registration}', [TrainingController::class, 'cancelRegistration'])->name('pelatihan.cancel');
     Route::post('/pelatihan/materi/{material}/progress', [TrainingController::class, 'updateVideoProgress'])->name('pelatihan.materials.progress');
     Route::post('/pelatihan/kuis/{quiz}/submit', [TrainingController::class, 'submitQuiz'])->name('pelatihan.quiz.submit');

@@ -17,6 +17,11 @@ class TrainingRegistration extends Model
         'status',
         'registered_at',
         'notes',
+        'requirement_document_path',
+        'requirement_document_name',
+        'nik',
+        'farm_name',
+        'phone_number',
     ];
 
     protected function casts(): array

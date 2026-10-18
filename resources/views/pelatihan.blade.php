@@ -10,8 +10,10 @@
         $activeTab = 'pembelajaran';
     } elseif ($activeTab === 'jadwal' && !request()->has('view_offline')) {
         $activeTab = 'zoom';
+    } elseif (in_array($activeTab, ['bimtek_offline', 'jadwal_offline', 'offline', 'tatap_muka'])) {
+        $activeTab = 'bimtek_offline';
     }
-    if (!in_array($activeTab, ['pembelajaran', 'zoom', 'kuis', 'sertifikat', 'jadwal_offline'])) {
+    if (!in_array($activeTab, ['pembelajaran', 'zoom', 'bimtek_offline', 'kuis', 'sertifikat'])) {
         $activeTab = 'pembelajaran';
     }
 
@@ -123,6 +125,8 @@
                     Video &amp; Modul Pembelajaran Mandiri
                 @elseif($activeTab === 'zoom')
                     Jadwal Pembelajaran &amp; Kelas Zoom Interaktif
+                @elseif($activeTab === 'bimtek_offline')
+                    Bimbingan Teknis (Bimtek) Tatap Muka Lapangan
                 @elseif($activeTab === 'kuis')
                     Bank Soal &amp; Kuis Evaluasi Pembelajaran
                 @elseif($activeTab === 'sertifikat')
@@ -135,6 +139,8 @@
                     Kelola kurikulum video pembelajaran, jadwalkan Bimtek daring via Zoom beserta dokumen materi, susun butir bank soal evaluasi kuis, dan pantau kelulusan kompetensi peternak milenial.
                 @elseif($activeTab === 'zoom')
                     Kelola jadwal bimbingan teknis interaktif tatap maya melalui Zoom Meeting bersama instruktur ahli BBPP Batu dan bagikan dokumen silabus resmi.
+                @elseif($activeTab === 'bimtek_offline')
+                    Kelola program Bimbingan Teknis (Bimtek) tatap muka lapangan, pantau nomor registrasi peserta, dan verifikasi dokumen persyaratan resmi peternak milenial.
                 @elseif($activeTab === 'kuis')
                     Kelola bank soal evaluasi pemahaman modul. Tambahkan butir pertanyaan pilihan ganda (A, B, C, D) dan pantau capaian nilai kompetensi peternak.
                 @elseif($activeTab === 'sertifikat')
@@ -160,6 +166,15 @@
                 >
                     <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
                     <span>Jadwalkan Sesi Zoom Baru</span>
+                </button>
+                @elseif($activeTab === 'bimtek_offline')
+                <button
+                    type="button"
+                    onclick="document.getElementById('modal-jadwalkan-bimtek-offline-admin').classList.remove('hidden')"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs shadow-xs hover:bg-indigo-50 transition cursor-pointer"
+                >
+                    <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                    <span>Jadwalkan Bimtek Offline Baru</span>
                 </button>
                 @elseif($activeTab === 'kuis')
                 <button
@@ -187,6 +202,8 @@
                     Akses video pembelajaran resmi, unduh dokumen panduan SOP standar BBPP Batu &amp; Fapet UB, kerjakan soal kuis pemahaman, dan ikuti kelas daring interaktif via Zoom.
                 @elseif($activeTab === 'zoom')
                     Ikuti bimbingan teknis daring interaktif tatap maya bersama instruktur ahli BBPP Batu dan narasumber perbankan/industri peternakan.
+                @elseif($activeTab === 'bimtek_offline')
+                    Daftar program bimbingan teknis tatap muka lapangan di Balai Besar Pelatihan Peternakan (BBPP) dan Puskeswan Jawa Timur dengan mengunggah dokumen persyaratan resmi untuk dicatat nomor registrasinya.
                 @elseif($activeTab === 'kuis')
                     Kerjakan butir soal pilihan ganda evaluasi setelah menyimak modul pembelajaran untuk menguji kesiapan dan pemahaman SOP peternakan Anda.
                 @elseif($activeTab === 'sertifikat')
@@ -217,6 +234,14 @@
                 >
                     <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
                     <span>Lihat Sesi Zoom Terbuka</span>
+                </a>
+                @elseif($activeTab === 'bimtek_offline')
+                <a
+                    href="#section-bimtek-offline"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs shadow-xs hover:bg-indigo-50 transition cursor-pointer"
+                >
+                    <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                    <span>Lihat Jadwal Bimtek Lapangan ({{ $upcomingOfflineCount }})</span>
                 </a>
                 @elseif($activeTab === 'kuis')
                 <a
@@ -250,6 +275,8 @@
                     Video &amp; Pembelajaran
                 @elseif($activeTab === 'zoom')
                     Jadwal Kelas Zoom
+                @elseif($activeTab === 'bimtek_offline')
+                    Bimtek Offline (Tatap Muka)
                 @elseif($activeTab === 'kuis')
                     Kuis &amp; Soal Evaluasi
                 @elseif($activeTab === 'sertifikat')
@@ -265,11 +292,8 @@
         @endif
     </div>
 
-    <!-- 4. Main Content Area (Full width for Admin, 2-Column for Peternak) -->
-    <div class="grid grid-cols-1 {{ ($currentUser && $currentUser->isAdmin()) ? '' : 'lg:grid-cols-12' }} gap-6 sm:gap-7 items-start">
-
-        <!-- Left / Main Column: Courses / Zoom / Quizzes -->
-        <div class="{{ ($currentUser && $currentUser->isAdmin()) ? 'w-full' : 'lg:col-span-8 xl:col-span-9' }} space-y-7">
+    <!-- 4. Main Content Area -->
+    <div class="w-full space-y-7">
 
             @if($activeTab === 'pembelajaran')
             <!-- ========================================== -->
@@ -675,6 +699,266 @@
                 </div>
             </div>
 
+            @elseif($activeTab === 'bimtek_offline')
+            <!-- ======================================================== -->
+            <!-- TAB: BIMTEK (BIMBINGAN TEKNIS) TATAP MUKA LAPANGAN / OFFLINE -->
+            <!-- ======================================================== -->
+            <div id="section-bimtek-offline" class="space-y-6">
+
+                <!-- Header Title & Action Buttons -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 text-[11px] font-extrabold uppercase tracking-wide">
+                                Tatap Muka Lapangan
+                            </span>
+                            <span class="text-xs text-gray-500">BBPP Batu &amp; Sentra Peternakan Jatim</span>
+                        </div>
+                        <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                            Jadwal Bimbingan Teknis (Bimtek) Offline &amp; Praktik Lapangan
+                        </h2>
+                        <p class="text-xs text-gray-500">
+                            Pelatihan langsung di sentra peternakan, Balai Pelatihan (BBPP), dan Puskeswan Jawa Timur dengan fasilitas praktik komprehensif.
+                        </p>
+                    </div>
+
+                    @if($currentUser && $currentUser->isAdmin())
+                    <div class="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onclick="document.getElementById('modal-jadwalkan-bimtek-offline-admin').classList.remove('hidden')"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                            <span>Jadwalkan Bimtek Offline</span>
+                        </button>
+                    </div>
+                    @endif
+                </div>
+
+                <!-- Callout Banner: Persyaratan Dokumen & Pencatatan Nomor Registrasi -->
+                <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-green-50 dark:from-emerald-950/40 dark:via-gray-800 dark:to-emerald-950/30 border border-emerald-200/90 dark:border-emerald-800/60 shadow-2xs">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="flex items-start gap-3.5">
+                            <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                                </svg>
+                            </div>
+                            <div class="space-y-1">
+                                <h4 class="text-xs sm:text-sm font-bold text-emerald-950 dark:text-emerald-100 flex items-center gap-2">
+                                    <span>Alur Pendaftaran Bimtek (Bimbingan Teknis) Tatap Muka</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-200 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-200 uppercase">SOP Dinas</span>
+                                </h4>
+                                <p class="text-xs text-emerald-800 dark:text-emerald-300/90 leading-relaxed max-w-3xl">
+                                    Namun, jika memilih Bimtek (Bimbingan Teknis), peternak <strong>harus mendaftar dan mengunggah dokumen persyaratan</strong> terlebih dahulu (scan KTP / Surat Keterangan Usaha Peternakan / Rekomendasi Kelompok Ternak) untuk <strong>dicatat nomor registrasinya</strong> oleh sistem aplikasi Dinas Peternakan Provinsi Jawa Timur.
+                                </p>
+                            </div>
+                        </div>
+
+                        @if($currentUser && $currentUser->isPeternak() && $myRegistrations->where('training.is_online', false)->isNotEmpty())
+                        <div class="shrink-0 bg-white dark:bg-gray-800 py-2 px-3.5 rounded-xl border border-emerald-200 dark:border-emerald-700 shadow-2xs">
+                            <span class="text-[10px] text-gray-500 dark:text-gray-400 block font-medium">Bimtek Anda Ikuti:</span>
+                            <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 font-mono">
+                                {{ $myRegistrations->where('training.is_online', false)->count() }} Program Terdaftar
+                            </span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Registration Success Ticket Card (Flash session) -->
+                @if(session('registered_ticket'))
+                @php $tkt = session('registered_ticket'); @endphp
+                <div class="p-5 rounded-2xl bg-white dark:bg-gray-800 border-2 border-emerald-500 shadow-md space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700">
+                        <div class="flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">&check;</span>
+                            <div>
+                                <h3 class="text-sm font-extrabold text-emerald-800 dark:text-emerald-300">Nomor Registrasi Resmi Diterbitkan &amp; Dicatat Sistem!</h3>
+                                <p class="text-[11px] text-gray-500">Pendaftaran Anda telah tersimpan lengkap dengan berkas dokumen persyaratan.</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-mono px-3 py-1 bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200 font-bold rounded-lg border border-emerald-300 dark:border-emerald-700">
+                            {{ $tkt['registration_code'] ?? 'REG-BMTK' }}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs bg-gray-50 dark:bg-gray-750 p-3.5 rounded-xl">
+                        <div>
+                            <span class="text-[10px] text-gray-400 block">Nomor Registrasi</span>
+                            <strong class="font-mono text-emerald-700 dark:text-emerald-400 text-sm">{{ $tkt['registration_code'] }}</strong>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-gray-400 block">Program Bimtek</span>
+                            <span class="font-bold text-gray-800 dark:text-gray-200">{{ $tkt['training_title'] }}</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-gray-400 block">Lokasi Tatap Muka</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">{{ $tkt['location'] }}</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-gray-400 block">Dokumen Persyaratan</span>
+                            <span class="font-medium text-emerald-700 dark:text-emerald-400 truncate block">{{ $tkt['document_name'] ?? 'Dokumen Terlampir' }}</span>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Bimtek Offline Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                    @forelse($offlineTrainings as $ot)
+                    @php
+                        $myReg = $myRegistrations->firstWhere('training_id', $ot->id);
+                        $isRegistered = ($myReg !== null);
+                    @endphp
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 {{ $isRegistered ? 'border-emerald-400/80 dark:border-emerald-700 shadow-sm' : 'border-gray-200/90 dark:border-gray-700 shadow-2xs' }} p-5 hover:shadow-md transition-all flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <!-- Status Badges & Schedule -->
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                                        TATAP MUKA LAPANGAN
+                                    </span>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                        {{ $ot->cost_type === 'gratis_apbd' ? 'Gratis APBD' : 'Mandiri' }}
+                                    </span>
+                                </div>
+
+                                <span class="text-xs font-semibold text-gray-500">
+                                    {{ $ot->start_date ? $ot->start_date->format('d M Y') : 'Terjadwal' }}
+                                    @if($ot->end_date && $ot->end_date != $ot->start_date)
+                                        s/d {{ $ot->end_date->format('d M Y') }}
+                                    @endif
+                                </span>
+                            </div>
+
+                            <!-- Title & Description -->
+                            <div>
+                                <h3 class="text-sm sm:text-base font-bold text-gray-900 dark:text-white leading-snug">
+                                    {{ $ot->title }}
+                                </h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">
+                                    {{ $ot->description }}
+                                </p>
+                            </div>
+
+                            <!-- Location, Instructor & Quota Box -->
+                            <div class="bg-gray-50 dark:bg-gray-750 p-3 rounded-xl space-y-2 text-xs">
+                                <div class="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-semibold">
+                                    <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+                                    <span class="truncate">{{ $ot->location }}</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                                    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                                    <span class="font-medium">{{ $ot->instructor }}</span>
+                                    <span class="text-gray-400 text-[11px]">({{ $ot->instructor_title ?? 'Widyaiswara Ahli' }})</span>
+                                </div>
+                                <div class="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 pt-1 border-t border-gray-200/60 dark:border-gray-700">
+                                    <span>Jam: {{ $ot->time_info ?? '08:00 - 15:00 WIB' }}</span>
+                                    <span class="font-bold text-emerald-700 dark:text-emerald-400">Sisa Kuota: {{ $ot->remaining_quota }} peserta</span>
+                                </div>
+                            </div>
+
+                            <!-- Peternak Registration Status Box -->
+                            @if($isRegistered && $myReg)
+                            <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800 space-y-1.5 text-xs text-emerald-950 dark:text-emerald-200">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-bold text-emerald-900 dark:text-emerald-200 flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        Nomor Registrasi Terdaftar:
+                                    </span>
+                                    <span class="px-2 py-0.5 rounded bg-emerald-200 text-emerald-900 font-extrabold text-[10px] uppercase">
+                                        {{ $myReg->status === 'confirmed' ? 'Diverifikasi' : $myReg->status }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between bg-white dark:bg-gray-800 p-2 rounded-lg border border-emerald-100 dark:border-emerald-800">
+                                    <span class="font-mono text-emerald-800 dark:text-emerald-300 font-extrabold text-xs tracking-wider">
+                                        {{ $myReg->registration_code }}
+                                    </span>
+                                    <span class="text-[10px] text-gray-400">
+                                        {{ $myReg->registered_at ? $myReg->registered_at->format('d/m/Y H:i') : '' }}
+                                    </span>
+                                </div>
+                                @if($myReg->requirement_document_name)
+                                <div class="flex items-center justify-between text-[11px] text-gray-600 dark:text-gray-300 pt-1">
+                                    <span class="truncate max-w-[200px]">Dokumen: {{ $myReg->requirement_document_name }}</span>
+                                    <a href="{{ route('pelatihan.registration.document', $myReg) }}" class="text-emerald-700 dark:text-emerald-400 font-bold hover:underline">Unduh Berkas</a>
+                                </div>
+                                @endif
+                            </div>
+                            @endif
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="pt-3 border-t border-gray-100 dark:border-gray-700 flex flex-wrap items-center gap-2">
+                            <!-- Unduh Silabus Panduan Lapangan (jika ada) -->
+                            <a
+                                href="{{ route('pelatihan.document.download', ['type' => 'zoom', 'id' => $ot->id]) }}"
+                                class="inline-flex items-center gap-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 rounded-xl text-xs font-semibold text-gray-700 transition"
+                                title="Unduh Silabus &amp; Panduan Praktik Lapangan"
+                            >
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                                <span>Silabus (PDF)</span>
+                            </a>
+
+                            <!-- Tombol Pendaftaran Peternak dengan Upload Persyaratan -->
+                            @if($currentUser && $currentUser->isPeternak())
+                                @if(!$isRegistered)
+                                <button
+                                    type="button"
+                                    onclick="openRegisterBimtekOfflineModal({{ json_encode($ot) }})"
+                                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                                    <span>Daftar &amp; Unggah Persyaratan</span>
+                                </button>
+                                @else
+                                <button
+                                    type="button"
+                                    onclick="openTicketModal({{ json_encode($myReg) }}, {{ json_encode($ot) }})"
+                                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-200 rounded-xl text-xs font-bold transition cursor-pointer"
+                                >
+                                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z"/></svg>
+                                    <span>Lihat Tiket &amp; Dokumen</span>
+                                </button>
+                                @endif
+                            @endif
+
+                            <!-- Admin Controls -->
+                            @if($currentUser && $currentUser->isAdmin())
+                            <button
+                                type="button"
+                                onclick="openAdminTrainingParticipantsModal({{ $ot->id }}, '{{ addslashes($ot->title) }}')"
+                                class="inline-flex items-center gap-1 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 rounded-xl text-xs font-semibold transition cursor-pointer"
+                                title="Lihat Peserta &amp; Berkas Persyaratan"
+                            >
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+                                <span>Peserta ({{ $ot->registrations_count }})</span>
+                            </button>
+
+                            <form action="{{ route('pelatihan.destroy', $ot) }}" method="POST" onsubmit="return confirm('Hapus program Bimtek {{ $ot->title }}?')" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <input type="hidden" name="tab" value="bimtek_offline">
+                                <button type="submit" class="p-2 text-gray-400 hover:text-red-600 transition" title="Hapus Bimtek">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                                </button>
+                            </form>
+                            @endif
+                        </div>
+                    </div>
+                    @empty
+                    <div class="col-span-full py-12 text-center bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                        <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300">Belum ada jadwal Bimtek tatap muka lapangan</h4>
+                        <p class="text-xs text-gray-400 mt-1">Admin dinas akan memperbarui agenda bimbingan teknis secara berkala.</p>
+                    </div>
+                    @endforelse
+                </div>
+
+            </div>
+
             @elseif($activeTab === 'kuis')
             <!-- ========================================== -->
             <!-- TAB 3: KUIS & PENGERJAAN SOAL-SOAL EVALUASI -->
@@ -1019,112 +1303,6 @@
                 </div>
             </div>
             @endif
-
-        </div>
-
-        @if(!$currentUser || !$currentUser->isAdmin())
-        <!-- Right Side Panel: "Your Profile" & Aktivitas Belajar (Ottertag Frame 26) -->
-        <div class="lg:col-span-4 xl:col-span-3 space-y-5">
-
-            <!-- Profile Summary Card with Circular Progress Ring (Peternak Learner) -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-200/90 dark:border-gray-700 p-5 shadow-2xs space-y-4">
-                <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Profil Pembelajar</span>
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                </div>
-
-                <!-- Avatar with Progress Circle -->
-                <div class="flex flex-col items-center text-center space-y-2">
-                    <div class="relative w-20 h-20 flex items-center justify-center">
-                        <svg class="w-20 h-20 -rotate-90">
-                            <circle cx="40" cy="40" r="34" stroke="currentColor" stroke-width="5" class="text-gray-100 dark:text-gray-700" fill="transparent"/>
-                            <circle
-                                cx="40"
-                                cy="40"
-                                r="34"
-                                stroke="currentColor"
-                                stroke-width="5"
-                                stroke-dasharray="213"
-                                stroke-dashoffset="{{ 213 - (213 * max(10, $watchProgressPct)) / 100 }}"
-                                stroke-linecap="round"
-                                class="text-indigo-600 transition-all duration-1000"
-                                fill="transparent"
-                            />
-                        </svg>
-                        <div class="absolute inset-1 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
-                            <img
-                                src="{{ asset('img/Peternak Milenial.png') }}"
-                                alt="User Avatar"
-                                class="w-full h-full object-contain p-1"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">
-                            {{ $greeting }}, {{ $currentUser ? explode(' ', $currentUser->name)[0] : 'Peternak' }}!
-                        </h3>
-                        <p class="text-[11px] text-gray-400 mt-0.5">
-                            {{ $currentUser ? $currentUser->role_label : 'Peternak Milenial' }}
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Mini Activity Indicators (Ottertag Chart Columns) -->
-                <div class="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-2">
-                    <div class="flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-gray-300">
-                        <span>Aktivitas Belajar Pekan Ini</span>
-                        <span class="text-indigo-600 font-bold">{{ $watchedCount }} Modul</span>
-                    </div>
-
-                    <!-- 7 Bar Charts (Sen, Sel, Rab, Kam, Jum, Sab, Min) -->
-                    <div class="h-20 flex items-end justify-between gap-1.5 pt-2 px-1">
-                        <div class="flex-1 flex flex-col items-center gap-1">
-                            <div class="w-full bg-purple-200 dark:bg-purple-900/50 rounded-t-md" style="height: 35%"></div>
-                            <span class="text-[9px] text-gray-400">Sn</span>
-                        </div>
-                        <div class="flex-1 flex flex-col items-center gap-1">
-                            <div class="w-full bg-purple-300 dark:bg-purple-900/70 rounded-t-md" style="height: 55%"></div>
-                            <span class="text-[9px] text-gray-400">Sl</span>
-                        </div>
-                        <div class="flex-1 flex flex-col items-center gap-1">
-                            <div class="w-full bg-purple-400 rounded-t-md" style="height: 40%"></div>
-                            <span class="text-[9px] text-gray-400">Rb</span>
-                        </div>
-                        <div class="flex-1 flex flex-col items-center gap-1">
-                            <div class="w-full bg-purple-600 rounded-t-md" style="height: 80%"></div>
-                            <span class="text-[9px] text-gray-400">Km</span>
-                        </div>
-                        <div class="flex-1 flex flex-col items-center gap-1">
-                            <div class="w-full bg-purple-700 rounded-t-md" style="height: 95%"></div>
-                            <span class="text-[9px] text-gray-400">Jm</span>
-                        </div>
-                        <div class="flex-1 flex flex-col items-center gap-1">
-                            <div class="w-full bg-purple-400 rounded-t-md" style="height: 60%"></div>
-                            <span class="text-[9px] text-gray-400">Sb</span>
-                        </div>
-                        <div class="flex-1 flex flex-col items-center gap-1">
-                            <div class="w-full bg-indigo-500 rounded-t-md" style="height: 75%"></div>
-                            <span class="text-[9px] text-gray-400">Mg</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Stats List -->
-                <div class="grid grid-cols-2 gap-2 text-xs pt-1">
-                    <div class="p-2.5 bg-gray-50 dark:bg-gray-750 rounded-xl text-center">
-                        <span class="text-[10px] text-gray-400 block font-medium">Sertifikat</span>
-                        <span class="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">{{ $certificates->count() }} Terbit</span>
-                    </div>
-                    <div class="p-2.5 bg-gray-50 dark:bg-gray-750 rounded-xl text-center">
-                        <span class="text-[10px] text-gray-400 block font-medium">Kuis Lulus</span>
-                        <span class="font-extrabold text-purple-600 dark:text-purple-400 text-sm">{{ $passedQuizzesCount }} Modul</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        @endif
 
     </div>
 
@@ -1788,6 +1966,344 @@
     </div>
 </div>
 @endif
+<!-- ============================================================== -->
+<!-- MODAL: DAFTAR BIMTEK OFFLINE & UNGGAH DOKUMEN PERSYARATAN     -->
+<!-- ============================================================== -->
+<div id="modal-daftar-bimtek-offline" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[92vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 mb-4">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    BIMTEK TATAP MUKA
+                </span>
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mt-1">
+                    Pendaftaran &amp; Unggah Dokumen Persyaratan
+                </h3>
+            </div>
+            <button
+                type="button"
+                onclick="document.getElementById('modal-daftar-bimtek-offline').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 text-xl font-bold cursor-pointer"
+            >
+                &times;
+            </button>
+        </div>
+
+        <!-- Info Alur Persyaratan Sesuai Ketentuan User -->
+        <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-900 dark:text-emerald-200 mb-4 flex items-start gap-2.5">
+            <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+            <p class="leading-relaxed">
+                Namun, jika memilih Bimtek (Bimbingan Teknis), peternak harus mendaftar dan <strong>mengunggah dokumen persyaratan terlebih dahulu</strong> untuk dicatat nomor registrasinya oleh sistem aplikasi Dinas Peternakan Jawa Timur.
+            </p>
+        </div>
+
+        <form id="form-daftar-bimtek-offline" action="" method="POST" enctype="multipart/form-data" class="space-y-3.5 text-xs">
+            @csrf
+            <input type="hidden" name="tab" value="bimtek_offline">
+
+            <!-- Program Info Card -->
+            <div class="p-3 bg-gray-50 dark:bg-gray-750 rounded-xl space-y-1">
+                <span class="text-[10px] text-gray-400 block font-medium">Program Bimtek yang Dipilih:</span>
+                <h4 id="md-offline-title" class="font-bold text-gray-900 dark:text-white text-xs sm:text-sm">Judul Pelatihan</h4>
+                <div class="flex items-center gap-2 text-gray-500 text-[11px] pt-1">
+                    <span id="md-offline-location" class="text-emerald-700 dark:text-emerald-400 font-semibold truncate">Lokasi</span>
+                    <span>&bull;</span>
+                    <span id="md-offline-date">Jadwal</span>
+                </div>
+            </div>
+
+            <!-- Peternak Data -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Nama Peternak</label>
+                    <input type="text" readonly value="{{ $currentUser ? $currentUser->name : '' }}" class="w-full bg-gray-100 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-700 dark:text-gray-300 font-medium cursor-not-allowed">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">NIK (Nomor Induk Kependudukan) <span class="text-red-500">*</span></label>
+                    <input type="text" name="nik" required value="{{ $currentUser?->profile?->nik ?? '' }}" placeholder="cth: 3514081203760001" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">No. WhatsApp / Telepon Aktif <span class="text-red-500">*</span></label>
+                    <input type="text" name="phone_number" required value="{{ $currentUser?->phone_number ?? '' }}" placeholder="cth: 081234567890" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Nama Usaha / Kelompok Ternak</label>
+                    <input type="text" name="farm_name" value="{{ $currentUser?->profile?->farm_name ?? '' }}" placeholder="cth: Kelompok Tani Ternak Sumber Rejeki" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+            </div>
+
+            <!-- Upload Dokumen Persyaratan (Wajib) -->
+            <div class="p-3.5 bg-amber-50/80 dark:bg-amber-950/30 rounded-xl border border-amber-300 dark:border-amber-800 space-y-1.5">
+                <label class="block font-bold text-amber-900 dark:text-amber-200 text-xs">
+                    Unggah Dokumen Persyaratan <span class="text-red-600">*</span>
+                </label>
+                <input
+                    type="file"
+                    name="requirement_document"
+                    required
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    class="w-full bg-white dark:bg-gray-800 border border-amber-300 dark:border-amber-700 rounded-xl p-2 text-xs text-gray-900 dark:text-white file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 cursor-pointer"
+                />
+                <span class="text-[10px] text-amber-800 dark:text-amber-300 block">
+                    Format berkas: PDF, JPG, PNG, atau DOCX (Maksimal 10 MB). Berupa scan/foto KTP, Surat Keterangan Usaha Peternakan dari Desa/Kelurahan, atau Surat Rekomendasi Kelompok Ternak.
+                </span>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Catatan / Komoditas Ternak</label>
+                <textarea name="notes" rows="2" placeholder="Tuliskan komoditas ternak Anda (cth: Sapi Perah 10 Ekor, Kambing PE) atau harapan keikutsertaan..." class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <button type="button" onclick="document.getElementById('modal-daftar-bimtek-offline').classList.add('hidden')" class="px-4 py-2 rounded-xl text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition shadow-xs cursor-pointer">
+                    Daftar &amp; Catat Nomor Registrasi
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL: TIKET & BUKTI REGISTRASI BIMTEK PETERNAK               -->
+<!-- ============================================================== -->
+<div id="modal-tiket-bimtek-peternak" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[92vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 mb-4">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    BUKTI PENDAFTARAN RESMI
+                </span>
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mt-1">
+                    Tiket Pendaftaran Bimtek Lapangan
+                </h3>
+            </div>
+            <button
+                type="button"
+                onclick="document.getElementById('modal-tiket-bimtek-peternak').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 text-xl font-bold cursor-pointer"
+            >
+                &times;
+            </button>
+        </div>
+
+        <div class="p-4 bg-emerald-50/80 dark:bg-emerald-950/40 rounded-2xl border-2 border-dashed border-emerald-400 dark:border-emerald-700 space-y-3.5">
+            <div class="flex items-center justify-between pb-2 border-b border-emerald-200/80 dark:border-emerald-800">
+                <span class="text-xs font-bold text-emerald-900 dark:text-emerald-200">Nomor Registrasi Sistem:</span>
+                <span id="tk-regcode" class="font-mono text-sm font-extrabold text-emerald-700 dark:text-emerald-300 px-2.5 py-0.5 bg-white dark:bg-gray-800 rounded-lg border border-emerald-200">
+                    REG-BMTK-XXXX-XXXX
+                </span>
+            </div>
+
+            <div class="space-y-2 text-xs">
+                <div>
+                    <span class="text-[10px] text-gray-500 block">Program Bimbingan Teknis</span>
+                    <strong id="tk-title" class="text-gray-900 dark:text-white text-sm">Judul Pelatihan</strong>
+                </div>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <div>
+                        <span class="text-[10px] text-gray-500 block">Lokasi Tatap Muka</span>
+                        <span id="tk-location" class="font-medium text-gray-800 dark:text-gray-200">Lokasi</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-gray-500 block">Waktu &amp; Tanggal</span>
+                        <span id="tk-schedule" class="font-medium text-gray-800 dark:text-gray-200">Tanggal</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <div>
+                        <span class="text-[10px] text-gray-500 block">Nama Peserta</span>
+                        <span id="tk-user" class="font-medium text-gray-800 dark:text-gray-200">{{ $currentUser ? $currentUser->name : '' }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-gray-500 block">Status Registrasi</span>
+                        <span id="tk-status" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-900 uppercase">Diverifikasi</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tk-doc-section" class="pt-2 border-t border-emerald-200 dark:border-emerald-800 flex items-center justify-between text-xs">
+                <span class="text-gray-500 text-[11px]">Dokumen Persyaratan:</span>
+                <a id="tk-doc-link" href="#" class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold hover:underline">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                    <span id="tk-doc-name">Unduh Berkas</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700 mt-4">
+            <button type="button" onclick="window.print()" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 inline-flex items-center gap-1.5 cursor-pointer">
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24-1.076-.673-2.062-1.258-2.914m13.076 2.914c.24-1.076.673-2.062 1.258-2.914M9 19.5h6m-9-3h12a2.25 2.25 0 002.25-2.25v-3.75a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25v3.75A2.25 2.25 0 006 16.5z"/></svg>
+                <span>Cetak Bukti</span>
+            </button>
+            <button type="button" onclick="document.getElementById('modal-tiket-bimtek-peternak').classList.add('hidden')" class="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 cursor-pointer">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
+@if($currentUser && $currentUser->isAdmin())
+<!-- ============================================================== -->
+<!-- MODAL: ADMIN JADWALKAN PROGRAM BIMTEK OFFLINE                 -->
+<!-- ============================================================== -->
+<div id="modal-jadwalkan-bimtek-offline-admin" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[92vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 mb-4">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                    BIMTEK LAPANGAN DINAS
+                </span>
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mt-1">
+                    Jadwalkan Program Bimtek Offline Baru
+                </h3>
+            </div>
+            <button
+                type="button"
+                onclick="document.getElementById('modal-jadwalkan-bimtek-offline-admin').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 text-xl font-bold cursor-pointer"
+            >
+                &times;
+            </button>
+        </div>
+
+        <form action="{{ route('pelatihan.store') }}" method="POST" enctype="multipart/form-data" class="space-y-3.5 text-xs">
+            @csrf
+            <input type="hidden" name="tab" value="bimtek_offline">
+            <input type="hidden" name="is_online" value="0">
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Judul Program Bimtek <span class="text-red-500">*</span></label>
+                <input type="text" name="title" required placeholder="cth: Bimbingan Teknis Praktik Formulasi Pakan Silase & Pemanfaatan Limbah" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Instruktur / Pemateri Utama <span class="text-red-500">*</span></label>
+                    <input type="text" name="instructor" required value="Dr. Ir. Hendro Wibowo" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Jabatan / Asal Lembaga</label>
+                    <input type="text" name="instructor_title" value="Widyaiswara Ahli Utama BBPP Batu" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Lokasi Tatap Muka Lapangan <span class="text-red-500">*</span></label>
+                <input type="text" name="location" required value="BBPP Songgoriti, Batu" placeholder="cth: Balai Besar Pelatihan Peternakan (BBPP) Songgoriti, Batu" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Tanggal Mulai <span class="text-red-500">*</span></label>
+                    <input type="date" name="start_date" required value="{{ date('Y-m-d', strtotime('+5 days')) }}" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Tanggal Selesai <span class="text-red-500">*</span></label>
+                    <input type="date" name="end_date" required value="{{ date('Y-m-d', strtotime('+7 days')) }}" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Waktu Pelaksanaan</label>
+                    <input type="text" name="time_info" value="08:00 - 15:00 WIB" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Kuota Peserta <span class="text-red-500">*</span></label>
+                    <input type="number" name="quota" min="5" value="30" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Tipe Pembiayaan <span class="text-red-500">*</span></label>
+                    <select name="cost_type" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                        <option value="gratis_apbd">Gratis (APBD Dinas Peternakan Jatim)</option>
+                        <option value="mandiri">Mandiri (Swadaya Peserta)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Unggah Silabus / Panduan Praktik Lapangan (PDF/DOCX)</label>
+                <input type="file" name="document_upload" accept=".pdf,.doc,.docx" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2 text-xs text-gray-900 dark:text-white file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 cursor-pointer">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Deskripsi &amp; Kurikulum Praktik Lapangan</label>
+                <textarea name="description" rows="3" required placeholder="Jelaskan silabus praktik, fasilitas kandang/laboratorium, dan target capaian pelatihan..." class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">Bimbingan teknis praktik intensif langsung di lapangan mengenai manajemen sanitasi kandang, formulasi konsentrat mandiri, dan pengawetan hijauan berkualitas.</textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <button type="button" onclick="document.getElementById('modal-jadwalkan-bimtek-offline-admin').classList.add('hidden')" class="px-4 py-2 rounded-xl text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition shadow-xs cursor-pointer">
+                    Terbitkan Jadwal Bimtek Lapangan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL: ADMIN LIHAT DAFTAR PESERTA & DOKUMEN PERSYARATAN BIMTEK -->
+<!-- ============================================================== -->
+<div id="modal-peserta-bimtek-admin" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-4xl w-full p-5 sm:p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[92vh] flex flex-col">
+        <div class="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 mb-4 shrink-0">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    VERIFIKASI PERSYARATAN PESERTA
+                </span>
+                <h3 id="adm-part-title" class="text-base font-bold text-gray-900 dark:text-white mt-1">
+                    Daftar Peserta Bimtek &amp; Berkas Persyaratan
+                </h3>
+                <p class="text-xs text-gray-500 mt-0.5">
+                    Periksa keabsahan berkas persyaratan yang diunggah peternak dan perbarui status registrasi.
+                </p>
+            </div>
+            <button
+                type="button"
+                onclick="document.getElementById('modal-peserta-bimtek-admin').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-xl font-bold cursor-pointer"
+            >
+                &times;
+            </button>
+        </div>
+
+        <div class="overflow-y-auto flex-1 border border-gray-100 dark:border-gray-700 rounded-2xl">
+            <table class="w-full text-xs text-left text-gray-600 dark:text-gray-300">
+                <thead class="text-[11px] text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-750 border-b border-gray-100 dark:border-gray-700 sticky top-0">
+                    <tr>
+                        <th class="px-3.5 py-3">Nama Peternak &amp; Usaha</th>
+                        <th class="px-3 py-3 text-center">Nomor Registrasi</th>
+                        <th class="px-3 py-3 text-center">Dokumen Persyaratan</th>
+                        <th class="px-3 py-3 text-center">Status</th>
+                        <th class="px-3 py-3 text-right">Aksi Status</th>
+                    </tr>
+                </thead>
+                <tbody id="adm-part-tbody" class="divide-y divide-gray-100 dark:divide-gray-700">
+                    <!-- Populated dynamically via JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end shrink-0 mt-4">
+            <button
+                type="button"
+                onclick="document.getElementById('modal-peserta-bimtek-admin').classList.add('hidden')"
+                class="px-5 py-2 rounded-xl text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 cursor-pointer"
+            >
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+@endif
 
 <!-- JAVASCRIPT LOGIC FOR INTERACTIVE MODALS -->
 <script>
@@ -2132,6 +2648,166 @@
             titleInput.value = 'Sertifikasi Kompetensi: ' + trainingTitle;
         }
     }
+
+    // Bimtek Offline Modal Helpers
+    function openRegisterBimtekOfflineModal(training) {
+        if (!training) return;
+        const form = document.getElementById('form-daftar-bimtek-offline');
+        if (form) {
+            form.action = '/pelatihan/' + training.id + '/daftar-offline';
+        }
+        const titleEl = document.getElementById('md-offline-title');
+        if (titleEl) titleEl.innerText = training.title;
+
+        const locEl = document.getElementById('md-offline-location');
+        if (locEl) locEl.innerText = training.location || 'Sentra Peternakan Jatim';
+
+        const dateEl = document.getElementById('md-offline-date');
+        if (dateEl) {
+            const startDate = training.start_date ? training.start_date.substring(0, 10) : 'Jadwal Ditentukan';
+            const endDate = (training.end_date && training.end_date !== training.start_date) ? ' s/d ' + training.end_date.substring(0, 10) : '';
+            dateEl.innerText = startDate + endDate;
+        }
+
+        const modal = document.getElementById('modal-daftar-bimtek-offline');
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    function openTicketModal(registration, training) {
+        if (!registration || !training) return;
+
+        const regCodeEl = document.getElementById('tk-regcode');
+        if (regCodeEl) regCodeEl.innerText = registration.registration_code || 'REG-BMTK';
+
+        const titleEl = document.getElementById('tk-title');
+        if (titleEl) titleEl.innerText = training.title || 'Bimbingan Teknis';
+
+        const locEl = document.getElementById('tk-location');
+        if (locEl) locEl.innerText = training.location || 'Sentra Peternakan';
+
+        const schedEl = document.getElementById('tk-schedule');
+        if (schedEl) {
+            const startDate = training.start_date ? training.start_date.substring(0, 10) : '-';
+            const endDate = (training.end_date && training.end_date !== training.start_date) ? ' s/d ' + training.end_date.substring(0, 10) : '';
+            schedEl.innerText = startDate + endDate;
+        }
+
+        const statusEl = document.getElementById('tk-status');
+        if (statusEl) {
+            const isConfirmed = registration.status === 'confirmed';
+            statusEl.innerText = isConfirmed ? 'Diverifikasi' : (registration.status || 'Terdaftar');
+            statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold ' + (isConfirmed ? 'bg-emerald-200 text-emerald-900' : 'bg-amber-100 text-amber-900') + ' uppercase';
+        }
+
+        const docSection = document.getElementById('tk-doc-section');
+        const docLink = document.getElementById('tk-doc-link');
+        const docName = document.getElementById('tk-doc-name');
+
+        if (registration.requirement_document_path || registration.requirement_document_name) {
+            if (docSection) docSection.classList.remove('hidden');
+            if (docLink) docLink.href = '/pelatihan/registrations/' + registration.id + '/dokumen';
+            if (docName) docName.innerText = registration.requirement_document_name || 'Unduh Berkas Persyaratan';
+        } else {
+            if (docSection) docSection.classList.add('hidden');
+        }
+
+        const modal = document.getElementById('modal-tiket-bimtek-peternak');
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    @if($currentUser && $currentUser->isAdmin())
+    const bimtekRegistrationsData = @json($allRegistrations);
+
+    function openAdminTrainingParticipantsModal(trainingId, trainingTitle) {
+        const titleEl = document.getElementById('adm-part-title');
+        if (titleEl) titleEl.innerText = 'Daftar Peserta Bimtek: ' + trainingTitle;
+
+        const tbody = document.getElementById('adm-part-tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        const participants = (bimtekRegistrationsData || []).filter(r => r.training_id == trainingId);
+
+        if (!participants || participants.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-4 py-8 text-center text-gray-400 text-xs">
+                        Belum ada peternak yang mendaftar pada program bimbingan teknis ini.
+                    </td>
+                </tr>
+            `;
+            document.getElementById('modal-peserta-bimtek-admin').classList.remove('hidden');
+            return;
+        }
+
+        const token = '{{ csrf_token() }}';
+
+        participants.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-50/80 dark:hover:bg-gray-700/40 transition';
+
+            const peternakName = r.user ? r.user.name : 'Peternak';
+            const nikText = r.nik ? `NIK: ${r.nik}` : (r.user && r.user.email ? r.user.email : '-');
+            const farmText = r.farm_name ? ` &bull; ${r.farm_name}` : '';
+            const regCode = r.registration_code || '-';
+
+            let docHtml = '<span class="text-gray-400 italic">Tidak ada berkas</span>';
+            if (r.requirement_document_path) {
+                const docName = r.requirement_document_name || 'Unduh Berkas';
+                docHtml = `
+                    <a href="/pelatihan/registrations/${r.id}/dokumen" class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold hover:underline" title="Unduh Berkas Persyaratan">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                        <span class="truncate max-w-[140px]">${docName}</span>
+                    </a>
+                `;
+            }
+
+            const isConfirmed = (r.status === 'confirmed');
+            const statusBadge = `
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isConfirmed ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'} uppercase">
+                    ${isConfirmed ? 'Diverifikasi' : r.status}
+                </span>
+            `;
+
+            const actionHtml = `
+                <form action="/pelatihan/registrations/${r.id}/status" method="POST" class="inline-flex items-center gap-1.5 justify-end">
+                    <input type="hidden" name="_token" value="${token}">
+                    <input type="hidden" name="_method" value="PATCH">
+                    <input type="hidden" name="tab" value="bimtek_offline">
+                    <select name="status" onchange="this.form.submit()" class="bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-[11px] p-1 text-gray-800 dark:text-gray-200 cursor-pointer">
+                        <option value="pending" ${r.status === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="confirmed" ${r.status === 'confirmed' ? 'selected' : ''}>Verifikasi (Terima)</option>
+                        <option value="attended" ${r.status === 'attended' ? 'selected' : ''}>Hadir Lapangan</option>
+                        <option value="cancelled" ${r.status === 'cancelled' ? 'selected' : ''}>Tolak / Batal</option>
+                    </select>
+                </form>
+            `;
+
+            tr.innerHTML = `
+                <td class="px-3.5 py-3 font-medium text-gray-900 dark:text-white">
+                    <div>${peternakName}</div>
+                    <div class="text-[11px] text-gray-400 font-normal">${nikText}${farmText}</div>
+                </td>
+                <td class="px-3.5 py-3 text-center font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                    ${regCode}
+                </td>
+                <td class="px-3.5 py-3 text-center">
+                    ${docHtml}
+                </td>
+                <td class="px-3.5 py-3 text-center">
+                    ${statusBadge}
+                </td>
+                <td class="px-3.5 py-3 text-right">
+                    ${actionHtml}
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('modal-peserta-bimtek-admin').classList.remove('hidden');
+    }
+    @endif
 
     // Initialize select action on load
     document.addEventListener('DOMContentLoaded', function() {

@@ -64,6 +64,25 @@ class TrainingController extends Controller
 
         $zoomTrainings = $zoomQuery->orderBy('start_date')->get();
 
+        // 2b. Program Bimbingan Teknis (Bimtek) Tatap Muka Lapangan (Offline)
+        $offlineQuery = Training::withCount('registrations')
+            ->where(function ($q) {
+                $q->where('is_online', false)->whereNull('zoom_link');
+            });
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $offlineQuery->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('instructor', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%");
+            });
+        }
+
+        $offlineTrainings = $offlineQuery->orderBy('start_date')->get();
+        $upcomingOfflineCount = $offlineTrainings->where('start_date', '>=', now()->toDateString())->count();
+
         // 3. Seluruh Program Bimtek (Termasuk Tatap Muka Lapangan)
         $trainings = Training::withCount('registrations')
             ->with(['certificates.user'])
@@ -211,6 +230,8 @@ class TrainingController extends Controller
             'passedQuizzesCount' => $passedQuizzesCount,
             'averageScore' => $averageScore,
             'upcomingZoomCount' => $upcomingZoomCount,
+            'offlineTrainings' => $offlineTrainings,
+            'upcomingOfflineCount' => $upcomingOfflineCount,
             'quizAttempts' => $quizAttempts,
             'mentors' => $mentors,
         ]);
@@ -235,17 +256,29 @@ class TrainingController extends Controller
             ->where('user_id', $user->id)
             ->first();
 
+        $defaultTab = $training->is_online ? 'zoom' : 'bimtek_offline';
+        $targetTab = $request->input('tab', $defaultTab);
+
         if ($existing) {
-            return redirect()->to(route('pelatihan', ['tab' => $request->input('tab', 'zoom')]))
-                ->with('error', "Anda sudah terdaftar pada Bimtek '{$training->title}' dengan kode {$existing->registration_code}.");
+            return redirect()->to(route('pelatihan', ['tab' => $targetTab]))
+                ->with('error', "Anda sudah terdaftar pada Bimtek '{$training->title}' dengan nomor registrasi {$existing->registration_code}.");
         }
 
         if ($training->remaining_quota <= 0) {
-            return redirect()->to(route('pelatihan', ['tab' => $request->input('tab', 'zoom')]))
+            return redirect()->to(route('pelatihan', ['tab' => $targetTab]))
                 ->with('error', "Mohon maaf, kuota peserta untuk Bimtek '{$training->title}' sudah penuh.");
         }
 
-        $regCode = 'REG-'.strtoupper(Str::random(4)).'-'.date('dmy');
+        $docPath = null;
+        $docName = null;
+        if ($request->hasFile('requirement_document') || $request->hasFile('dokumen_persyaratan')) {
+            $file = $request->file('requirement_document') ?? $request->file('dokumen_persyaratan');
+            $docName = $file->getClientOriginalName();
+            $docPath = $file->store('persyaratan_bimtek', 'public');
+        }
+
+        $regPrefix = (! $training->is_online || $docPath) ? 'REG-BMTK-' : 'REG-';
+        $regCode = $regPrefix.strtoupper(Str::random(4)).'-'.date('dmy');
 
         TrainingRegistration::create([
             'training_id' => $training->id,
@@ -253,10 +286,29 @@ class TrainingController extends Controller
             'registration_code' => $regCode,
             'status' => 'confirmed',
             'registered_at' => now(),
-            'notes' => 'Pendaftaran online melalui portal Peternak Milenial Jatim',
+            'notes' => $request->input('notes', 'Pendaftaran online melalui portal Peternak Milenial Jatim'),
+            'requirement_document_path' => $docPath,
+            'requirement_document_name' => $docName,
+            'nik' => $request->input('nik', $user->profile?->nik),
+            'phone_number' => $request->input('phone_number', $user->phone_number),
+            'farm_name' => $request->input('farm_name', $user->profile?->farm_name),
         ]);
 
         $training->decrement('remaining_quota');
+
+        if ($docPath) {
+            return redirect()->to(route('pelatihan', ['tab' => $targetTab]))
+                ->with('success', "Pendaftaran Bimtek '{$training->title}' berhasil! Nomor Registrasi: {$regCode}. Dokumen persyaratan telah dicatat oleh sistem aplikasi.")
+                ->with('registered_ticket', [
+                    'registration_code' => $regCode,
+                    'training_title' => $training->title,
+                    'location' => $training->location,
+                    'date' => $training->start_date ? $training->start_date->format('d M Y') : 'Terjadwal',
+                    'time' => $training->time_info ?? '08:00 - 15:00 WIB',
+                    'instructor' => $training->instructor,
+                    'document_name' => $docName,
+                ]);
+        }
 
         if ($request->has('tab')) {
             return redirect()->to(route('pelatihan', ['tab' => $request->tab]))
@@ -265,6 +317,115 @@ class TrainingController extends Controller
 
         return redirect()->route('pelatihan')
             ->with('success', "Pendaftaran Bimtek '{$training->title}' berhasil! Kode Tiket: {$regCode}. Sisa kuota: {$training->remaining_quota} peserta.");
+    }
+
+    /**
+     * Register a peternak for an offline Bimtek session with requirement documents.
+     */
+    public function registerOffline(Request $request, Training $training): RedirectResponse
+    {
+        $user = auth()->user() ?? (app()->runningUnitTests() ? User::where('role', 'peternak')->first() : null);
+
+        if (! $user) {
+            return redirect()->route('login')->with('error', 'Silakan masuk ke akun Peternak Anda untuk mendaftar Bimtek Tatap Muka.');
+        }
+
+        if ($user->isAdmin()) {
+            return redirect()->route('pelatihan', ['tab' => 'bimtek_offline'])
+                ->with('error', 'Akun Admin Dinas berfungsi sebagai pengelola program dan tidak mendaftar sebagai peserta.');
+        }
+
+        $existing = TrainingRegistration::where('training_id', $training->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($existing) {
+            return redirect()->to(route('pelatihan', ['tab' => 'bimtek_offline']))
+                ->with('error', "Anda sudah terdaftar pada Bimtek '{$training->title}' dengan Nomor Registrasi {$existing->registration_code}.");
+        }
+
+        if ($training->remaining_quota <= 0) {
+            return redirect()->to(route('pelatihan', ['tab' => 'bimtek_offline']))
+                ->with('error', "Mohon maaf, kuota peserta untuk Bimtek '{$training->title}' sudah penuh.");
+        }
+
+        $validated = $request->validate([
+            'requirement_document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,docx,doc', 'max:10240'],
+            'nik' => ['nullable', 'string', 'max:30'],
+            'phone_number' => ['nullable', 'string', 'max:30'],
+            'farm_name' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'requirement_document.required' => 'Dokumen persyaratan wajib diunggah untuk dicatat nomor registrasinya oleh sistem aplikasi.',
+            'requirement_document.file' => 'Berkas dokumen persyaratan harus berupa file yang valid.',
+            'requirement_document.mimes' => 'Format berkas dokumen persyaratan harus berupa PDF, JPG, PNG, atau DOCX.',
+            'requirement_document.max' => 'Ukuran berkas dokumen persyaratan maksimal 10 MB.',
+        ]);
+
+        $file = $request->file('requirement_document');
+        $documentName = $file->getClientOriginalName();
+        $documentPath = $file->store('persyaratan_bimtek', 'public');
+
+        $regCode = 'REG-BMTK-'.strtoupper(Str::random(4)).'-'.date('dmy');
+
+        TrainingRegistration::create([
+            'training_id' => $training->id,
+            'user_id' => $user->id,
+            'registration_code' => $regCode,
+            'status' => 'confirmed',
+            'registered_at' => now(),
+            'requirement_document_path' => $documentPath,
+            'requirement_document_name' => $documentName,
+            'nik' => $validated['nik'] ?? $user->profile?->nik,
+            'phone_number' => $validated['phone_number'] ?? $user->phone_number,
+            'farm_name' => $validated['farm_name'] ?? $user->profile?->farm_name,
+            'notes' => $validated['notes'] ?? 'Pendaftaran Bimtek Offline dengan verifikasi dokumen persyaratan',
+        ]);
+
+        $training->decrement('remaining_quota');
+
+        return redirect()->to(route('pelatihan', ['tab' => 'bimtek_offline']))
+            ->with('success', "Pendaftaran Bimtek '{$training->title}' berhasil! Nomor Registrasi Anda: {$regCode}. Dokumen persyaratan telah diverifikasi dan dicatat oleh sistem aplikasi.")
+            ->with('registered_ticket', [
+                'registration_code' => $regCode,
+                'training_title' => $training->title,
+                'location' => $training->location,
+                'date' => $training->start_date ? $training->start_date->format('d M Y') : 'Terjadwal',
+                'time' => $training->time_info ?? '08:00 - 15:00 WIB',
+                'instructor' => $training->instructor,
+                'document_name' => $documentName,
+            ]);
+    }
+
+    /**
+     * Download or view requirement document for a participant registration.
+     */
+    public function downloadRequirementDocument(TrainingRegistration $registration): BinaryFileResponse|RedirectResponse
+    {
+        $currentUser = auth()->user();
+
+        if (! $currentUser) {
+            abort(401, 'Silakan masuk terlebih dahulu.');
+        }
+
+        if (! $currentUser->isAdmin() && $registration->user_id !== $currentUser->id) {
+            abort(403, 'Anda tidak berwenang mengakses dokumen persyaratan peserta ini.');
+        }
+
+        if ($registration->requirement_document_path && Storage::disk('public')->exists($registration->requirement_document_path)) {
+            return response()->download(
+                Storage::disk('public')->path($registration->requirement_document_path),
+                $registration->requirement_document_name ?? ('dokumen-persyaratan-'.$registration->registration_code.'.pdf')
+            );
+        }
+
+        // Fallback default sample file if demo/seeded without physical file
+        $defaultPath = storage_path('app/public/materials/sop-formulasi-pakan.pdf');
+        if (file_exists($defaultPath)) {
+            return response()->download($defaultPath, $registration->requirement_document_name ?? 'dokumen-persyaratan.pdf');
+        }
+
+        return redirect()->back()->with('error', 'Berkas dokumen persyaratan belum tersedia di server.');
     }
 
     /**

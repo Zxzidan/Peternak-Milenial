@@ -272,6 +272,11 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ url('/pelatihan?tab=bimtek_offline') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && in_array(request('tab'), ['bimtek_offline', 'jadwal_offline', 'offline'])) ? 'text-primary-700 font-semibold bg-gray-100 dark:bg-gray-700/60 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                Bimtek Offline (Tatap Muka)
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ url('/pelatihan?tab=kuis') }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ ((request()->is('pelatihan*') || request()->is('pembelajaran*')) && request('tab') === 'kuis') ? 'text-primary-700 font-semibold bg-gray-100 dark:bg-gray-700/60 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
                                 Kuis &amp; Soal Evaluasi
                             </a>
