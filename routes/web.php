@@ -12,6 +12,7 @@ use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\VeterinarianDashboardController;
+use App\Http\Controllers\VeterinarianScheduleController;
 use Illuminate\Support\Facades\Route;
 
 // 0. Autentikasi Pengguna (Login, Register, Logout)
@@ -102,6 +103,11 @@ Route::middleware(['role:admin,peternak'])->group(function () {
     Route::post('/konsultasi/{consultation}/messages', [ConsultationController::class, 'sendMessage'])->name('konsultasi.message');
     Route::post('/konsultasi/livestock', [ConsultationController::class, 'storeLivestock'])->name('konsultasi.livestock.store');
 
+    // Atur Jadwal Konsultasi Medis & Kuota
+    Route::post('/konsultasi/book', [ConsultationController::class, 'bookSchedule'])->name('konsultasi.book');
+    Route::delete('/konsultasi/bookings/{consultation}/cancel', [ConsultationController::class, 'cancelBooking'])->name('konsultasi.cancel');
+    Route::get('/konsultasi/veterinarians/{veterinarian}/slots', [ConsultationController::class, 'getDoctorSlots'])->name('konsultasi.veterinarians.slots');
+
     // Tindak Lanjut & Rekam Medis Resmi (Admin / Dokter Hewan Dinas)
     Route::middleware('role:admin')->group(function () {
         Route::post('/konsultasi/rekam-medis', [ConsultationController::class, 'storeHealthRecord'])->name('konsultasi.health-record.store');
@@ -133,6 +139,15 @@ Route::middleware(['role:dokter_hewan'])->prefix('dokter-hewan')->name('dokter-h
     Route::post('/laporan/{report}/visits/{visit}/complete', [VeterinarianDashboardController::class, 'recordVisitResult'])->name('visit.complete');
     Route::patch('/laporan/{report}/status', [VeterinarianDashboardController::class, 'updateStatus'])->name('status.update');
     Route::get('/kunjungan', [VeterinarianDashboardController::class, 'visits'])->name('kunjungan');
+
+    // 8.2.1 Manajemen Jadwal & Kuota Layanan Konsultasi
+    Route::get('/jadwal', [VeterinarianScheduleController::class, 'index'])->name('jadwal.index');
+    Route::post('/jadwal', [VeterinarianScheduleController::class, 'storeSlot'])->name('jadwal.store');
+    Route::post('/jadwal/generate-daily', [VeterinarianScheduleController::class, 'generateDailySlots'])->name('jadwal.generate');
+    Route::patch('/jadwal/{schedule}/toggle', [VeterinarianScheduleController::class, 'toggleStatus'])->name('jadwal.toggle');
+    Route::put('/jadwal/{schedule}', [VeterinarianScheduleController::class, 'updateSlot'])->name('jadwal.update');
+    Route::delete('/jadwal/{schedule}', [VeterinarianScheduleController::class, 'destroySlot'])->name('jadwal.destroy');
+    Route::patch('/jadwal/bookings/{consultation}/status', [VeterinarianScheduleController::class, 'updateBookingStatus'])->name('jadwal.booking.status');
 });
 
 // 8.3 Pelaporan Kesehatan Hewan oleh Peternak

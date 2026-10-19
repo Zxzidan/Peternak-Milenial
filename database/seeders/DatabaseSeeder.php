@@ -8,6 +8,7 @@ use App\Models\Commodity;
 use App\Models\CommodityPrice;
 use App\Models\Consultation;
 use App\Models\ConsultationMessage;
+use App\Models\ConsultationSchedule;
 use App\Models\DisasterGuide;
 use App\Models\Disease;
 use App\Models\EmergencyReport;
@@ -463,8 +464,8 @@ class DatabaseSeeder extends Seeder
             'training_id' => $t1->id,
             'certificate_number' => 'DISNAK-JATIM/2026/CERT-891',
             'recipient_name' => 'Slamet Rahardjo',
-            'recipient_code' => 'JTM-PAS-0024',
-            'title' => 'Sertifikasi Peternak Sapi Perah Higienis',
+            'recipient_code' => '3514081203760001',
+            'title' => 'Sertifikasi Formulasi Pakan Ransum & Silase Modern',
             'issued_date' => '2026-08-15',
             'verified_by' => 'Dinas Peternakan Provinsi Jawa Timur',
         ]);
@@ -893,7 +894,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 8. Modul Konsultasi Medis & Penyakit
-        Veterinarian::create([
+        $vetRatna = Veterinarian::create([
             'user_id' => $drhRatna->id,
             'name' => 'drh. Ratna Kusuma',
             'specialization' => 'Spesialis Sapi Perah & Reproduksi',
@@ -906,7 +907,7 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        Veterinarian::create([
+        $vetBambang = Veterinarian::create([
             'user_id' => $drhBambang->id,
             'name' => 'drh. Bambang Trihatmojo',
             'specialization' => 'Spesialis Ruminansia Besar & Bedah',
@@ -971,11 +972,74 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
+        // Slot Jadwal & Kuota Layanan Dokter Hewan
+        $slot1 = ConsultationSchedule::create([
+            'veterinarian_id' => $vetRatna->id,
+            'date' => now()->toDateString(),
+            'start_time' => '08:00',
+            'end_time' => '09:00',
+            'quota' => 4,
+            'status' => 'buka',
+            'service_type' => 'konsultasi_online',
+            'notes' => 'Sesi pagi telemedisin veteriner',
+        ]);
+
+        ConsultationSchedule::create([
+            'veterinarian_id' => $vetRatna->id,
+            'date' => now()->toDateString(),
+            'start_time' => '09:00',
+            'end_time' => '10:00',
+            'quota' => 4,
+            'status' => 'buka',
+            'service_type' => 'konsultasi_online',
+        ]);
+
+        ConsultationSchedule::create([
+            'veterinarian_id' => $vetRatna->id,
+            'date' => now()->toDateString(),
+            'start_time' => '10:00',
+            'end_time' => '11:00',
+            'quota' => 3,
+            'status' => 'buka',
+            'service_type' => 'tatap_muka',
+            'notes' => 'Konsultasi & pemeriksaan di klinik Puskeswan',
+        ]);
+
+        ConsultationSchedule::create([
+            'veterinarian_id' => $vetRatna->id,
+            'date' => now()->addDay()->toDateString(),
+            'start_time' => '08:00',
+            'end_time' => '09:00',
+            'quota' => 5,
+            'status' => 'buka',
+            'service_type' => 'konsultasi_online',
+        ]);
+
+        ConsultationSchedule::create([
+            'veterinarian_id' => $vetBambang->id,
+            'date' => now()->toDateString(),
+            'start_time' => '08:30',
+            'end_time' => '09:30',
+            'quota' => 3,
+            'status' => 'buka',
+            'service_type' => 'konsultasi_online',
+        ]);
+
+        // Janji Temu Konsultasi Pasien Peternak Slamet
         $consult = Consultation::create([
             'user_id' => $peternakSlamet->id,
-            'veterinarian_id' => $drhRatna->id,
+            'veterinarian_id' => $vetRatna->id,
+            'consultation_schedule_id' => $slot1->id,
+            'booking_code' => 'JDW-202610-0014',
+            'livestock_id' => $sapi2->id,
+            'consultation_date' => now()->toDateString(),
+            'consultation_time' => '08:00 - 09:00 WIB',
             'subject' => 'Sapi perah no. 14 lesu dan demam 39.8C',
-            'status' => 'answered',
+            'complaint_details' => 'Sapi perah terlihat lesu sejak kemarin sore, suhu 39.8°C dan nafsu makan berkurang.',
+            'doctor_notes' => 'Gejala mengarah ke demam transient pasca perubahan cuaca. Terapi antipiretik telah disarankan.',
+            'prescription' => 'Antipiretik + Vitamin B kompleks 10ml, beri larutan molase hangat 2x sehari.',
+            'consultation_type' => 'konsultasi_online',
+            'status' => 'dikonfirmasi',
         ]);
 
         ConsultationMessage::create([

@@ -47,6 +47,11 @@ class Veterinarian extends Model
         return $this->hasMany(AnimalHealthReportVisit::class, 'veterinarian_id');
     }
 
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(ConsultationSchedule::class);
+    }
+
     public function getInitialsAttribute(): string
     {
         // Extract initials from name, omitting "drh." prefix if present

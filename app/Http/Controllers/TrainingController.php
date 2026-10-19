@@ -932,7 +932,7 @@ class TrainingController extends Controller
                 'passing_score' => $quiz->passing_score,
             ])
             ->with('success', $passed
-                ? "Selamat! Anda lulus kuis '{$quiz->title}' dengan skor {$score}/100."
+                ? "Selamat! Anda lulus evaluasi kuis '{$quiz->title}' dengan skor {$score}/100. Pemahaman materi Anda sangat baik!"
                 : "Skor Anda {$score}/100. Batas kelulusan adalah {$quiz->passing_score}. Silakan pelajari kembali modul video dan coba lagi!");
     }
 
@@ -1122,6 +1122,22 @@ class TrainingController extends Controller
 
         $targetUser = User::find($targetUserId) ?? $currentUser;
 
+        // E-Sertifikat hanya diberikan kepada peserta yang mengikuti Bimtek secara daring (online) maupun tatap muka (offline)
+        if (! $currentUser->isAdmin()) {
+            $isRegistered = TrainingRegistration::where('training_id', $training->id)
+                ->where('user_id', $targetUser->id)
+                ->exists();
+
+            $hasExistingCert = Certificate::where('training_id', $training->id)
+                ->where('user_id', $targetUser->id)
+                ->exists();
+
+            if (! $isRegistered && ! $hasExistingCert) {
+                return redirect()->to(route('pelatihan', ['tab' => 'sertifikat']))
+                    ->with('error', 'E-Sertifikat hanya diberikan kepada peserta yang terdaftar dan mengikuti program Bimbingan Teknis (Bimtek Online maupun Offline).');
+            }
+        }
+
         // Retrieve existing certificate or automatically generate a unique one
         $certificate = Certificate::where('user_id', $targetUser->id)
             ->where('training_id', $training->id)
@@ -1140,7 +1156,7 @@ class TrainingController extends Controller
                 'training_id' => $training->id,
                 'certificate_number' => $certNum,
                 'recipient_name' => $targetUser->name,
-                'recipient_code' => $targetUser->nik ?? ('NIK-'.rand(1000, 9999)),
+                'recipient_code' => $targetUser->profile?->nik ?? $targetUser->nik ?? ('NIK-'.rand(1000, 9999)),
                 'title' => $training->certificate_title ?? ('Sertifikasi Pelatihan: '.$training->title),
                 'issued_date' => now()->toDateString(),
                 'verified_by' => 'Dinas Peternakan Provinsi Jawa Timur',

@@ -5,6 +5,7 @@ use App\Models\LearningMaterial;
 use App\Models\LearningQuiz;
 use App\Models\QuizAttempt;
 use App\Models\Training;
+use App\Models\TrainingRegistration;
 use App\Models\User;
 use App\Models\UserLearningProgress;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -314,9 +315,25 @@ test('admin can create and preview training certificate, while peternak directly
     $previewResponse->assertSee('Mode Pratinjau Format (Admin)');
     $previewResponse->assertSee($training->certificate_title);
 
-    // Two participants download the certificate
+    // Two registered participants download the certificate
     $peternak1 = User::factory()->create(['name' => 'Ahmad Subagyo', 'role' => 'peternak']);
     $peternak2 = User::factory()->create(['name' => 'Bambang Sudarsono', 'role' => 'peternak']);
+
+    TrainingRegistration::create([
+        'training_id' => $training->id,
+        'user_id' => $peternak1->id,
+        'registration_code' => 'REG-TEST-001',
+        'status' => 'confirmed',
+        'registered_at' => now(),
+    ]);
+
+    TrainingRegistration::create([
+        'training_id' => $training->id,
+        'user_id' => $peternak2->id,
+        'registration_code' => 'REG-TEST-002',
+        'status' => 'confirmed',
+        'registered_at' => now(),
+    ]);
 
     // Peternak 1 downloads
     $response1 = $this->actingAs($peternak1)->get(route('pelatihan.certificates.download', $training));

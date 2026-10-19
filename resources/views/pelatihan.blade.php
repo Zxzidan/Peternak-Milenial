@@ -332,6 +332,7 @@
                         $isWatched = $prog ? $prog->is_watched : false;
                         $pct = $isWatched ? 100 : ($prog ? $prog->watch_percentage : 0);
                         $hasQuiz = $material->quiz !== null;
+                        $quizPassed = $hasQuiz && $quizAttempts->where('learning_quiz_id', $material->quiz->id)->where('passed', true)->isNotEmpty();
                     @endphp
                     <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group">
                         <!-- Thumbnail & Video Badge -->
@@ -432,6 +433,18 @@
                                     </div>
                                 </div>
                             </div>
+
+                            @if($currentUser && $currentUser->isPeternak() && $isWatched && $quizPassed)
+                            <div class="px-2.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-[11px] text-emerald-800 dark:text-emerald-300 flex items-center justify-between font-semibold">
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>Modul &amp; Evaluasi Selesai</span>
+                                </span>
+                                <span class="text-emerald-700 dark:text-emerald-400 font-bold text-[10px]">
+                                    Lulus Pemahaman
+                                </span>
+                            </div>
+                            @endif
 
                             <!-- Action Buttons: Admin Management vs Peternak Learner -->
                             <div class="pt-2 flex items-center gap-1.5 border-t border-gray-100 dark:border-gray-700">
@@ -1014,7 +1027,7 @@
                                 </span>
                                 @elseif($userAttempt)
                                     @if($userAttempt->passed)
-                                    <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full">
+                                    <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-700 bg-emerald-100 dark:bg-emerald-950/80 dark:text-emerald-300 px-2.5 py-0.5 rounded-full">
                                         &check; LULUS (Skor: {{ $userAttempt->score }})
                                     </span>
                                     @else
@@ -1085,14 +1098,16 @@
                                     <span>Butir Soal</span>
                                 </button>
                                 @else
-                                <button
-                                    type="button"
-                                    onclick="openQuizRunnerModal({{ json_encode($quiz) }}, {{ json_encode($quiz->questions) }})"
-                                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold transition shadow-xs cursor-pointer"
-                                >
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 011.13-1.897L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
-                                    <span>{{ $userAttempt ? 'Ulangi Kuis' : 'Kerjakan Soal' }}</span>
-                                </button>
+                                <div class="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onclick="openQuizRunnerModal({{ json_encode($quiz) }}, {{ json_encode($quiz->questions) }})"
+                                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl {{ $userAttempt && $userAttempt->passed ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200' : 'bg-purple-700 hover:bg-purple-800 text-white' }} text-xs font-bold transition shadow-xs cursor-pointer"
+                                    >
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 011.13-1.897L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
+                                        <span>{{ $userAttempt ? 'Ulangi Kuis' : 'Kerjakan Soal' }}</span>
+                                    </button>
+                                </div>
                                 @endif
                             </div>
                         </div>
@@ -1153,6 +1168,7 @@
                     @forelse($certificateTrainings as $training)
                     @php
                         $userCert = $currentUser ? $training->certificates->firstWhere('user_id', $currentUser->id) : null;
+                        $isRegisteredBimtek = $currentUser ? in_array($training->id, $myRegisteredTrainingIds) : false;
                     @endphp
                     <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 {{ $training->has_certificate ? 'border-emerald-500/40 hover:border-emerald-500/70' : 'border-gray-200 dark:border-gray-700' }} p-5 shadow-xs transition hover:shadow-md flex flex-col justify-between relative overflow-hidden group">
                         <!-- Decorative subtle background emblem -->
@@ -1161,10 +1177,26 @@
                         <div class="space-y-3 relative z-10">
                             <div class="flex items-center justify-between gap-2 flex-wrap">
                                 @if($training->has_certificate)
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[10px] font-extrabold border border-emerald-200 dark:border-emerald-800">
-                                    <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    {{ $currentUser && $currentUser->isAdmin() ? 'E-Sertifikat Aktif' : 'E-Sertifikat Siap Unduh' }}
-                                </span>
+                                    @if($currentUser && $currentUser->isAdmin())
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[10px] font-extrabold border border-emerald-200 dark:border-emerald-800">
+                                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        E-Sertifikat Aktif
+                                    </span>
+                                    @elseif($userCert)
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[10px] font-extrabold border border-emerald-200 dark:border-emerald-800">
+                                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        E-Sertifikat Siap Unduh
+                                    </span>
+                                    @elseif($isRegisteredBimtek)
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[10px] font-extrabold border border-emerald-200 dark:border-emerald-800">
+                                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        Peserta Bimtek Terdaftar
+                                    </span>
+                                    @else
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-[10px] font-bold border border-amber-200 dark:border-amber-800">
+                                        Khusus Peserta Bimtek
+                                    </span>
+                                    @endif
                                 @else
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-[10px] font-bold border border-gray-200 dark:border-gray-600">
                                     Belum Ada E-Sertifikat
@@ -1179,9 +1211,13 @@
                                     <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-200 font-bold">
                                         No: {{ $userCert->certificate_number }}
                                     </span>
+                                @elseif($isRegisteredBimtek)
+                                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-200 font-bold">
+                                        No. Otomatis Saat Unduh
+                                    </span>
                                 @else
                                     <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                                        No. Sertifikat Otomatis
+                                        Wajib Terdaftar Bimtek
                                     </span>
                                 @endif
                             </div>
@@ -1278,8 +1314,9 @@
                                 @endif
                             @else
                                 {{-- PESERTA ACTIONS: MENDOWNLOAD SERTIFIKAT --}}
+                                @if($userCert || $isRegisteredBimtek)
                                 <span class="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">
-                                    {{ $userCert ? 'Telah Diterbitkan' : 'Siap Diunduh' }}
+                                    {{ $userCert ? 'Telah Diterbitkan' : 'Siap Diunduh Peserta' }}
                                 </span>
 
                                 <a
@@ -1290,6 +1327,18 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.5V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
                                     <span>Download Sertifikat</span>
                                 </a>
+                                @else
+                                <span class="text-[11px] text-amber-700 dark:text-amber-400 font-semibold">
+                                    Khusus Peserta Bimtek
+                                </span>
+
+                                <a
+                                    href="{{ route('pelatihan', ['tab' => $training->is_online ? 'zoom' : 'bimtek_offline']) }}"
+                                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 dark:hover:bg-indigo-900/60 font-semibold text-xs transition shrink-0"
+                                >
+                                    <span>Ikuti Bimtek Dulu &rarr;</span>
+                                </a>
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -1297,7 +1346,7 @@
                     <div class="col-span-full py-12 text-center bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
                         <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.496m5.007 0a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H9.496a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
                         <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300">Belum ada sertifikat digital yang diterbitkan</h4>
-                        <p class="text-xs text-gray-400 mt-1">Sertifikat akan diterbitkan resmi oleh Dinas Peternakan Jatim setelah Anda menyelesaikan modul &amp; bimtek.</p>
+                        <p class="text-xs text-gray-400 mt-1">Sertifikat diterbitkan resmi oleh Dinas Peternakan Jatim untuk peserta yang mengikuti Bimtek Online (Zoom) maupun Tatap Muka Lapangan (Offline).</p>
                     </div>
                     @endforelse
                 </div>
@@ -1431,6 +1480,9 @@
                 <span>Skor: <strong id="qr-result-score" class="text-sm">0</strong>/100</span>
                 <span>&bull;</span>
                 <span>Benar: <strong id="qr-result-correct">0</strong> dari <span id="qr-result-total">0</span> soal</span>
+            </div>
+            <div class="pt-2 text-[11px] text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700/80">
+                <span>Soal kuis merupakan evaluasi mandiri pemahaman materi. E-Sertifikat resmi diterbitkan khusus bagi peserta yang mengikuti Bimbingan Teknis (Bimtek Online via Zoom maupun Tatap Muka Lapangan).</span>
             </div>
         </div>
 
@@ -2580,8 +2632,8 @@
                         iconBox.className = 'w-14 h-14 rounded-full mx-auto flex items-center justify-center text-2xl font-bold bg-emerald-100 text-emerald-800';
                         iconBox.innerHTML = '&check;';
                         heading.className = 'text-base font-extrabold text-emerald-800';
-                        heading.innerText = 'SELAMAT! ANDA LULUS EVALUASI';
-                        msg.innerText = `Skor Anda melampaui batas minimum kelulusan (${data.passing_score}%). Pemahaman Anda sangat baik.`;
+                        heading.innerText = 'SELAMAT! ANDA LULUS EVALUASI PEMAHAMAN';
+                        msg.innerText = `Skor Anda ${data.score}/100 melampaui batas minimum kelulusan (${data.passing_score}%). Pemahaman Anda sangat baik terhadap modul ini!`;
                     } else {
                         iconBox.className = 'w-14 h-14 rounded-full mx-auto flex items-center justify-center text-2xl font-bold bg-amber-100 text-amber-800';
                         iconBox.innerHTML = '!';

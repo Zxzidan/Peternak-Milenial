@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Consultation;
 use App\Models\ConsultationMessage;
+use App\Models\ConsultationSchedule;
 use App\Models\Disease;
 use App\Models\HealthRecord;
 use App\Models\Livestock;
 use App\Models\User;
 use App\Models\Veterinarian;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -36,15 +39,21 @@ class ConsultationController extends Controller
 
         // Admin/Vet sees consultation with current selected user or latest consultation
         if ($isAdmin) {
-            $consultation = Consultation::with(['messages.sender', 'veterinarian', 'user'])->latest('updated_at')->first();
+            $consultation = Consultation::with(['messages.sender', 'veterinarian', 'user', 'schedule.veterinarian', 'livestock'])->latest('updated_at')->first();
+            $myBookings = Consultation::with(['user.peternakProfile', 'veterinarian', 'schedule.veterinarian', 'livestock'])->latest()->get();
             $livestocks = Livestock::all();
             $healthRecords = HealthRecord::with(['livestock', 'veterinarian'])->latest('record_date')->get();
         } else {
             // Peternak: Scoped strictly to their own consultation and own animals
             $consultation = Consultation::where('user_id', $currentUser->id)
-                ->with(['messages.sender', 'veterinarian', 'user'])
+                ->with(['messages.sender', 'veterinarian', 'user', 'schedule.veterinarian', 'livestock'])
                 ->latest('updated_at')
                 ->first();
+
+            $myBookings = Consultation::where('user_id', $currentUser->id)
+                ->with(['veterinarian', 'schedule.veterinarian', 'livestock'])
+                ->latest()
+                ->get();
 
             $livestocks = Livestock::where('user_id', $currentUser->id)->get();
             $healthRecords = HealthRecord::whereIn('livestock_id', $livestocks->pluck('id'))
@@ -53,12 +62,23 @@ class ConsultationController extends Controller
                 ->get();
         }
 
-        $veterinarians = Veterinarian::latest()->get();
+        // Active veterinarians with upcoming consultation schedules
+        $veterinarians = Veterinarian::where('is_active', true)
+            ->with(['schedules' => function ($q) {
+                $q->whereDate('date', '>=', now()->toDateString())
+                    ->where('status', 'buka')
+                    ->orderBy('date')
+                    ->orderBy('start_time');
+            }])
+            ->latest()
+            ->get();
+
         $diseases = Disease::all();
 
         return view('konsultasi', [
             'activeTab' => $activeTab,
             'consultation' => $consultation,
+            'myBookings' => $myBookings,
             'healthRecords' => $healthRecords,
             'livestocks' => $livestocks,
             'diseases' => $diseases,
@@ -67,7 +87,142 @@ class ConsultationController extends Controller
     }
 
     /**
-     * Start a new consultation session (Peternak).
+     * Peternak books a consultation slot with a specific doctor and quota check.
+     */
+    public function bookSchedule(Request $request): RedirectResponse
+    {
+        $currentUser = auth()->user();
+        if (! $currentUser) {
+            return redirect()->route('login');
+        }
+
+        $validated = $request->validate([
+            'consultation_schedule_id' => ['required', 'exists:consultation_schedules,id'],
+            'subject' => ['required', 'string', 'max:255'],
+            'complaint_details' => ['required', 'string', 'max:2000'],
+            'livestock_id' => ['nullable', 'exists:livestock,id'],
+            'consultation_type' => ['required', 'in:konsultasi_online,telemedisin,tatap_muka,kunjungan'],
+        ]);
+
+        $schedule = ConsultationSchedule::with(['veterinarian.user'])->findOrFail($validated['consultation_schedule_id']);
+
+        if ($schedule->status !== 'buka') {
+            return redirect()->route('konsultasi')
+                ->withInput()
+                ->with('error', "Mohon maaf, slot jadwal {$schedule->time_slot_label} saat ini sedang ditutup.");
+        }
+
+        if ($schedule->remaining_quota <= 0) {
+            return redirect()->route('konsultasi')
+                ->withInput()
+                ->with('error', "Mohon maaf, kuota layanan konsultasi pada jam {$schedule->time_slot_label} sudah habis. Silakan pilih jam atau tanggal lain.");
+        }
+
+        // Check if peternak already booked this exact slot
+        $existing = Consultation::where('user_id', $currentUser->id)
+            ->where('consultation_schedule_id', $schedule->id)
+            ->where('status', '!=', 'dibatalkan')
+            ->first();
+
+        if ($existing) {
+            return redirect()->route('konsultasi')
+                ->withInput()
+                ->with('error', "Anda telah terdaftar pada slot jadwal ini (No. Reservasi: {$existing->booking_code}).");
+        }
+
+        $bookingCode = 'JDW-'.date('Ymd').'-'.strtoupper(Str::random(5));
+        $vetUserId = $schedule->veterinarian?->user_id;
+
+        $consultation = Consultation::create([
+            'user_id' => $currentUser->id,
+            'veterinarian_id' => $vetUserId,
+            'consultation_schedule_id' => $schedule->id,
+            'booking_code' => $bookingCode,
+            'livestock_id' => $validated['livestock_id'] ?? null,
+            'consultation_date' => $schedule->date,
+            'consultation_time' => $schedule->time_slot_label,
+            'subject' => $validated['subject'],
+            'complaint_details' => $validated['complaint_details'],
+            'consultation_type' => $validated['consultation_type'],
+            'status' => 'menunggu_konfirmasi',
+        ]);
+
+        return redirect()->route('konsultasi')
+            ->with('success', "Jadwal konsultasi berhasil diatur bersama {$schedule->veterinarian?->name} pada {$schedule->date->translatedFormat('d F Y')} ({$schedule->time_slot_label}). Kuota layanan Anda telah dikunci (No. Reservasi: {$bookingCode})!");
+    }
+
+    /**
+     * Peternak cancels their booked consultation schedule, restoring slot quota.
+     */
+    public function cancelBooking(Consultation $consultation): RedirectResponse
+    {
+        $currentUser = auth()->user();
+        if (! $currentUser) {
+            return redirect()->route('login');
+        }
+
+        if ($consultation->user_id !== $currentUser->id && ! $currentUser->isAdmin() && ! $currentUser->isDokterHewan()) {
+            abort(403, 'Anda tidak memiliki hak untuk membatalkan reservasi ini.');
+        }
+
+        if ($consultation->status === 'selesai') {
+            return redirect()->route('konsultasi')
+                ->with('error', 'Konsultasi yang sudah selesai tidak dapat dibatalkan.');
+        }
+
+        $consultation->update(['status' => 'dibatalkan']);
+
+        return redirect()->route('konsultasi')
+            ->with('success', "Reservasi jadwal konsultasi '{$consultation->booking_code}' berhasil dibatalkan. Kuota layanan telah dikembalikan.");
+    }
+
+    /**
+     * Get available consultation slots for a specific veterinarian and date (AJAX/API).
+     */
+    public function getDoctorSlots(Veterinarian $veterinarian, Request $request): JsonResponse
+    {
+        $date = $request->query('date', now()->toDateString());
+
+        $slots = ConsultationSchedule::where('veterinarian_id', $veterinarian->id)
+            ->whereDate('date', $date)
+            ->where('status', 'buka')
+            ->with(['consultations'])
+            ->orderBy('start_time')
+            ->get()
+            ->map(function ($s) {
+                return [
+                    'id' => $s->id,
+                    'time_label' => $s->time_slot_label,
+                    'start_time' => substr((string) $s->start_time, 0, 5),
+                    'end_time' => substr((string) $s->end_time, 0, 5),
+                    'quota' => $s->quota,
+                    'booked_count' => $s->booked_count,
+                    'remaining_quota' => $s->remaining_quota,
+                    'is_full' => $s->is_full,
+                    'service_type' => $s->service_type,
+                ];
+            });
+
+        // Also fetch upcoming dates that have active slots for this doctor
+        $availableDates = ConsultationSchedule::where('veterinarian_id', $veterinarian->id)
+            ->whereDate('date', '>=', now()->toDateString())
+            ->where('status', 'buka')
+            ->orderBy('date')
+            ->get()
+            ->map(fn ($s) => $s->date instanceof CarbonInterface ? $s->date->toDateString() : substr((string) $s->date, 0, 10))
+            ->unique()
+            ->values();
+
+        return response()->json([
+            'doctor_name' => $veterinarian->name,
+            'date' => $date,
+            'slots' => $slots,
+            'available_dates' => $availableDates,
+        ]);
+    }
+
+    /**
+     * Start a new consultation session (Peternak fallback).
      */
     public function startConsultation(Request $request): RedirectResponse
     {
@@ -87,7 +242,7 @@ class ConsultationController extends Controller
             'user_id' => $currentUser->id,
             'veterinarian_id' => $vet?->id,
             'subject' => $validated['subject'],
-            'status' => 'pending',
+            'status' => 'menunggu_konfirmasi',
         ]);
 
         ConsultationMessage::create([
