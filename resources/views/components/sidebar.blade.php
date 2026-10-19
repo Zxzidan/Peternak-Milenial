@@ -145,9 +145,12 @@
                 </li>
 
                 <li>
+                    @php
+                        $isDokterLaporanActive = request()->is('dokter-hewan/laporan*') || (request()->is('dokter-hewan/dashboard*') && request()->has('tab'));
+                    @endphp
                     <button
                         type="button"
-                        class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('dokter-hewan/laporan*') || (request()->is('dokter-hewan/dashboard*') && request()->has('tab')) ? 'bg-primary-50 text-primary-800 border-primary-200/90 font-semibold shadow-2xs' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}"
+                        class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ $isDokterLaporanActive ? 'bg-primary-50 text-primary-800 border-primary-200/90 font-semibold shadow-2xs' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}"
                         aria-controls="dropdown-dokter-laporan"
                         data-collapse-toggle="dropdown-dokter-laporan"
                         title="Laporan Klinis Ternak"
@@ -162,29 +165,29 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                         </svg>
                     </button>
-                    <ul id="dropdown-dokter-laporan" class="py-1 space-y-0.5">
+                    <ul id="dropdown-dokter-laporan" class="py-1 space-y-0.5 {{ $isDokterLaporanActive ? '' : 'hidden' }}">
                         <li>
-                            <a href="{{ route('dokter-hewan.dashboard', ['tab' => 'masuk']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'masuk' ? 'text-primary-700 font-semibold bg-gray-50' : 'text-gray-600 hover:text-primary-700 hover:bg-gray-100' }}">
+                            <a href="{{ route('dokter-hewan.laporan.index', ['tab' => 'masuk']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ (request('tab') === 'masuk' || (request()->is('dokter-hewan/laporan*') && !request()->has('tab'))) ? 'text-primary-700 dark:text-primary-400 font-semibold bg-primary-50/70 dark:bg-primary-950/40' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-gray-100 dark:hover:bg-gray-700/50' }}">
                                 Laporan Masuk
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('dokter-hewan.dashboard', ['tab' => 'ditangani']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'ditangani' ? 'text-primary-700 font-semibold bg-gray-50' : 'text-gray-600 hover:text-primary-700 hover:bg-gray-100' }}">
+                            <a href="{{ route('dokter-hewan.laporan.index', ['tab' => 'ditangani']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'ditangani' ? 'text-primary-700 dark:text-primary-400 font-semibold bg-primary-50/70 dark:bg-primary-950/40' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-gray-100 dark:hover:bg-gray-700/50' }}">
                                 Sedang Ditangani
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('dokter-hewan.dashboard', ['tab' => 'dijawab']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'dijawab' ? 'text-primary-700 font-semibold bg-gray-50' : 'text-gray-600 hover:text-primary-700 hover:bg-gray-100' }}">
+                            <a href="{{ route('dokter-hewan.laporan.index', ['tab' => 'dijawab']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'dijawab' ? 'text-primary-700 dark:text-primary-400 font-semibold bg-primary-50/70 dark:bg-primary-950/40' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-gray-100 dark:hover:bg-gray-700/50' }}">
                                 Sudah Dijawab
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('dokter-hewan.dashboard', ['tab' => 'kunjungan']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'kunjungan' ? 'text-primary-700 font-semibold bg-gray-50' : 'text-gray-600 hover:text-primary-700 hover:bg-gray-100' }}">
+                            <a href="{{ route('dokter-hewan.laporan.index', ['tab' => 'kunjungan']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'kunjungan' ? 'text-primary-700 dark:text-primary-400 font-semibold bg-primary-50/70 dark:bg-primary-950/40' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-gray-100 dark:hover:bg-gray-700/50' }}">
                                 Menunggu Kunjungan
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('dokter-hewan.dashboard', ['tab' => 'selesai']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'selesai' ? 'text-primary-700 font-semibold bg-gray-50' : 'text-gray-600 hover:text-primary-700 hover:bg-gray-100' }}">
+                            <a href="{{ route('dokter-hewan.laporan.index', ['tab' => 'selesai']) }}" class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request('tab') === 'selesai' ? 'text-primary-700 dark:text-primary-400 font-semibold bg-primary-50/70 dark:bg-primary-950/40' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-gray-100 dark:hover:bg-gray-700/50' }}">
                                 Penanganan Selesai
                             </a>
                         </li>

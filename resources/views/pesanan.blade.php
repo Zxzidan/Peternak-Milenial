@@ -113,7 +113,7 @@
                 <button
                     type="button"
                     onclick="filterOrders('all', this)"
-                    class="order-tab-btn active px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white transition shrink-0 flex items-center gap-1.5 shadow-2xs"
+                    class="order-tab-btn active px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-primary-700 text-white transition shrink-0 flex items-center gap-1.5 shadow-2xs"
                 >
                     <span>Semua</span>
                     <span class="px-1.5 py-0.2 rounded bg-white/20 text-[10px] tabular-nums">{{ $orderCounts['all'] }}</span>
@@ -913,9 +913,9 @@ function printOrderInvoice(orderCode) {
 }
 
 function filterOrders(status, buttonElem) {
-    // Toggle active tab style with clean slate-900 / neutral design
+    // Toggle active tab style with primary blue design
     document.querySelectorAll('.order-tab-btn').forEach(btn => {
-        btn.classList.remove('active', 'bg-slate-900', 'text-white', 'font-semibold');
+        btn.classList.remove('active', 'bg-primary-700', 'bg-slate-900', 'text-white', 'font-semibold');
         btn.classList.add('text-slate-600', 'hover:text-slate-900', 'hover:bg-slate-100', 'font-medium');
         const badge = btn.querySelector('span:last-child');
         if (badge) {
@@ -925,7 +925,7 @@ function filterOrders(status, buttonElem) {
     });
 
     buttonElem.classList.remove('text-slate-600', 'hover:text-slate-900', 'hover:bg-slate-100', 'font-medium');
-    buttonElem.classList.add('active', 'bg-slate-900', 'text-white', 'font-semibold');
+    buttonElem.classList.add('active', 'bg-primary-700', 'text-white', 'font-semibold');
     const activeBadge = buttonElem.querySelector('span:last-child');
     if (activeBadge) {
         activeBadge.classList.remove('bg-slate-100', 'text-slate-600');

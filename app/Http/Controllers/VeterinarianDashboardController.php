@@ -30,7 +30,8 @@ class VeterinarianDashboardController extends Controller
             'total' => AnimalHealthReport::count(),
         ];
 
-        $tab = $request->query('tab', 'semua');
+        $defaultTab = $request->routeIs('dokter-hewan.laporan.*') ? 'masuk' : 'semua';
+        $tab = $request->query('tab', $defaultTab);
         $search = $request->query('search');
 
         $query = AnimalHealthReport::with(['user', 'assignedVeterinarian', 'latestVisit'])

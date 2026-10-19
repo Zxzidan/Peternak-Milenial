@@ -41,7 +41,7 @@ class ConsultationController extends Controller
         if ($isAdmin) {
             $consultation = Consultation::with(['messages.sender', 'veterinarian', 'user', 'schedule.veterinarian', 'livestock'])->latest('updated_at')->first();
             $myBookings = Consultation::with(['user.peternakProfile', 'veterinarian', 'schedule.veterinarian', 'livestock'])->latest()->get();
-            $livestocks = Livestock::all();
+            $livestocks = Livestock::with(['healthRecords.veterinarian'])->get();
             $healthRecords = HealthRecord::with(['livestock', 'veterinarian'])->latest('record_date')->get();
         } else {
             // Peternak: Scoped strictly to their own consultation and own animals
@@ -55,7 +55,7 @@ class ConsultationController extends Controller
                 ->latest()
                 ->get();
 
-            $livestocks = Livestock::where('user_id', $currentUser->id)->get();
+            $livestocks = Livestock::where('user_id', $currentUser->id)->with(['healthRecords.veterinarian'])->get();
             $healthRecords = HealthRecord::whereIn('livestock_id', $livestocks->pluck('id'))
                 ->with(['livestock', 'veterinarian'])
                 ->latest('record_date')
@@ -298,6 +298,7 @@ class ConsultationController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'diagnosis' => ['nullable', 'string', 'max:500'],
             'treatment' => ['nullable', 'string', 'max:500'],
+            'notes' => ['nullable', 'string', 'max:1000'],
             'record_date' => ['required', 'date'],
         ]);
 
@@ -313,7 +314,7 @@ class ConsultationController extends Controller
             'title' => $validated['title'],
             'diagnosis' => $validated['diagnosis'] ?? 'Kondisi stabil dalam pemantauan rutin',
             'treatment' => $validated['treatment'] ?? 'Vitamin & multivitamin support',
-            'notes' => 'Tercatat otomatis melalui Buku Rekam Medis Digital Dinas',
+            'notes' => $validated['notes'] ?? 'Tercatat otomatis melalui Buku Rekam Medis Digital Dinas',
             'record_date' => $validated['record_date'],
         ]);
 

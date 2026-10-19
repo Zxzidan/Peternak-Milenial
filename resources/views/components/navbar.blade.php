@@ -78,7 +78,7 @@
                 <!-- Emergency / Quick Action Button -->
                 @if(auth()->check() && auth()->user()->isDokterHewan())
                 <a
-                    href="{{ route('dokter-hewan.dashboard') }}"
+                    href="{{ route('dokter-hewan.laporan.index', ['tab' => 'masuk']) }}"
                     class="inline-flex items-center gap-1.5 text-xs font-semibold {{ request()->is('dokter-hewan*') ? 'text-white bg-primary-700 shadow-xs' : 'text-primary-800 bg-primary-50 hover:bg-primary-100 border border-primary-200 dark:bg-primary-950/40 dark:text-primary-300 dark:border-primary-800' }} px-3 py-1.5 rounded-lg transition shadow-2xs"
                     title="Buka Laporan Masuk Kesehatan Ternak"
                 >

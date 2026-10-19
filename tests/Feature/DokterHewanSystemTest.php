@@ -399,3 +399,29 @@ test('complete workflow: admin creates doctor credentials, doctor logs in and ha
     $peternakView->assertSee('drh. Hendra Wijaya');
     $peternakView->assertSee('Sudah Dijawab');
 });
+
+test('veterinarian sees KPI stat cards on dashboard but cards are hidden on laporan kesehatan menu', function () {
+    $dokter = User::factory()->dokterHewan()->create();
+    Veterinarian::factory()->create(['user_id' => $dokter->id]);
+
+    // 1. On Dashboard: KPI cards are visible
+    $dashboardResponse = $this->actingAs($dokter)->get(route('dokter-hewan.dashboard'));
+    $dashboardResponse->assertOk();
+    $dashboardResponse->assertSee('Dashboard Dokter Hewan Dinas');
+    $dashboardResponse->assertSee('Laporan baru belum mendapat respons');
+
+    // 2. On Laporan Kesehatan: KPI cards and horizontal tabs are hidden, dedicated status header is shown
+    $laporanResponse = $this->actingAs($dokter)->get(route('dokter-hewan.laporan.index'));
+    $laporanResponse->assertOk();
+    $laporanResponse->assertSee('Laporan Kesehatan Hewan Ternak');
+    $laporanResponse->assertSee('Laporan Masuk');
+    $laporanResponse->assertDontSee('Laporan baru belum mendapat respons');
+
+    // 3. On filtered tab: dedicated title for that status is shown without horizontal tabs
+    $filteredResponse = $this->actingAs($dokter)->get(route('dokter-hewan.laporan.index', ['tab' => 'masuk']));
+    $filteredResponse->assertOk();
+    $filteredResponse->assertSee('Laporan Kesehatan Hewan Ternak');
+    $filteredResponse->assertSee('Laporan Masuk');
+    $filteredResponse->assertDontSee('Laporan baru belum mendapat respons');
+    $filteredResponse->assertDontSee('Sedang Ditangani (');
+});
