@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AnimalHealthReport;
 use App\Models\CalendarEvent;
 use App\Models\Certificate;
 use App\Models\Commodity;
@@ -1052,6 +1053,84 @@ class DatabaseSeeder extends Seeder
             'consultation_id' => $consult->id,
             'sender_id' => $drhRatna->id,
             'message' => 'Selamat pagi Pak Slamet. Pisahkan sapi ke kandang karantina, beri air hangat + molase. Petugas lapangan sedang menuju lokasi membawa antipiretik.',
+        ]);
+
+        // Laporan Kesehatan Hewan & Balasan Resmi Dokter Hewan untuk Peternak Slamet
+        $reportSlamet = AnimalHealthReport::create([
+            'report_number' => 'LAP-202610-0012',
+            'user_id' => $peternakSlamet->id,
+            'assigned_veterinarian_id' => $vetRatna->id,
+            'livestock_type' => 'Sapi Perah Friesian Holstein',
+            'affected_count' => 2,
+            'symptoms' => 'Dua ekor sapi perah betina mengalami demam 39.8°C, produksi susu anjlok 50%, nafsu makan menurun drastis, dan sering terbaring lesu sejak kemarin.',
+            'symptoms_started_at' => now()->subDays(3)->toDateString(),
+            'medical_history' => 'Sudah vaksinasi PMK 6 bulan lalu, riwayat kesehatan kawanan stabil.',
+            'urgency' => 'tinggi',
+            'farm_name' => 'Peternakan Barokah Pasuruan',
+            'farm_address' => 'Desa Tutur, Kec. Nongkojajar, Kabupaten Pasuruan',
+            'kabupaten' => 'Pasuruan',
+            'additional_notes' => 'Kandang berada di perbukitan sisi timur, akses jalan dapat dilalui mobil pikap dinas.',
+            'status' => 'sedang_ditangani',
+            'last_responded_at' => now()->subHours(5),
+            'created_at' => now()->subDays(3),
+            'updated_at' => now()->subHours(5),
+        ]);
+
+        $reportSlamet->responses()->create([
+            'user_id' => $drhRatna->id,
+            'message' => 'Laporan telah kami terima dan verifikasi oleh tim medik Puskeswan. Kondisi demam dan penurunan produksi susu pada sapi perah perlu penanganan terpadu segera guna mencegah dehidrasi dan komplikasi radang ambing.',
+            'hypothesis' => 'Dugaan klinis awal: Demam Tiga Hari (Bovine Ephemeral Fever / BEF) dengan indikasi mastitis subklinis sekunder akibat stres cuaca.',
+            'recommendations' => "1. Karantina segera: Pindahkan 2 ekor sapi terdampak ke kandang terpisah yang beralas kering dan bersih.\n2. Terapi cairan: Berikan air minum hangat dicampur molase (tetes tebu) 200ml dan sedikit garam oralit untuk memulihkan elektrolit.\n3. Jangan perah paksa: Jangan memerah puting yang teraba panas atau bengkak dengan mesin perah mekanis; lakukan pengosongan perlahan secara manual.\n4. Kompres ambing: Gunakan kain bersih yang dibasahi air hangat suam-suam kuku untuk meredakan ketegangan ambing.",
+            'follow_up_instructions' => 'Pantau suhu tubuh rektal setiap 6 jam. Laporkan segera bila suhu naik di atas 40.5°C atau sapi menunjukkan kesulitan bernapas.',
+            'urgency_level' => 'tinggi',
+            'requires_visit' => true,
+            'notes' => 'Telah dikoordinasikan jadwal kunjungan lapangan dan penyiapan injeksi antipiretik & multivitamin B-kompleks.',
+            'created_at' => now()->subHours(5),
+            'updated_at' => now()->subHours(5),
+        ]);
+
+        $reportSlamet->visits()->create([
+            'veterinarian_id' => $vetRatna->id,
+            'created_by_id' => $drhRatna->id,
+            'proposed_date' => now()->addDay()->setHour(9)->setMinute(0),
+            'confirmed_date' => now()->addDay()->setHour(9)->setMinute(0),
+            'status' => 'terjadwal',
+            'visit_reason' => 'Pemeriksaan fisik langsung ke kandang peternak, auskultasi paru/jantung, uji CMT (California Mastitis Test), dan injeksi vitamin terapeutik.',
+            'farmer_notes' => 'Siap dikunjungi besok pagi jam 09.00 WIB. Pintu gerbang kandang sudah terbuka.',
+            'created_at' => now()->subHours(5),
+            'updated_at' => now()->subHours(5),
+        ]);
+
+        // Laporan kedua yang sudah selesai ditangani dokter
+        $reportSlamet2 = AnimalHealthReport::create([
+            'report_number' => 'LAP-202610-0008',
+            'user_id' => $peternakSlamet->id,
+            'assigned_veterinarian_id' => $vetRatna->id,
+            'livestock_type' => 'Kambing Peranakan Etawa (PE)',
+            'affected_count' => 1,
+            'symptoms' => 'Kambing jantan mengalami luka gores di area telinga dan kuku, nafsu makan agak menurun.',
+            'symptoms_started_at' => now()->subDays(7)->toDateString(),
+            'urgency' => 'rendah',
+            'farm_name' => 'Peternakan Barokah Pasuruan',
+            'farm_address' => 'Desa Tutur, Kec. Nongkojajar, Kabupaten Pasuruan',
+            'kabupaten' => 'Pasuruan',
+            'status' => 'selesai',
+            'last_responded_at' => now()->subDays(4),
+            'created_at' => now()->subDays(7),
+            'updated_at' => now()->subDays(4),
+        ]);
+
+        $reportSlamet2->responses()->create([
+            'user_id' => $drhRatna->id,
+            'message' => 'Luka gores telah diperiksa. Kondisi fisik kambing secara umum prima dan luka tidak menunjukkan infeksi bernanah.',
+            'hypothesis' => 'Trauma mekanis ringan pada jaringan kulit luar tanpa keterlibatan kuman tetanus.',
+            'recommendations' => "1. Bersihkan luka dengan povidone iodine 1% dua kali sehari.\n2. Berikan pakan hijauan segar dan tempatkan di kandang kering.",
+            'follow_up_instructions' => 'Luka sembuh kering dalam 3 hari. Penanganan kasus dinyatakan selesai.',
+            'urgency_level' => 'rendah',
+            'requires_visit' => false,
+            'notes' => 'Kasus ditutup dengan kondisi ternak telah pulih total.',
+            'created_at' => now()->subDays(4),
+            'updated_at' => now()->subDays(4),
         ]);
 
         Disease::create([

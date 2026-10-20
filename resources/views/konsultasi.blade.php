@@ -5,7 +5,7 @@
 @section('content')
 @php
     $activeTab = $activeTab ?? request('tab', 'dokter');
-    if (!in_array($activeTab, ['dokter', 'rekam_medis', 'penyakit'])) {
+    if (!in_array($activeTab, ['dokter', 'rekam_medis', 'penyakit', 'balasan_dokter'])) {
         $activeTab = 'dokter';
     }
 @endphp
@@ -24,6 +24,8 @@
                         Konsultasi Dokter Hewan
                     @elseif($activeTab === 'rekam_medis')
                         Rekam Medis &amp; E-Tag Ternak
+                    @elseif($activeTab === 'balasan_dokter')
+                        Balasan &amp; Rekomendasi Dokter Hewan
                     @elseif($activeTab === 'penyakit')
                         Pedoman Penyakit Hewan
                     @endif
@@ -35,6 +37,8 @@
                         Layanan telemedisin veteriner langsung bersama dokter hewan resmi Dinas Peternakan Jawa Timur.
                     @elseif($activeTab === 'rekam_medis')
                         Buku riwayat kesehatan digital, pencatatan vaksinasi, dan identifikasi barcode E-Tag ternak.
+                    @elseif($activeTab === 'balasan_dokter')
+                        Daftar lengkap analisis klinis, rekomendasi tindakan medis, resep obat, instruksi pemantauan, dan agenda kunjungan dari Dokter Hewan Dinas untuk ternak Anda.
                     @elseif($activeTab === 'penyakit')
                         Basis data pengenalan gejala klinis dan pedoman penanganan dini penyakit hewan menular.
                     @endif
@@ -71,6 +75,21 @@
                     >
                         + E-Tag Baru
                     </button>
+                @elseif($activeTab === 'balasan_dokter')
+                    <a
+                        href="{{ route('kesehatan-hewan.create') }}"
+                        class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 px-3.5 py-2 rounded-lg transition shadow-xs cursor-pointer"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        <span>Buat Laporan Baru</span>
+                    </a>
+                    <a
+                        href="{{ url('/konsultasi?tab=dokter') }}"
+                        class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 bg-white dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-50 border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-lg transition shadow-2xs"
+                    >
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+                        <span>Konsultasi Online</span>
+                    </a>
                 @elseif($activeTab === 'penyakit')
                     @if(auth()->check() && auth()->user()->isAdmin())
                     <button
@@ -83,6 +102,50 @@
                     @endif
                 @endif
             </div>
+        </div>
+
+        <!-- Horizontal Tab Navigation Bar -->
+        <div class="flex items-center gap-2 border-t border-gray-100 dark:border-gray-800 pt-3.5 overflow-x-auto text-xs">
+            <a
+                href="{{ url('/konsultasi?tab=dokter') }}"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition shrink-0 {{ $activeTab === 'dokter' ? 'bg-primary-700 text-white font-semibold shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}"
+            >
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
+                <span>Dokter Hewan &amp; Konsultasi</span>
+            </a>
+
+            <a
+                href="{{ url('/konsultasi?tab=rekam_medis') }}"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition shrink-0 {{ $activeTab === 'rekam_medis' ? 'bg-primary-700 text-white font-semibold shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}"
+            >
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" /></svg>
+                <span>Rekam Medis (E-Tag)</span>
+            </a>
+
+            @if(!auth()->check() || auth()->user()->isPeternak())
+            <a
+                href="{{ url('/konsultasi?tab=balasan_dokter') }}"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition shrink-0 {{ $activeTab === 'balasan_dokter' ? 'bg-primary-700 text-white font-semibold shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}"
+            >
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v7.518z"/></svg>
+                <span>Balasan Dokter</span>
+                @if(isset($doctorResponseCount) && $doctorResponseCount > 0)
+                <span class="px-1.5 py-0.2 text-[10px] font-bold rounded-full {{ $activeTab === 'balasan_dokter' ? 'bg-white text-primary-700' : 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200' }}">
+                    {{ $doctorResponseCount }}
+                </span>
+                @endif
+            </a>
+            @endif
+
+            @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isDokterHewan()))
+            <a
+                href="{{ url('/konsultasi?tab=penyakit') }}"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition shrink-0 {{ $activeTab === 'penyakit' ? 'bg-primary-700 text-white font-semibold shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}"
+            >
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>
+                <span>Pedoman Penyakit</span>
+            </a>
+            @endif
         </div>
     </div>
 
@@ -1242,6 +1305,565 @@
             Lapor Kesehatan Ternak &rarr;
         </a>
     </div>
+    @endif
+
+    {{-- ======================================================== --}}
+    {{-- TAB 4: BALASAN & REKOMENDASI DOKTER HEWAN (ROLE PETERNAK) --}}
+    {{-- ======================================================== --}}
+    @if($activeTab === 'balasan_dokter')
+    <div class="space-y-6">
+
+        <!-- Executive KPI / Stat Summary Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 sm:gap-4">
+            <!-- KPI 1: Total Balasan -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 p-4 shadow-2xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Total Tanggapan Dokter</span>
+                    <span class="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v7.518z"/></svg>
+                    </span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                        {{ $doctorResponseCount ?? 0 }}
+                    </span>
+                    <span class="text-[11px] text-emerald-600 font-medium">Balasan</span>
+                </div>
+                <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                    Dokter Hewan Puskeswan Jatim
+                </p>
+            </div>
+
+            <!-- KPI 2: Resep & Arahan -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 p-4 shadow-2xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Resep &amp; Tindakan Medis</span>
+                    <span class="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                    </span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-xl sm:text-2xl font-bold text-blue-700 dark:text-blue-400">
+                        {{ $activePrescriptionsCount ?? 0 }}
+                    </span>
+                    <span class="text-[11px] text-blue-600 font-medium">Petunjuk</span>
+                </div>
+                <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                    Instruksi isolasi &amp; terapi obat
+                </p>
+            </div>
+
+            <!-- KPI 3: Kunjungan Lapangan -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 p-4 shadow-2xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Kunjungan ke Kandang</span>
+                    <span class="p-1.5 rounded-lg bg-orange-50 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.25V3.75a1.5 1.5 0 00-1.5-1.5h-9a1.5 1.5 0 00-1.5 1.5v15"/></svg>
+                    </span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-xl sm:text-2xl font-bold text-orange-700 dark:text-orange-400">
+                        {{ $activeVisitsCount ?? 0 }}
+                    </span>
+                    <span class="text-[11px] text-orange-600 font-medium">Agenda</span>
+                </div>
+                <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                    Inspeksi klinis langsung dokter
+                </p>
+            </div>
+
+            <!-- KPI 4: Selesai Ditangani -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200/90 dark:border-gray-700 p-4 shadow-2xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Kasus Selesai</span>
+                    <span class="p-1.5 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-xl sm:text-2xl font-bold text-teal-700 dark:text-teal-400">
+                        {{ $resolvedReportsCount ?? 0 }}
+                    </span>
+                    <span class="text-[11px] text-teal-600 font-medium">Tuntas</span>
+                </div>
+                <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                    Ternak telah pulih / tertangani
+                </p>
+            </div>
+        </div>
+
+        <!-- Banner Info Terpadu -->
+        <div class="bg-gradient-to-r from-emerald-900 via-primary-900 to-teal-900 rounded-2xl p-4 sm:p-5 text-white shadow-xs relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+                <div class="space-y-1">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-emerald-300 text-[11px] font-medium backdrop-blur-xs">
+                        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>Pusat Layanan Tanggapan Medis Veteriner</span>
+                    </div>
+                    <h2 class="text-base sm:text-lg font-bold tracking-tight text-white">
+                        Seluruh Hasil Analisis &amp; Arahan Dokter Resmi Terangkum di Sini
+                    </h2>
+                    <p class="text-xs text-gray-200 max-w-2xl leading-relaxed">
+                        Halaman ini menghimpun rekaman resmi balasan, diagnosis klinis, tindakan cepat, resep obat, instruksi pemantauan harian, serta kepastian jadwal inspeksi kandang langsung dari Dokter Hewan Dinas Jawa Timur untuk kawanan ternak Anda.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a
+                        href="{{ route('kesehatan-hewan.create') }}"
+                        class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-950 bg-white hover:bg-emerald-50 px-3.5 py-2.5 rounded-xl transition shadow-xs cursor-pointer"
+                    >
+                        <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        <span>Lapor Kasus Ternak Sakit</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Tab Pills (Semua, Laporan Medis, Konsultasi Online, Kunjungan) -->
+        <div class="flex flex-wrap items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3 text-xs">
+            <button
+                type="button"
+                onclick="filterDoctorResponses('all')"
+                id="filter-btn-all"
+                class="filter-response-btn active-filter px-3.5 py-1.5 rounded-lg font-semibold bg-primary-700 text-white shadow-2xs transition"
+            >
+                Semua Tanggapan ({{ ($healthReports ? $healthReports->count() : 0) + ($consultationsWithReplies ? $consultationsWithReplies->count() : 0) }})
+            </button>
+            <button
+                type="button"
+                onclick="filterDoctorResponses('laporan')"
+                id="filter-btn-laporan"
+                class="filter-response-btn px-3.5 py-1.5 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+            >
+                Laporan Medis Ternak ({{ $healthReports ? $healthReports->count() : 0 }})
+            </button>
+            <button
+                type="button"
+                onclick="filterDoctorResponses('konsultasi')"
+                id="filter-btn-konsultasi"
+                class="filter-response-btn px-3.5 py-1.5 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+            >
+                Konsultasi Telemedisin ({{ $consultationsWithReplies ? $consultationsWithReplies->count() : 0 }})
+            </button>
+            @if(isset($activeVisitsCount) && $activeVisitsCount > 0)
+            <button
+                type="button"
+                onclick="filterDoctorResponses('kunjungan')"
+                id="filter-btn-kunjungan"
+                class="filter-response-btn px-3.5 py-1.5 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+            >
+                Kunjungan Lapangan ({{ $activeVisitsCount }})
+            </button>
+            @endif
+        </div>
+
+        <!-- Daftar Konten Balasan Dokter -->
+        <div class="space-y-5" id="container-balasan-dokter">
+
+            {{-- 1. LOOP DAFTAR TANGGAPAN LAPORAN KESEHATAN HEWAN --}}
+            @forelse($healthReports as $report)
+            <div class="item-balasan-card card-laporan-medis {{ $report->visits->isNotEmpty() ? 'card-kunjungan-lapangan' : '' }} bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700 p-5 sm:p-6 shadow-2xs hover:shadow-md transition-all space-y-4">
+                
+                <!-- Header Kartu: Nomor Laporan, Urgensi, Status & Tanggal -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-gray-100 dark:border-gray-700">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-primary-50 text-primary-800 dark:bg-primary-950/70 dark:text-primary-300 border border-primary-200/60 dark:border-primary-800/60">
+                            <svg class="w-3.5 h-3.5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                            <span>{{ $report->report_number }}</span>
+                        </span>
+
+                        <!-- Badge Urgensi -->
+                        @if($report->urgency === 'kritis')
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300 border border-red-200 flex items-center gap-1 animate-pulse">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                                <span>Urgensi Kritis</span>
+                            </span>
+                        @elseif($report->urgency === 'tinggi')
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-orange-100 text-orange-800 dark:bg-orange-950/70 dark:text-orange-300 border border-orange-200">
+                                Urgensi Tinggi
+                            </span>
+                        @elseif($report->urgency === 'sedang')
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200">
+                                Urgensi Sedang
+                            </span>
+                        @else
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200">
+                                Urgensi Rendah
+                            </span>
+                        @endif
+
+                        <!-- Badge Status Penanganan -->
+                        @if($report->status === 'selesai')
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                                ✓ Selesai Ditangani
+                            </span>
+                        @elseif($report->status === 'sudah_dijawab')
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300">
+                                Sudah Dijawab Dokter
+                            </span>
+                        @elseif(in_array($report->status, ['kunjungan_terjadwal', 'menunggu_kunjungan']))
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300">
+                                Kunjungan Lapangan Terjadwal
+                            </span>
+                        @elseif($report->status === 'sedang_ditangani')
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300">
+                                Sedang Ditangani Dokter
+                            </span>
+                        @else
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                                Menunggu Telaah Dokter
+                            </span>
+                        @endif
+                    </div>
+
+                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                        Dilaporkan: <span class="font-medium text-gray-700 dark:text-gray-300">{{ $report->created_at->format('d M Y, H:i') }} WIB</span>
+                    </div>
+                </div>
+
+                <!-- Info Ternak & Ringkasan Keluhan Gejala Awal -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3.5 rounded-xl bg-gray-50/80 dark:bg-gray-750/40 border border-gray-100 dark:border-gray-700/60 text-xs">
+                    <div>
+                        <span class="text-[11px] font-medium text-gray-500 dark:text-gray-400 block">Komoditas / Jenis Ternak:</span>
+                        <span class="font-bold text-gray-900 dark:text-white mt-0.5 block">
+                            {{ $report->livestock_type }}
+                            <span class="font-normal text-gray-500">({{ $report->affected_count }} ekor terdampak)</span>
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-medium text-gray-500 dark:text-gray-400 block">Lokasi Peternakan:</span>
+                        <span class="font-medium text-gray-800 dark:text-gray-200 mt-0.5 block">
+                            {{ $report->farm_name ?? 'Peternakan Anda' }} &bull; {{ $report->kabupaten }}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-medium text-gray-500 dark:text-gray-400 block">Gejala Klinis Dilaporkan:</span>
+                        <span class="text-gray-700 dark:text-gray-300 italic mt-0.5 block line-clamp-2" title="{{ $report->symptoms }}">
+                            "{{ $report->symptoms }}"
+                        </span>
+                    </div>
+                </div>
+
+                <!-- KOTAK BALASAN RESMI DARI DOKTER HEWAN -->
+                @php
+                    $doctorResponses = $report->responses->filter(fn($resp) => $resp->isFromDoctor());
+                @endphp
+
+                @if($doctorResponses->isNotEmpty())
+                <div class="space-y-4 pt-1">
+                    @foreach($doctorResponses as $response)
+                    <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/90 dark:border-emerald-800/60 space-y-3.5">
+                        
+                        <!-- Baris Profil Dokter & Waktu Respons -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-emerald-100 dark:border-emerald-800/40">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                                    {{ strtoupper(substr($response->user->name ?? 'DH', 0, 2)) }}
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-1.5">
+                                        <h3 class="font-bold text-sm text-gray-900 dark:text-white">
+                                            {{ $response->user->name }}
+                                        </h3>
+                                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">
+                                            Dokter Hewan Dinas
+                                        </span>
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                                        Puskeswan Dinas Peternakan Provinsi Jawa Timur
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                                Tanggapan Resmi Dikirim: {{ $response->created_at->format('d M Y, H:i') }} WIB
+                            </div>
+                        </div>
+
+                        <!-- Pesan Ulasan Utama Dokter -->
+                        <div class="text-xs sm:text-sm text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">
+                            {{ $response->message }}
+                        </div>
+
+                        <!-- 1. DUGAAN DIAGNOSIS / ANALISIS AWAL DOKTER -->
+                        @if($response->hypothesis)
+                        <div class="p-3.5 rounded-xl bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 space-y-1">
+                            <div class="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-300">
+                                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                                <span>Analisis Klinis &amp; Dugaan Awal Penyakit:</span>
+                            </div>
+                            <p class="text-xs text-amber-900 dark:text-amber-200 font-medium pl-5.5 leading-relaxed">
+                                {{ $response->hypothesis }}
+                            </p>
+                            <span class="text-[10px] text-amber-700/80 dark:text-amber-400/80 pl-5.5 block">
+                                *Catatan Resmi: Dugaan klinis awal dokter berdasarkan telaah gejala klinis yang Anda laporkan.
+                            </span>
+                        </div>
+                        @endif
+
+                        <!-- 2. REKOMENDASI PENANGANAN CEPAT & RESEP / OBAT -->
+                        @if($response->recommendations)
+                        <div class="p-3.5 rounded-xl bg-white dark:bg-gray-800 border border-emerald-300 dark:border-emerald-700/80 shadow-2xs space-y-1.5">
+                            <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span>Rekomendasi Penanganan &amp; Tindakan yang Wajib Dilakukan Peternak:</span>
+                            </div>
+                            <div class="text-xs text-gray-800 dark:text-gray-200 pl-5.5 whitespace-pre-line font-medium leading-relaxed">
+                                {{ $response->recommendations }}
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- 3. INSTRUKSI PEMANTAUAN LANJUTAN -->
+                        @if($response->follow_up_instructions)
+                        <div class="p-3.5 rounded-xl bg-blue-50/80 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/60 space-y-1">
+                            <div class="flex items-center gap-1.5 text-xs font-bold text-blue-900 dark:text-blue-300">
+                                <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                <span>Instruksi Pemantauan Kondisi Hewan:</span>
+                            </div>
+                            <p class="text-xs text-blue-800 dark:text-blue-200 pl-5.5 whitespace-pre-line leading-relaxed">
+                                {{ $response->follow_up_instructions }}
+                            </p>
+                        </div>
+                        @endif
+
+                    </div>
+                    @endforeach
+                </div>
+                @else
+                <!-- Laporan Menunggu Respons Dokter -->
+                <div class="p-4 rounded-xl bg-amber-50/70 dark:bg-amber-950/20 border border-dashed border-amber-300 dark:border-amber-800/60 text-xs flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div>
+                            <span class="font-bold text-amber-900 dark:text-amber-200 block">Laporan Anda Telah Masuk ke Dokter Hewan Jaga</span>
+                            <span class="text-amber-700 dark:text-amber-400 text-[11px]">Tim veteriner Puskeswan wilayah sedang menganalisis gejala klinis ternak Anda. Hasil analisis akan muncul di sini.</span>
+                        </div>
+                    </div>
+                    <span class="text-[11px] font-semibold text-amber-800 dark:text-amber-300 px-2 py-1 rounded bg-amber-100 dark:bg-amber-900/60 shrink-0">Antrean Verifikasi</span>
+                </div>
+                @endif
+
+                <!-- 4. STATUS & AGENDA KUNJUNGAN LAPANGAN (JIKA ADA KUNJUNGAN) -->
+                @if($report->latestVisit)
+                <div class="p-4 rounded-xl bg-orange-50/70 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800/60 space-y-2.5 text-xs">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-orange-200/60 dark:border-orange-800/40 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="p-1 rounded-md bg-orange-100 text-orange-700 dark:bg-orange-900/60 dark:text-orange-300">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.25V3.75a1.5 1.5 0 00-1.5-1.5h-9a1.5 1.5 0 00-1.5 1.5v15"/></svg>
+                            </span>
+                            <span class="font-bold text-orange-900 dark:text-orange-200">Agenda Kunjungan Lapangan Dokter ke Kandang Anda</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $report->latestVisit->status === 'terjadwal' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-orange-100 text-orange-800' }}">
+                            {{ $report->latestVisit->status_label }}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <span class="text-[11px] text-gray-500 dark:text-gray-400 block">Jadwal yang Disepakati / Diusulkan:</span>
+                            <span class="font-bold text-gray-900 dark:text-white mt-0.5 block">
+                                {{ $report->latestVisit->proposed_date ? $report->latestVisit->proposed_date->format('d F Y, H:i') . ' WIB' : 'Menunggu penjadwalan' }}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="text-[11px] text-gray-500 dark:text-gray-400 block">Maksud / Alasan Kunjungan:</span>
+                            <span class="text-gray-800 dark:text-gray-200 mt-0.5 block">
+                                {{ $report->latestVisit->visit_reason ?? 'Pemeriksaan fisik langsung dan injeksi terapi veteriner.' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    @if($report->latestVisit->examination_notes)
+                    <div class="mt-2 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 space-y-1">
+                        <span class="font-bold text-gray-900 dark:text-white text-[11px] block">Hasil Pemeriksaan Klinis Pasca Kunjungan:</span>
+                        <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">{{ $report->latestVisit->examination_notes }}</p>
+                        @if($report->latestVisit->post_visit_recommendations)
+                        <span class="font-bold text-emerald-800 dark:text-emerald-400 text-[11px] block mt-2">Rekomendasi Lanjutan:</span>
+                        <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">{{ $report->latestVisit->post_visit_recommendations }}</p>
+                        @endif
+                    </div>
+                    @endif
+                </div>
+                @endif
+
+                <!-- Baris Tombol Aksi Bawah -->
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700 text-xs">
+                    <span class="text-gray-400 text-[11px]">
+                        Petugas Penugasan: <strong class="text-gray-700 dark:text-gray-300">{{ $report->assignedVeterinarian?->name ?? 'Dokter Hewan Jaga Puskeswan' }}</strong>
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <a
+                            href="{{ route('kesehatan-hewan.show', $report) }}"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 dark:bg-primary-950/60 dark:text-primary-300 dark:hover:bg-primary-900/60 transition shadow-2xs"
+                        >
+                            <span>Lihat Detail &amp; Balas Dokter</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            @empty
+            @endforelse
+
+            {{-- 2. LOOP DAFTAR CATATAN RESEP & SARAN DARI SESI KONSULTASI ONLINE --}}
+            @if(isset($consultationsWithReplies) && $consultationsWithReplies->isNotEmpty())
+            @foreach($consultationsWithReplies as $c)
+            <div class="item-balasan-card card-konsultasi-online bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700 p-5 sm:p-6 shadow-2xs hover:shadow-md transition-all space-y-4">
+                
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-gray-700">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-blue-50 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300 border border-blue-200/60">
+                            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+                            <span>Konsultasi Telemedisin #{{ $c->booking_code ?? 'KNS-'.$c->id }}</span>
+                        </span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                            {{ ucfirst(str_replace('_', ' ', $c->status)) }}
+                        </span>
+                    </div>
+
+                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                        Jadwal: <span class="font-medium text-gray-700 dark:text-gray-300">{{ $c->consultation_date ?? $c->created_at->format('d M Y') }} &bull; {{ $c->consultation_time ?? '08:00 - 16:00 WIB' }}</span>
+                    </div>
+                </div>
+
+                <!-- Dokter & Topik -->
+                <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 text-xs">
+                    <div>
+                        <span class="text-[11px] font-medium text-gray-500 block">Dokter Hewan Konsultan:</span>
+                        <h4 class="font-bold text-sm text-gray-900 dark:text-white mt-0.5">
+                            {{ $c->veterinarian?->name ?? 'Dokter Hewan Dinas' }}
+                        </h4>
+                        <span class="text-gray-500 text-[11px]">{{ $c->veterinarian?->puskeswan ?? 'Puskeswan Dinas Peternakan Jatim' }}</span>
+                    </div>
+                    <div class="sm:max-w-md">
+                        <span class="text-[11px] font-medium text-gray-500 block">Subjek / Topik Konsultasi:</span>
+                        <p class="font-semibold text-gray-800 dark:text-gray-200 mt-0.5">{{ $c->subject }}</p>
+                        @if($c->complaint_details)
+                        <p class="text-gray-600 dark:text-gray-400 mt-0.5 italic">"{{ $c->complaint_details }}"</p>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Catatan & Resep Obat dari Dokter -->
+                <div class="space-y-3 pt-1">
+                    @if($c->doctor_notes)
+                    <div class="p-3.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 text-xs space-y-1">
+                        <div class="flex items-center gap-1.5 font-bold text-amber-900 dark:text-amber-300">
+                            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                            <span>Catatan &amp; Diagnosis Dokter Hewan:</span>
+                        </div>
+                        <p class="text-gray-800 dark:text-gray-200 pl-5.5 leading-relaxed">{{ $c->doctor_notes }}</p>
+                    </div>
+                    @endif
+
+                    @if($c->prescription)
+                    <div class="p-3.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 text-xs space-y-1">
+                        <div class="flex items-center gap-1.5 font-bold text-emerald-900 dark:text-emerald-300">
+                            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span>Resep / Rekomendasi Terapi Medis:</span>
+                        </div>
+                        <p class="text-emerald-950 dark:text-emerald-200 pl-5.5 font-medium leading-relaxed whitespace-pre-line">{{ $c->prescription }}</p>
+                    </div>
+                    @endif
+
+                    @php
+                        $latestDoctorMsg = $c->messages->filter(fn($m) => $m->sender?->isDokterHewan() || $m->sender?->isAdmin())->last();
+                    @endphp
+                    @if($latestDoctorMsg)
+                    <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-700/40 border border-gray-100 dark:border-gray-700 text-xs space-y-1">
+                        <div class="flex items-center justify-between text-[11px] text-gray-500">
+                            <span class="font-semibold text-gray-700 dark:text-gray-300">Pesan Balasan Terakhir di Chat Konsultasi:</span>
+                            <span>{{ $latestDoctorMsg->created_at->format('d M Y, H:i') }} WIB</span>
+                        </div>
+                        <p class="text-gray-800 dark:text-gray-200 italic">"{{ $latestDoctorMsg->message }}"</p>
+                    </div>
+                    @endif
+                </div>
+
+                <div class="flex items-center justify-end pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <a
+                        href="{{ url('/konsultasi?tab=dokter') }}"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-semibold text-xs text-primary-700 bg-primary-50 hover:bg-primary-100 dark:bg-primary-950/60 dark:text-primary-300 transition"
+                    >
+                        <span>Buka Ruang Konsultasi &amp; Chat</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                    </a>
+                </div>
+
+            </div>
+            @endforeach
+            @endif
+
+            {{-- 3. EMPTY STATE JIKA BELUM ADA BALASAN DOKTER SAMA SEKALI --}}
+            @if((!$healthReports || $healthReports->isEmpty()) && (!isset($consultationsWithReplies) || $consultationsWithReplies->isEmpty()))
+            <div class="text-center py-12 px-4 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 space-y-4">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-2xs">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v7.518z"/>
+                    </svg>
+                </div>
+                <div class="max-w-md mx-auto">
+                    <h3 class="text-base font-bold text-gray-900 dark:text-white">
+                        Belum Ada Balasan Dokter untuk Ternak Anda
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed">
+                        Jika ternak Anda mengalami gejala sakit, penurunan produksi susu, lesu, atau nafsu makan turun, segera buat laporan pemeriksaan agar dokter hewan Puskeswan dapat segera memberikan diagnosis, resep tindakan, atau menjadwalkan kunjungan lapangan.
+                    </p>
+                </div>
+                <div class="flex items-center justify-center gap-3 pt-2">
+                    <a
+                        href="{{ route('kesehatan-hewan.create') }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 rounded-xl transition shadow-xs"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        <span>Buat Laporan Kesehatan Baru</span>
+                    </a>
+                    <a
+                        href="{{ url('/konsultasi?tab=dokter') }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 border border-gray-200 dark:border-gray-700 rounded-xl transition shadow-2xs"
+                    >
+                        <span>Atur Jadwal Konsultasi Dokter</span>
+                    </a>
+                </div>
+            </div>
+            @endif
+
+        </div>
+
+    </div>
+
+    <script>
+        function filterDoctorResponses(category) {
+            const allButtons = document.querySelectorAll('.filter-response-btn');
+            allButtons.forEach(btn => {
+                btn.classList.remove('active-filter', 'bg-primary-700', 'text-white', 'shadow-2xs');
+                btn.classList.add('text-gray-600', 'dark:text-gray-400');
+            });
+
+            const activeBtn = document.getElementById('filter-btn-' + category);
+            if (activeBtn) {
+                activeBtn.classList.add('active-filter', 'bg-primary-700', 'text-white', 'shadow-2xs');
+                activeBtn.classList.remove('text-gray-600', 'dark:text-gray-400');
+            }
+
+            const cards = document.querySelectorAll('.item-balasan-card');
+            cards.forEach(card => {
+                if (category === 'all') {
+                    card.style.display = 'block';
+                } else if (category === 'laporan') {
+                    card.style.display = card.classList.contains('card-laporan-medis') ? 'block' : 'none';
+                } else if (category === 'konsultasi') {
+                    card.style.display = card.classList.contains('card-konsultasi-online') ? 'block' : 'none';
+                } else if (category === 'kunjungan') {
+                    card.style.display = card.classList.contains('card-kunjungan-lapangan') ? 'block' : 'none';
+                }
+            });
+        }
+    </script>
     @endif
 
     @if(auth()->check() && auth()->user()->isAdmin())

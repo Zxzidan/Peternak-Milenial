@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AnimalHealthReport;
 use App\Models\Consultation;
 use App\Models\ConsultationMessage;
 use App\Models\ConsultationSchedule;
@@ -21,7 +22,7 @@ use Illuminate\Support\Str;
 class ConsultationController extends Controller
 {
     /**
-     * Display veterinary consultations, digital health records, and disease guidance.
+     * Display veterinary consultations, digital health records, and doctor responses.
      */
     public function index(Request $request): View
     {
@@ -31,7 +32,7 @@ class ConsultationController extends Controller
         }
 
         $activeTab = $request->query('tab', 'dokter');
-        if (! in_array($activeTab, ['dokter', 'rekam_medis', 'penyakit'])) {
+        if (! in_array($activeTab, ['dokter', 'rekam_medis', 'penyakit', 'balasan_dokter'])) {
             $activeTab = 'dokter';
         }
 
@@ -43,6 +44,16 @@ class ConsultationController extends Controller
             $myBookings = Consultation::with(['user.peternakProfile', 'veterinarian', 'schedule.veterinarian', 'livestock'])->latest()->get();
             $livestocks = Livestock::with(['healthRecords.veterinarian'])->get();
             $healthRecords = HealthRecord::with(['livestock', 'veterinarian'])->latest('record_date')->get();
+
+            // All health reports with doctor responses and visits
+            $healthReports = AnimalHealthReport::with([
+                'user.peternakProfile',
+                'assignedVeterinarian.user',
+                'responses.user',
+                'visits.veterinarian',
+                'latestVisit',
+                'statusHistories.changer',
+            ])->latest('last_responded_at')->latest('updated_at')->get();
         } else {
             // Peternak: Scoped strictly to their own consultation and own animals
             $consultation = Consultation::where('user_id', $currentUser->id)
@@ -51,7 +62,7 @@ class ConsultationController extends Controller
                 ->first();
 
             $myBookings = Consultation::where('user_id', $currentUser->id)
-                ->with(['veterinarian', 'schedule.veterinarian', 'livestock'])
+                ->with(['veterinarian', 'schedule.veterinarian', 'livestock', 'messages.sender'])
                 ->latest()
                 ->get();
 
@@ -59,6 +70,19 @@ class ConsultationController extends Controller
             $healthRecords = HealthRecord::whereIn('livestock_id', $livestocks->pluck('id'))
                 ->with(['livestock', 'veterinarian'])
                 ->latest('record_date')
+                ->get();
+
+            // Scoped health reports with doctor responses and visits for current Peternak
+            $healthReports = AnimalHealthReport::where('user_id', $currentUser->id)
+                ->with([
+                    'assignedVeterinarian.user',
+                    'responses.user',
+                    'visits.veterinarian',
+                    'latestVisit',
+                    'statusHistories.changer',
+                ])
+                ->latest('last_responded_at')
+                ->latest('updated_at')
                 ->get();
         }
 
@@ -75,6 +99,17 @@ class ConsultationController extends Controller
 
         $diseases = Disease::all();
 
+        // Calculate metrics for Balasan Dokter view
+        $doctorResponseCount = $healthReports->sum(fn ($r) => $r->responses->filter(fn ($resp) => $resp->isFromDoctor())->count());
+        $activeVisitsCount = $healthReports->sum(fn ($r) => $r->visits->count());
+        $activePrescriptionsCount = $healthReports->filter(fn ($r) => $r->responses->whereNotNull('recommendations')->isNotEmpty())->count();
+        $resolvedReportsCount = $healthReports->where('status', 'selesai')->count();
+
+        // Filter consultations that contain veterinarian notes or prescriptions or replies
+        $consultationsWithReplies = $myBookings->filter(function ($c) {
+            return ! empty($c->doctor_notes) || ! empty($c->prescription) || in_array($c->status, ['answered', 'dikonfirmasi', 'selesai']) || $c->messages->filter(fn ($m) => $m->sender?->isDokterHewan() || $m->sender?->isAdmin())->isNotEmpty();
+        });
+
         return view('konsultasi', [
             'activeTab' => $activeTab,
             'consultation' => $consultation,
@@ -83,6 +118,12 @@ class ConsultationController extends Controller
             'livestocks' => $livestocks,
             'diseases' => $diseases,
             'veterinarians' => $veterinarians,
+            'healthReports' => $healthReports,
+            'doctorResponseCount' => $doctorResponseCount,
+            'activeVisitsCount' => $activeVisitsCount,
+            'activePrescriptionsCount' => $activePrescriptionsCount,
+            'resolvedReportsCount' => $resolvedReportsCount,
+            'consultationsWithReplies' => $consultationsWithReplies,
         ]);
     }
 
