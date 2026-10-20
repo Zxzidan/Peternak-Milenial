@@ -53,7 +53,7 @@ class ConsultationController extends Controller
                 'visits.veterinarian',
                 'latestVisit',
                 'statusHistories.changer',
-            ])->latest('last_responded_at')->latest('updated_at')->get();
+            ])->latest('created_at')->get();
         } else {
             // Peternak: Scoped strictly to their own consultation and own animals
             $consultation = Consultation::where('user_id', $currentUser->id)
@@ -81,8 +81,7 @@ class ConsultationController extends Controller
                     'latestVisit',
                     'statusHistories.changer',
                 ])
-                ->latest('last_responded_at')
-                ->latest('updated_at')
+                ->latest('created_at')
                 ->get();
         }
 
