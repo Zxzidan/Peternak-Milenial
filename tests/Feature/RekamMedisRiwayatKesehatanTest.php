@@ -1,8 +1,11 @@
 <?php
 
-use App\Models\AnimalHealthReport;
-use App\Models\AnimalHealthReportResponse;
+use App\Models\Consultation;
+use App\Models\ConsultationSchedule;
+use App\Models\HealthRecord;
+use App\Models\Livestock;
 use App\Models\User;
+use App\Models\Veterinarian;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -11,84 +14,140 @@ beforeEach(function () {
     $this->seed();
 });
 
-test('rekam medis tab displays a simple 3-column table of animal health report history for logged-in peternak', function () {
+test('rekam medis tab displays consultation reservation results and clinical health records for logged-in peternak', function () {
     $peternak = User::factory()->peternak()->create([
         'name' => 'Budi Santoso Peternak',
         'email' => 'budi.santoso@peternak.test',
-    ]);
-
-    // Create report 1 with doctor response
-    $report1 = AnimalHealthReport::create([
-        'report_number' => 'LKH-20261020-0001-TEST',
-        'user_id' => $peternak->id,
-        'livestock_type' => 'Sapi Perah',
-        'affected_count' => 1,
-        'symptoms' => 'Sapi tidak nafsu makan dan ambing susu membengkak kemerahan',
-        'symptoms_started_at' => now()->subDays(2),
-        'urgency' => 'tinggi',
-        'status' => 'sudah_dijawab',
-        'created_at' => now()->subDays(2),
     ]);
 
     $vetUser = User::factory()->dokterHewan()->create([
         'name' => 'drh. Hendra Wijaya',
         'email' => 'drh.hendra@disnak.test',
     ]);
-
-    AnimalHealthReportResponse::create([
-        'animal_health_report_id' => $report1->id,
+    $veterinarian = Veterinarian::factory()->create([
         'user_id' => $vetUser->id,
-        'message' => 'Kemungkinan terindikasi mastitis akut pada kuartir ambing kanan depan.',
-        'recommendations' => 'Kompres air hangat dan oleskan salep antibiotik mastitis khusus.',
-        'urgency_level' => 'tinggi',
+        'name' => 'drh. Hendra Wijaya, M.Si',
+        'puskeswan' => 'Puskeswan Malang Selatan',
+        'is_active' => true,
     ]);
 
-    // Create report 2 without doctor response
-    $report2 = AnimalHealthReport::create([
-        'report_number' => 'LKH-20261020-0002-TEST',
+    $livestock = Livestock::create([
         'user_id' => $peternak->id,
-        'livestock_type' => 'Kambing Senduro',
-        'affected_count' => 2,
-        'symptoms' => 'Batuk pilek dan nafas tersengal-sengal di pagi hari',
-        'symptoms_started_at' => now()->subDay(),
-        'urgency' => 'sedang',
-        'status' => 'menunggu_respons',
-        'created_at' => now()->subDay(),
+        'e_tag_number' => 'ETAG-JTM-777',
+        'name' => 'Si Hitam Manis',
+        'type' => 'sapi_perah_fh',
+        'gender' => 'betina',
+        'health_status' => 'sehat',
     ]);
 
-    // Create another peternak's report (should NOT appear)
+    $schedule = ConsultationSchedule::create([
+        'veterinarian_id' => $veterinarian->id,
+        'date' => now()->addDay()->toDateString(),
+        'start_time' => '09:00:00',
+        'end_time' => '10:00:00',
+        'quota' => 5,
+        'booked_count' => 1,
+        'status' => 'buka',
+    ]);
+
+    // Create consultation reservation with diagnosis and prescription
+    Consultation::create([
+        'user_id' => $peternak->id,
+        'veterinarian_id' => $veterinarian->id,
+        'consultation_schedule_id' => $schedule->id,
+        'livestock_id' => $livestock->id,
+        'subject' => 'Pemeriksaan Nafsu Makan Turun Pasca Melahirkan',
+        'complaint_details' => 'Sapi tampak lesu sejak kemarin pagi dan produksi susu menurun drastis.',
+        'consultation_type' => 'telemedisin',
+        'status' => 'selesai',
+        'doctor_notes' => 'Terindikasi ketosis subklinis ringan pasca laktasi awal. Suhu badan normal 38.6 C.',
+        'prescription' => 'Berikan larutan propilen glikol 300ml per oral dan multivitamin B-kompleks.',
+    ]);
+
+    // Create clinical health record for the livestock
+    HealthRecord::create([
+        'livestock_id' => $livestock->id,
+        'veterinarian_id' => $veterinarian->id,
+        'record_type' => 'vaksinasi',
+        'record_date' => now()->subDays(5)->toDateString(),
+        'title' => 'Vaksinasi Booster PMK Dosis 2',
+        'diagnosis' => 'Kondisi fisik prima untuk vaksinasi booster.',
+        'treatment' => 'Injeksi vaksin Aftogen 2ml IM sisi leher kiri.',
+        'notes' => 'Ternak istirahat selama 24 jam.',
+    ]);
+
+    // Other peternak consultation (should NOT be visible)
     $otherPeternak = User::factory()->peternak()->create([
         'name' => 'Peternak Lain',
         'email' => 'other@peternak.test',
     ]);
-    AnimalHealthReport::create([
-        'report_number' => 'LKH-20261020-9999-OTHER',
+    Consultation::create([
         'user_id' => $otherPeternak->id,
-        'livestock_type' => 'Domba Garut',
-        'affected_count' => 5,
-        'symptoms' => 'Gejala rahasia milik peternak lain yang tidak boleh muncul',
-        'status' => 'menunggu_respons',
+        'veterinarian_id' => $veterinarian->id,
+        'subject' => 'Rahasia Kasus Penyakit Milik Peternak Lain',
+        'complaint_details' => 'Data sensitif yang tidak boleh muncul pada rekam medis pengguna lain.',
+        'consultation_type' => 'telemedisin',
+        'status' => 'menunggu',
     ]);
 
-    // Peternak visits Rekam Medis tab
+    // Visit rekam medis tab
     $response = $this->actingAs($peternak)->get(route('konsultasi', ['tab' => 'rekam_medis']));
 
     $response->assertStatus(200);
 
-    // 1. Assert exactly the 3 column headers exist
-    $response->assertSee('Tanggal Pelaporan');
-    $response->assertSee('Gejala');
-    $response->assertSee('Hasil Balasan Dokter');
+    // 1. Assert consultation reservation results are prominently displayed
+    $response->assertSee('Hasil Reservasi &amp; Rekomendasi Konsultasi Dokter', false);
+    $response->assertSee('Pemeriksaan Nafsu Makan Turun Pasca Melahirkan');
+    $response->assertSee('Sapi tampak lesu sejak kemarin pagi dan produksi susu menurun drastis.');
+    $response->assertSee('Terindikasi ketosis subklinis ringan pasca laktasi awal.');
+    $response->assertSee('Berikan larutan propilen glikol 300ml per oral dan multivitamin B-kompleks.');
+    $response->assertSee('drh. Hendra Wijaya, M.Si');
+    $response->assertSee('ETAG-JTM-777');
 
-    // 2. Assert data from database is displayed correctly
-    $response->assertSee('Sapi tidak nafsu makan dan ambing susu membengkak kemerahan');
-    $response->assertSee('Kemungkinan terindikasi mastitis akut pada kuartir ambing kanan depan.');
-    $response->assertSee('Kompres air hangat dan oleskan salep antibiotik mastitis khusus.');
+    // 2. Assert clinical health records and e-tag features are preserved
+    $response->assertSee('Arsip Rekam Medis &amp; E-Tag Kawanan Ternak', false);
+    $response->assertSee('Vaksinasi Booster PMK Dosis 2');
+    $response->assertSee('Injeksi vaksin Aftogen 2ml IM sisi leher kiri.');
+    $response->assertSee('Populasi Ternak Ber-ETag');
 
-    // 3. Assert "Belum ada balasan" is displayed when doctor has not answered
-    $response->assertSee('Batuk pilek dan nafas tersengal-sengal di pagi hari');
-    $response->assertSee('Belum ada balasan');
+    // 3. Assert scoped strictly to current logged-in peternak
+    $response->assertDontSee('Rahasia Kasus Penyakit Milik Peternak Lain');
+    $response->assertDontSee('Data sensitif yang tidak boleh muncul pada rekam medis pengguna lain.');
+});
 
-    // 4. Assert scoped strictly to current logged-in peternak
-    $response->assertDontSee('Gejala rahasia milik peternak lain yang tidak boleh muncul');
+test('dokter tab does not display rekam medis terkini ternak widget', function () {
+    $peternak = User::factory()->peternak()->create();
+
+    $response = $this->actingAs($peternak)->get(route('konsultasi', ['tab' => 'dokter']));
+
+    $response->assertStatus(200);
+    $response->assertSee('Dokter Hewan Jaga &amp; Telemedisin', false);
+    // Ensure the recent medical records widget is removed from the doctor page
+    $response->assertDontSee('Rekam Medis Terkini Ternak');
+});
+
+test('horizontal top navigation bar does not display rekam medis or balasan dokter tab buttons for peternak', function () {
+    $peternak = User::factory()->peternak()->create();
+
+    $response = $this->actingAs($peternak)->get(route('konsultasi', ['tab' => 'dokter']));
+
+    $response->assertStatus(200);
+
+    // Sidebar contains the navigation items
+    $response->assertSee('id="dropdown-kesehatan"', false);
+    $response->assertSee('/konsultasi?tab=rekam_medis', false);
+    $response->assertSee('/konsultasi?tab=balasan_dokter', false);
+
+    // In-page horizontal tab navigation should NOT display Rekam Medis or Balasan Dokter buttons
+    $response->assertDontSee('<!-- Horizontal Tab Navigation Bar -->', false);
+    $response->assertDontSee('<span>Rekam Medis (E-Tag)</span>', false);
+});
+
+test('balasan dokter tab is accessible via sidebar route and renders successfully', function () {
+    $peternak = User::factory()->peternak()->create();
+
+    $response = $this->actingAs($peternak)->get(route('konsultasi', ['tab' => 'balasan_dokter']));
+
+    $response->assertStatus(200);
+    $response->assertSee('Balasan &amp; Rekomendasi Dokter Hewan', false);
 });
