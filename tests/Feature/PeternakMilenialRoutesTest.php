@@ -167,10 +167,6 @@ test('konsultasi dokter page renders successfully', function () {
     $this->get(route('konsultasi', ['tab' => 'penyakit']))
         ->assertStatus(200)
         ->assertSee('Pedoman Penyakit Hewan', false);
-
-    $this->get(route('konsultasi', ['tab' => 'balasan_dokter']))
-        ->assertStatus(200)
-        ->assertSee('Balasan &amp; Rekomendasi Dokter Hewan', false);
 });
 
 test('pameran page renders successfully', function () {

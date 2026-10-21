@@ -460,12 +460,6 @@
                                         Rekam Medis
                                     </a>
                                 </li>
-                                <li>
-                                    <a href="{{ url('/konsultasi?tab=balasan_dokter') }}"
-                                        class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request()->is('konsultasi*') && request('tab') === 'balasan_dokter' ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
-                                        Balasan Dokter
-                                    </a>
-                                </li>
                             </ul>
                         </li>
                     @endif

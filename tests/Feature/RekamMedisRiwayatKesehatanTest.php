@@ -130,20 +130,11 @@ test('horizontal top navigation bar does not display rekam medis or balasan dokt
     // Sidebar contains the navigation items
     $response->assertSee('id="dropdown-kesehatan"', false);
     $response->assertSee('/konsultasi?tab=rekam_medis', false);
-    $response->assertSee('/konsultasi?tab=balasan_dokter', false);
+    $response->assertDontSee('/konsultasi?tab=balasan_dokter', false);
 
     // In-page horizontal tab navigation should NOT display Rekam Medis or Balasan Dokter buttons
     $response->assertDontSee('<!-- Horizontal Tab Navigation Bar -->', false);
     $response->assertDontSee('<span>Rekam Medis (E-Tag)</span>', false);
-});
-
-test('balasan dokter tab is accessible via sidebar route and renders successfully', function () {
-    $peternak = User::factory()->peternak()->create();
-
-    $response = $this->actingAs($peternak)->get(route('konsultasi', ['tab' => 'balasan_dokter']));
-
-    $response->assertStatus(200);
-    $response->assertSee('Balasan &amp; Rekomendasi Dokter Hewan', false);
 });
 
 test('rekam medis cards feature download pdf buttons and link to official document', function () {

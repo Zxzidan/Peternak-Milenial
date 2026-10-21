@@ -153,6 +153,15 @@ textarea {
     background: rgba(148, 163, 184, 0.45);
 }
 
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
 /* Subtle transition for theme changes */
 *, ::before, ::after {
     transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
