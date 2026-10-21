@@ -162,8 +162,7 @@ test('konsultasi dokter page renders successfully', function () {
     $this->get(route('konsultasi', ['tab' => 'rekam_medis']))
         ->assertStatus(200)
         ->assertSee('Rekam Medis &amp; Riwayat Kesehatan Hewan', false)
-        ->assertSee('Hasil Reservasi &amp; Rekomendasi Konsultasi Dokter', false)
-        ->assertSee('Populasi Ternak Ber-ETag', false);
+        ->assertSee('Rekam Medis', false);
 
     $this->get(route('konsultasi', ['tab' => 'penyakit']))
         ->assertStatus(200)

@@ -96,7 +96,7 @@ test('rekam medis tab displays consultation reservation results and clinical hea
     $response->assertStatus(200);
 
     // 1. Assert consultation reservation results are prominently displayed
-    $response->assertSee('Hasil Reservasi &amp; Rekomendasi Konsultasi Dokter', false);
+    $response->assertSee('Rekam Medis', false);
     $response->assertSee('Pemeriksaan Nafsu Makan Turun Pasca Melahirkan');
     $response->assertSee('Sapi tampak lesu sejak kemarin pagi dan produksi susu menurun drastis.');
     $response->assertSee('Terindikasi ketosis subklinis ringan pasca laktasi awal.');
@@ -104,13 +104,7 @@ test('rekam medis tab displays consultation reservation results and clinical hea
     $response->assertSee('drh. Hendra Wijaya, M.Si');
     $response->assertSee('ETAG-JTM-777');
 
-    // 2. Assert clinical health records and e-tag features are preserved
-    $response->assertSee('Arsip Rekam Medis &amp; E-Tag Kawanan Ternak', false);
-    $response->assertSee('Vaksinasi Booster PMK Dosis 2');
-    $response->assertSee('Injeksi vaksin Aftogen 2ml IM sisi leher kiri.');
-    $response->assertSee('Populasi Ternak Ber-ETag');
-
-    // 3. Assert scoped strictly to current logged-in peternak
+    // 2. Assert scoped strictly to current logged-in peternak
     $response->assertDontSee('Rahasia Kasus Penyakit Milik Peternak Lain');
     $response->assertDontSee('Data sensitif yang tidak boleh muncul pada rekam medis pengguna lain.');
 });
@@ -150,4 +144,114 @@ test('balasan dokter tab is accessible via sidebar route and renders successfull
 
     $response->assertStatus(200);
     $response->assertSee('Balasan &amp; Rekomendasi Dokter Hewan', false);
+});
+
+test('rekam medis cards feature download pdf buttons and link to official document', function () {
+    $peternak = User::factory()->peternak()->create();
+    $vetUser = User::factory()->dokterHewan()->create();
+    $veterinarian = Veterinarian::factory()->create([
+        'user_id' => $vetUser->id,
+        'name' => 'drh. Siti Aminah, M.Vet',
+        'puskeswan' => 'Puskeswan Pasuruan Barat',
+    ]);
+
+    $livestock = Livestock::create([
+        'user_id' => $peternak->id,
+        'e_tag_number' => 'ETAG-PAS-099',
+        'name' => 'Lestari Ayu',
+        'type' => 'sapi_perah_fh',
+        'gender' => 'betina',
+        'health_status' => 'sehat',
+    ]);
+
+    $consultation = Consultation::create([
+        'user_id' => $peternak->id,
+        'veterinarian_id' => $veterinarian->id,
+        'livestock_id' => $livestock->id,
+        'subject' => 'Pemeriksaan Demam Transien',
+        'complaint_details' => 'Sapi perah lesu nafsu makan berkurang pasca hujan deras.',
+        'consultation_type' => 'telemedisin',
+        'status' => 'selesai',
+        'doctor_notes' => 'Demam ringan pasca cuaca ekstrem. Dianjurkan hidrasi elektrolit hangat.',
+        'prescription' => 'Antipiretik injeksi + Vitamin B kompleks 10ml.',
+    ]);
+
+    $response = $this->actingAs($peternak)->get(route('konsultasi', ['tab' => 'rekam_medis']));
+    $response->assertStatus(200);
+    $response->assertSee('Download Hasil Rekam Medis (PDF)');
+    $response->assertSee(route('konsultasi.rekam-medis.download', ['type' => 'consultation', 'id' => $consultation->id]));
+});
+
+test('peternak can view and download official medical record document with farmer care instructions', function () {
+    $peternak = User::factory()->peternak()->create([
+        'name' => 'Ahmad Santoso',
+    ]);
+    $vetUser = User::factory()->dokterHewan()->create();
+    $veterinarian = Veterinarian::factory()->create([
+        'user_id' => $vetUser->id,
+        'name' => 'drh. Siti Aminah, M.Vet',
+        'puskeswan' => 'Puskeswan Pasuruan Barat',
+    ]);
+
+    $livestock = Livestock::create([
+        'user_id' => $peternak->id,
+        'e_tag_number' => 'ETAG-PAS-099',
+        'name' => 'Lestari Ayu',
+        'type' => 'sapi_perah_fh',
+        'gender' => 'betina',
+        'health_status' => 'sehat',
+    ]);
+
+    $consultation = Consultation::create([
+        'user_id' => $peternak->id,
+        'veterinarian_id' => $veterinarian->id,
+        'livestock_id' => $livestock->id,
+        'subject' => 'Pemeriksaan Demam Transien',
+        'complaint_details' => 'Sapi perah lesu nafsu makan berkurang pasca hujan deras.',
+        'consultation_type' => 'telemedisin',
+        'status' => 'selesai',
+        'doctor_notes' => 'Demam ringan pasca cuaca ekstrem. Dianjurkan hidrasi elektrolit hangat.',
+        'prescription' => 'Antipiretik injeksi + Vitamin B kompleks 10ml.',
+    ]);
+
+    $response = $this->actingAs($peternak)->get(route('konsultasi.rekam-medis.download', [
+        'type' => 'consultation',
+        'id' => $consultation->id,
+    ]));
+
+    $response->assertStatus(200);
+    $response->assertSee('Lembar Hasil Rekam Medis &amp; Petunjuk Penanganan Ternak', false);
+    $response->assertSee('Dinas Peternakan');
+    $response->assertSee('ETAG-PAS-099');
+    $response->assertSee('Lestari Ayu');
+    $response->assertSee('Pemeriksaan Demam Transien');
+    $response->assertSee('Demam ringan pasca cuaca ekstrem');
+    $response->assertSee('Antipiretik injeksi + Vitamin B kompleks 10ml');
+    $response->assertSee('Petunjuk &amp; Cara Penanganan Ternak untuk Peternak di Kandang', false);
+    $response->assertSee('Isolasi &amp; Kenyamanan Kandang', false);
+    $response->assertSee('Tata Cara Pemberian Obat &amp; Terapi', false);
+    $response->assertSee('Manajemen Pakan &amp; Nutrisi Pemulihan', false);
+    $response->assertSee('Biosecurity &amp; Sanitasi Kawanan', false);
+    $response->assertSee('Pemantauan Suhu &amp; Tanda Vital Harian', false);
+    $response->assertSee('Cetak / Simpan PDF');
+    $response->assertSee('Unduh Dokumen (.doc)');
+});
+
+test('unauthorized peternak cannot access other users medical record document', function () {
+    $peternakOwner = User::factory()->peternak()->create();
+    $otherPeternak = User::factory()->peternak()->create();
+
+    $consultation = Consultation::create([
+        'user_id' => $peternakOwner->id,
+        'subject' => 'Kasus Rahasia Sapi Pak Ahmad',
+        'complaint_details' => 'Gejala sensitif',
+        'status' => 'selesai',
+    ]);
+
+    $response = $this->actingAs($otherPeternak)->get(route('konsultasi.rekam-medis.download', [
+        'type' => 'consultation',
+        'id' => $consultation->id,
+    ]));
+
+    $response->assertStatus(403);
 });

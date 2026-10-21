@@ -11,6 +11,7 @@ use App\Models\HealthRecord;
 use App\Models\Livestock;
 use App\Models\User;
 use App\Models\Veterinarian;
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -32,7 +33,7 @@ class ConsultationController extends Controller
         }
 
         $activeTab = $request->query('tab', 'dokter');
-        if (! in_array($activeTab, ['dokter', 'rekam_medis', 'penyakit', 'balasan_dokter'])) {
+        if (! in_array($activeTab, ['dokter', 'jadwal', 'rekam_medis', 'penyakit', 'balasan_dokter'])) {
             $activeTab = 'dokter';
         }
 
@@ -570,5 +571,162 @@ class ConsultationController extends Controller
 
         return redirect()->route('konsultasi', ['tab' => 'dokter'])
             ->with('success', "Dokter hewan '{$name}' berhasil dihapus dari direktori.");
+    }
+
+    /**
+     * Download or view official digital medical record document (PDF/Print) with farmer care guide.
+     */
+    public function downloadMedicalRecordDocument(Request $request, string $type, int $id): View|RedirectResponse
+    {
+        $currentUser = auth()->user();
+        if (! $currentUser) {
+            return redirect()->route('login');
+        }
+
+        if ($type === 'consultation') {
+            $consultation = Consultation::with(['user.peternakProfile', 'veterinarian', 'schedule.veterinarian', 'livestock'])->findOrFail($id);
+
+            // Authorization: peternak can only see their own, admin and dokter_hewan can see all
+            if (! $currentUser->isAdmin() && ! $currentUser->isDokterHewan() && $consultation->user_id !== $currentUser->id) {
+                abort(403, 'Anda tidak berhak mengakses dokumen rekam medis ini.');
+            }
+
+            $livestock = $consultation->livestock;
+            $doctor = $consultation->veterinarian;
+            $owner = $consultation->user;
+
+            $recordData = [
+                'type' => 'consultation',
+                'id' => $consultation->id,
+                'document_number' => 'RM-JTM/'.($consultation->created_at?->format('Y') ?? date('Y')).'/KON-'.str_pad($consultation->id, 4, '0', STR_PAD_LEFT),
+                'date' => $consultation->schedule ? Carbon::parse($consultation->schedule->date)->translatedFormat('d F Y') : ($consultation->created_at ? $consultation->created_at->translatedFormat('d F Y') : now()->translatedFormat('d F Y')),
+                'time' => $consultation->schedule?->time_label ?? ($consultation->consultation_time ?? ($consultation->created_at?->format('H:i').' WIB')),
+                'status_label' => $consultation->status_label,
+                'consultation_type' => ucwords(str_replace('_', ' ', $consultation->consultation_type ?? 'Konsultasi Online')),
+                'owner_name' => $owner?->name ?? 'Peternak Milenial',
+                'owner_phone' => $owner?->phone_number ?? ($owner?->peternakProfile?->phone ?? '-'),
+                'owner_address' => $owner?->peternakProfile?->address ?? 'Provinsi Jawa Timur',
+                'farm_name' => $owner?->peternakProfile?->farm_name ?? 'Peternakan Rakyat Jawa Timur',
+                'animal_tag' => $livestock?->tag_number ?? ($livestock?->e_tag_number ?? 'NON-ETAG'),
+                'animal_name' => $livestock?->name ?? ($livestock?->breed ?? 'Ternak'),
+                'animal_type' => ucwords(str_replace('_', ' ', $livestock?->type ?? 'Ternak Ruminansia')),
+                'animal_gender' => ucfirst($livestock?->gender ?? 'Betina'),
+                'subject' => $consultation->subject ?? 'Pemeriksaan Kesehatan Ternak',
+                'complaint' => $consultation->complaint_details ?? 'Pemeriksaan umum dan konsultasi berkala.',
+                'doctor_name' => $doctor?->name ?? 'drh. Dokter Hewan Dinas',
+                'doctor_puskeswan' => $doctor?->puskeswan ?? 'Puskeswan Disnak Provinsi Jawa Timur',
+                'doctor_sip' => '503/SIP-DISNAK/'.date('Y').'/'.str_pad($consultation->veterinarian_id ?? 1, 3, '0', STR_PAD_LEFT),
+                'diagnosis' => $consultation->doctor_notes ?: 'Pemeriksaan klinis telah dilakukan. Kondisi umum ternak memerlukan pengawasan berkala dan suplementasi nutrisi.',
+                'prescription' => $consultation->prescription ?: 'Multivitamin B-kompleks 10ml, larutan molase hangat 2x sehari, pemberian pakan hijauan bernutrisi.',
+                'care_instructions' => $this->generateCareInstructions($consultation->doctor_notes, $consultation->prescription, $consultation->subject),
+            ];
+
+            return view('konsultasi.rekam-medis-dokumen', [
+                'record' => $recordData,
+                'rawModel' => $consultation,
+                'autoPrint' => $request->boolean('print'),
+            ]);
+        } elseif ($type === 'record') {
+            $healthRecord = HealthRecord::with(['livestock.owner.peternakProfile', 'livestock.user.peternakProfile', 'veterinarian'])->findOrFail($id);
+
+            $livestock = $healthRecord->livestock;
+            $owner = $livestock?->owner ?? $livestock?->user;
+
+            if (! $currentUser->isAdmin() && ! $currentUser->isDokterHewan() && $owner && $owner->id !== $currentUser->id) {
+                abort(403, 'Anda tidak berhak mengakses dokumen rekam medis ini.');
+            }
+
+            $doctor = $healthRecord->veterinarian;
+
+            $recordData = [
+                'type' => 'record',
+                'id' => $healthRecord->id,
+                'document_number' => 'RM-JTM/'.Carbon::parse($healthRecord->record_date)->format('Y').'/MED-'.str_pad($healthRecord->id, 4, '0', STR_PAD_LEFT),
+                'date' => Carbon::parse($healthRecord->record_date)->translatedFormat('d F Y'),
+                'time' => '09:00 WIB',
+                'status_label' => 'Tindakan Terverifikasi',
+                'consultation_type' => ucwords(str_replace('_', ' ', $healthRecord->record_type ?? 'Tindakan Medis')),
+                'owner_name' => $owner?->name ?? 'Peternak Milenial',
+                'owner_phone' => $owner?->phone_number ?? ($owner?->peternakProfile?->phone ?? '-'),
+                'owner_address' => $owner?->peternakProfile?->address ?? 'Provinsi Jawa Timur',
+                'farm_name' => $owner?->peternakProfile?->farm_name ?? 'Peternakan Rakyat Jawa Timur',
+                'animal_tag' => $livestock?->tag_number ?? ($livestock?->e_tag_number ?? 'NON-ETAG'),
+                'animal_name' => $livestock?->name ?? ($livestock?->breed ?? 'Ternak'),
+                'animal_type' => ucwords(str_replace('_', ' ', $livestock?->type ?? 'Ternak Ruminansia')),
+                'animal_gender' => ucfirst($livestock?->gender ?? 'Betina'),
+                'subject' => $healthRecord->title,
+                'complaint' => 'Tindakan klinis dan rekam medis terpadu nomor anting resmi Dinas Peternakan.',
+                'doctor_name' => $doctor?->name ?? 'drh. Dokter Hewan Dinas',
+                'doctor_puskeswan' => $doctor?->puskeswan ?? 'Puskeswan Disnak Provinsi Jawa Timur',
+                'doctor_sip' => '503/SIP-DISNAK/'.date('Y').'/'.str_pad($healthRecord->veterinarian_id ?? 1, 3, '0', STR_PAD_LEFT),
+                'diagnosis' => $healthRecord->diagnosis ?: 'Pemeriksaan klinis spesifik tercatat pada buku rekam medis ternak resmi.',
+                'prescription' => $healthRecord->treatment ?: 'Pemberian obat dan tindakan sesuai protokol veteriner standar.',
+                'care_instructions' => $this->generateCareInstructions($healthRecord->diagnosis, $healthRecord->treatment, $healthRecord->title, $healthRecord->notes),
+            ];
+
+            return view('konsultasi.rekam-medis-dokumen', [
+                'record' => $recordData,
+                'rawModel' => $healthRecord,
+                'autoPrint' => $request->boolean('print'),
+            ]);
+        }
+
+        abort(404, 'Tipe rekam medis tidak valid.');
+    }
+
+    /**
+     * Generate comprehensive step-by-step handling instructions for the livestock farmer.
+     *
+     * @return array<int, array{step: int, title: string, icon: string, desc: string}>
+     */
+    private function generateCareInstructions(?string $diagnosis, ?string $prescription, ?string $title = '', ?string $customNotes = ''): array
+    {
+        $instructions = [];
+
+        $instructions[] = [
+            'step' => 1,
+            'title' => 'Isolasi & Kenyamanan Kandang',
+            'icon' => 'home',
+            'desc' => 'Tempatkan ternak pada petak kandang yang tenang, terlindung dari terpaan angin malam kencang dan hujan. Pastikan sirkulasi udara (ventilasi) mengalir lancar dan alas kandang (litter/jerami) selalu dalam kondisi kering dan bersih untuk meminimalkan kelembapan.',
+        ];
+
+        $medicationNote = $prescription ? 'Laksanakan instruksi obat: "'.$prescription.'". ' : '';
+        $instructions[] = [
+            'step' => 2,
+            'title' => 'Tata Cara Pemberian Obat & Terapi',
+            'icon' => 'pill',
+            'desc' => $medicationNote.'Pemberian obat injeksi hanya boleh dilakukan oleh paramedik/dokter hewan berizin. Untuk obat oral atau multivitamin, berikan sesuai dosis yang tertera dan jangan menghentikan pengobatan sebelum jangka waktu anjuran selesai.',
+        ];
+
+        $instructions[] = [
+            'step' => 3,
+            'title' => 'Manajemen Pakan & Nutrisi Pemulihan',
+            'icon' => 'leaf',
+            'desc' => 'Sediakan hijauan segar berkualitas (rumput gajah/odot muda yang sudah dilayukan dan dicacah). Berikan air minum bersih secara tidak terbatas (ad libitum). Berikan larutan air molase (tetes tebu) hangat atau gula merah ditambah sedikit garam untuk merangsang nafsu makan dan memulihkan stamina.',
+        ];
+
+        $instructions[] = [
+            'step' => 4,
+            'title' => 'Biosecurity & Sanitasi Kawanan',
+            'icon' => 'shield',
+            'desc' => 'Lakukan penyemprotan desinfektan ramah lingkungan di sekeliling kandang 1 kali sehari. Pisahkan peralatan pakan dan minum antara hewan sakit dan kawanan sehat. Peternak wajib mencuci tangan dan alas kaki sebelum berpindah merawat ternak lainnya.',
+        ];
+
+        $instructions[] = [
+            'step' => 5,
+            'title' => 'Pemantauan Suhu & Tanda Vital Harian',
+            'icon' => 'activity',
+            'desc' => 'Ukur suhu rektal ternak 2 kali sehari (pagi dan sore). Amati keaktifan memamah biak (ruminasi), warna selaput lendir mata/gusi, kelancaran buang air besar (konsistensi feses), serta produksi susu harian.',
+        ];
+
+        $customText = $customNotes ? $customNotes : 'Apabila dalam waktu 2x24 jam ternak menunjukkan perburukan kondisi (nafas terengah-engah, tidak mau minum sama sekali, atau suhu di atas 40°C), segera hubungi Puskeswan Disnak Jatim terdekat untuk visitasi darurat.';
+        $instructions[] = [
+            'step' => 6,
+            'title' => 'Petunjuk Khusus & Tindak Lanjut Dokter',
+            'icon' => 'alert',
+            'desc' => $customText,
+        ];
+
+        return $instructions;
     }
 }

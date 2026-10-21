@@ -198,66 +198,66 @@
         <!-- Daftar Laporan Table -->
         <div class="overflow-x-auto">
             <table class="w-full text-xs text-left text-gray-600 dark:text-gray-300">
-                <thead class="text-[11px] text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-700/60 border-b border-gray-200 dark:border-gray-700">
+                <thead class="text-[11px] text-gray-700 dark:text-gray-300 uppercase bg-gray-50/90 dark:bg-gray-700/60 border-b border-gray-200 dark:border-gray-700 font-semibold tracking-wider">
                     <tr>
-                        <th scope="col" class="px-4 py-3">No. Laporan &amp; Waktu</th>
-                        <th scope="col" class="px-4 py-3">Peternak &amp; Lokasi</th>
-                        <th scope="col" class="px-4 py-3">Hewan Ternak</th>
+                        <th scope="col" class="px-4 py-3 whitespace-nowrap">No. Laporan &amp; Waktu</th>
+                        <th scope="col" class="px-4 py-3 whitespace-nowrap">Peternak &amp; Lokasi</th>
+                        <th scope="col" class="px-4 py-3 whitespace-nowrap">Hewan Ternak</th>
                         <th scope="col" class="px-4 py-3">Keluhan / Gejala Utama</th>
-                        <th scope="col" class="px-4 py-3">Urgensi</th>
-                        <th scope="col" class="px-4 py-3">Status</th>
-                        <th scope="col" class="px-4 py-3 text-right">Tindakan</th>
+                        <th scope="col" class="px-4 py-3 whitespace-nowrap">Urgensi</th>
+                        <th scope="col" class="px-4 py-3 whitespace-nowrap">Status</th>
+                        <th scope="col" class="px-4 py-3 text-right whitespace-nowrap">Tindakan</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700/60">
                     @forelse($reports as $report)
                     <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-700/40 transition">
-                        <td class="px-4 py-3.5">
-                            <span class="font-mono font-bold text-gray-900 dark:text-white block">{{ $report->report_number }}</span>
+                        <td class="px-4 py-3.5 whitespace-nowrap align-top">
+                            <span class="font-mono font-bold text-gray-900 dark:text-white block tracking-tight">{{ $report->report_number }}</span>
                             <span class="text-[11px] text-gray-400 block mt-0.5">{{ $report->created_at->format('d M Y, H:i') }} WIB</span>
                         </td>
-                        <td class="px-4 py-3.5">
+                        <td class="px-4 py-3.5 whitespace-nowrap align-top">
                             <span class="font-semibold text-gray-900 dark:text-white block">{{ $report->user->name }}</span>
                             <span class="text-[11px] text-gray-500 dark:text-gray-400 block">{{ $report->farm_name ?? 'Peternakan Rakyat' }}</span>
                             <span class="text-[10px] text-gray-400 block">{{ $report->kabupaten ?? 'Jawa Timur' }}</span>
                         </td>
-                        <td class="px-4 py-3.5">
+                        <td class="px-4 py-3.5 whitespace-nowrap align-top">
                             <span class="font-medium text-gray-800 dark:text-gray-200 block">{{ $report->livestock_type }}</span>
-                            <span class="text-[11px] text-gray-500 block">{{ $report->affected_count }} ekor terdampak</span>
+                            <span class="text-[11px] text-gray-500 block mt-0.5">{{ $report->affected_count }} ekor terdampak</span>
                         </td>
-                        <td class="px-4 py-3.5 max-w-xs">
-                            <p class="truncate text-gray-700 dark:text-gray-300 font-medium" title="{{ $report->symptoms }}">
+                        <td class="px-4 py-3.5 align-top">
+                            <p class="text-xs text-gray-800 dark:text-gray-200 leading-relaxed font-normal whitespace-normal break-words">
                                 {{ $report->symptoms }}
                             </p>
                             @if($report->symptoms_started_at)
-                                <span class="text-[10px] text-gray-400 block mt-0.5">Gejala sejak: {{ $report->symptoms_started_at->format('d/m/Y') }}</span>
+                                <span class="text-[10px] text-gray-400 dark:text-gray-500 block mt-1">Gejala sejak: {{ $report->symptoms_started_at->format('d/m/Y') }}</span>
                             @endif
                         </td>
-                        <td class="px-4 py-3.5">
+                        <td class="px-4 py-3.5 whitespace-nowrap align-top">
                             <span class="px-2 py-0.5 text-[10px] font-semibold rounded-md border {{ $report->urgency_badge_classes }}">
                                 {{ $report->urgency_label }}
                             </span>
                         </td>
-                        <td class="px-4 py-3.5">
-                            <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full border {{ $report->status_badge_classes }} inline-flex items-center gap-1">
+                        <td class="px-4 py-3.5 whitespace-nowrap align-top">
+                            <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full border {{ $report->status_badge_classes }} inline-flex items-center gap-1.5 shadow-2xs">
                                 <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
                                 {{ $report->status_label }}
                             </span>
                         </td>
-                        <td class="px-4 py-3.5 text-right">
+                        <td class="px-4 py-3.5 text-right whitespace-nowrap align-top">
                             <div class="flex items-center justify-end gap-1.5">
                                 <a
                                     href="{{ route('dokter-hewan.show', $report) }}"
-                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition shadow-2xs"
                                 >
-                                    Lihat Detail
+                                    <span>Lihat Detail</span>
                                 </a>
                                 @if($report->status !== 'selesai')
                                 <a
                                     href="{{ route('dokter-hewan.show', $report) }}#form-tanggapan"
-                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 transition shadow-2xs"
+                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 transition shadow-2xs"
                                 >
-                                    Tanggapi
+                                    <span>Tanggapi</span>
                                 </a>
                                 @endif
                             </div>

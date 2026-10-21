@@ -108,6 +108,9 @@ Route::middleware(['role:admin,peternak'])->group(function () {
     Route::delete('/konsultasi/bookings/{consultation}/cancel', [ConsultationController::class, 'cancelBooking'])->name('konsultasi.cancel');
     Route::get('/konsultasi/veterinarians/{veterinarian}/slots', [ConsultationController::class, 'getDoctorSlots'])->name('konsultasi.veterinarians.slots');
 
+    // Unduh Dokumen Rekam Medis & Panduan Penanganan Ternak (PDF/Dokumen Resmi)
+    Route::get('/konsultasi/rekam-medis/{type}/{id}/dokumen', [ConsultationController::class, 'downloadMedicalRecordDocument'])->name('konsultasi.rekam-medis.download');
+
     // Tindak Lanjut & Rekam Medis Resmi (Admin / Dokter Hewan Dinas)
     Route::middleware('role:admin')->group(function () {
         Route::post('/konsultasi/rekam-medis', [ConsultationController::class, 'storeHealthRecord'])->name('konsultasi.health-record.store');
