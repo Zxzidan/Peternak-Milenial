@@ -95,12 +95,10 @@ test('peternak can submit an animal health report and it appears with status men
         'affected_count' => 3,
         'symptoms' => 'Sapi mengalami hipersalivasi, lepuh di area kuku dan mulut, serta demam tinggi.',
         'symptoms_started_at' => now()->subDay()->toDateString(),
-        'medical_history' => 'Belum pernah vaksin PMK tahun ini.',
         'urgency' => 'kritis',
         'farm_name' => 'Peternakan Berkah Mandiri',
         'farm_address' => 'Desa Toyomarto, Kec. Singosari',
         'kabupaten' => 'Kabupaten Malang',
-        'additional_notes' => 'Ternak terpisah dari kandang komunal.',
     ]);
 
     $report = AnimalHealthReport::where('user_id', $peternak->id)->latest()->first();

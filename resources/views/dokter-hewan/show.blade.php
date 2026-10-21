@@ -110,21 +110,6 @@
                     </div>
                 </div>
 
-                <!-- Riwayat & Catatan Tambahan -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold text-gray-500 dark:text-gray-400">Riwayat Kondisi / Pengobatan Sebelumnya:</label>
-                        <div class="p-2.5 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300">
-                            {{ $report->medical_history ?: 'Belum tersedia riwayat pengobatan sebelumnya' }}
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold text-gray-500 dark:text-gray-400">Deskripsi Tambahan dari Peternak:</label>
-                        <div class="p-2.5 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300">
-                            {{ $report->additional_notes ?: 'Belum tersedia deskripsi tambahan' }}
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Foto Pendukung -->
                 @if($report->photo_path)

@@ -23,12 +23,10 @@ class AnimalHealthReportFactory extends Factory
             'affected_count' => fake()->numberBetween(1, 10),
             'symptoms' => fake()->sentence(8),
             'symptoms_started_at' => now()->subDays(2),
-            'medical_history' => 'Sudah diberikan vitamin oral 3 hari lalu.',
             'urgency' => fake()->randomElement(['rendah', 'sedang', 'tinggi']),
             'farm_name' => 'Peternakan '.fake()->company(),
             'farm_address' => fake()->address(),
             'kabupaten' => 'Kabupaten Malang',
-            'additional_notes' => 'Hewan tampak lesu dan nafsu makan berkurang drastis.',
             'photo_path' => null,
             'status' => 'menunggu_respons',
         ];
