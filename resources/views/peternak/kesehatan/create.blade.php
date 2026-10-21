@@ -129,7 +129,9 @@
                         <div class="relative">
                             <select
                                 name="urgency"
+                                id="urgencySelect"
                                 required
+                                onchange="toggleSectionLocation(this.value)"
                                 class="w-full bg-gray-50/70 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 px-3.5 pr-10 text-xs sm:text-sm font-medium text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-800 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition appearance-none cursor-pointer @error('urgency') border-red-500 @enderror"
                             >
                                 <option value="sedang" {{ old('urgency', 'sedang') === 'sedang' ? 'selected' : '' }}>Sedang (Perlu Penanganan Biasa)</option>
@@ -240,8 +242,12 @@
                 </div>
             </div>
 
+            @php
+                $isUrgent = in_array(old('urgency', 'sedang'), ['tinggi', 'kritis']);
+            @endphp
+
             <!-- Section 2: Lokasi Usaha & Kontak Peternakan -->
-            <div class="space-y-5 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div id="section-lokasi-peternakan" class="space-y-5 pt-4 border-t border-gray-100 dark:border-gray-700 {{ $isUrgent ? '' : 'hidden' }}">
                 <div class="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-700">
                     <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300 flex items-center justify-center font-bold text-xs ring-1 ring-emerald-500/20">
                         2
@@ -325,7 +331,8 @@
                         <div class="relative">
                             <select
                                 name="kabupaten"
-                                required
+                                id="kabupatenSelect"
+                                {{ $isUrgent ? 'required' : '' }}
                                 class="w-full bg-gray-50/70 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 px-3.5 pr-10 text-xs sm:text-sm font-medium text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-800 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition appearance-none cursor-pointer @error('kabupaten') border-red-500 @enderror"
                             >
                                 <option value="" disabled {{ $selectedKabupaten ? '' : 'selected' }}>Pilih Kabupaten / Kota...</option>
@@ -434,7 +441,30 @@ function removeSelectedPhoto(event) {
     dropzonePrompt.classList.remove('hidden');
 }
 
+function toggleSectionLocation(urgency) {
+    const section = document.getElementById('section-lokasi-peternakan');
+    const kabupatenSelect = document.getElementById('kabupatenSelect');
+    if (!section) return;
+
+    if (urgency === 'tinggi' || urgency === 'kritis') {
+        section.classList.remove('hidden');
+        if (kabupatenSelect) {
+            kabupatenSelect.required = true;
+        }
+    } else {
+        section.classList.add('hidden');
+        if (kabupatenSelect) {
+            kabupatenSelect.required = false;
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    const urgencySelect = document.getElementById('urgencySelect');
+    if (urgencySelect) {
+        toggleSectionLocation(urgencySelect.value);
+    }
+
     const dropzone = document.getElementById('photoDropzone');
     if (dropzone) {
         ['dragenter', 'dragover'].forEach(eventName => {

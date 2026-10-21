@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AnimalHealthReport;
 use App\Models\Consultation;
 use App\Models\ConsultationMessage;
 use App\Models\ConsultationSchedule;
@@ -37,13 +38,18 @@ class ConsultationController extends Controller
         }
 
         $isAdmin = $currentUser->isAdmin();
+        $isStaff = $isAdmin || $currentUser->isDokterHewan();
+        $filterDate = $request->query('filter_date');
 
         // Admin/Vet sees consultation with current selected user or latest consultation
-        if ($isAdmin) {
+        if ($isStaff) {
             $consultation = Consultation::with(['messages.sender', 'veterinarian', 'user', 'schedule.veterinarian', 'livestock'])->latest('updated_at')->first();
-            $myBookings = Consultation::with(['user.peternakProfile', 'veterinarian', 'schedule.veterinarian', 'livestock'])->latest()->get();
+            $bookingsQuery = Consultation::with(['user.peternakProfile', 'veterinarian', 'schedule.veterinarian', 'livestock'])
+                ->where('status', '!=', 'dibatalkan');
             $livestocks = Livestock::with(['healthRecords.veterinarian'])->get();
             $healthRecords = HealthRecord::with(['livestock', 'veterinarian'])->latest('record_date')->get();
+            $completedReportsQuery = AnimalHealthReport::where('status', 'selesai')
+                ->with(['user.peternakProfile', 'assignedVeterinarian.user', 'responses.user', 'latestVisit']);
         } else {
             // Peternak: Scoped strictly to their own consultation and own animals
             $consultation = Consultation::where('user_id', $currentUser->id)
@@ -51,17 +57,44 @@ class ConsultationController extends Controller
                 ->latest('updated_at')
                 ->first();
 
-            $myBookings = Consultation::where('user_id', $currentUser->id)
-                ->with(['veterinarian', 'schedule.veterinarian', 'livestock', 'messages.sender'])
-                ->latest()
-                ->get();
+            $bookingsQuery = Consultation::where('user_id', $currentUser->id)
+                ->where('status', '!=', 'dibatalkan')
+                ->with(['veterinarian', 'schedule.veterinarian', 'livestock', 'messages.sender']);
 
             $livestocks = Livestock::where('user_id', $currentUser->id)->with(['healthRecords.veterinarian'])->get();
             $healthRecords = HealthRecord::whereIn('livestock_id', $livestocks->pluck('id'))
                 ->with(['livestock', 'veterinarian'])
                 ->latest('record_date')
                 ->get();
+            $completedReportsQuery = AnimalHealthReport::where('user_id', $currentUser->id)
+                ->where('status', 'selesai')
+                ->with(['assignedVeterinarian.user', 'responses.user', 'latestVisit']);
         }
+
+        if ($request->filled('filter_date')) {
+            $completedReportsQuery->where(function ($q) use ($filterDate) {
+                $q->whereDate('resolved_at', $filterDate)
+                    ->orWhere(function ($q2) use ($filterDate) {
+                        $q2->whereNull('resolved_at')
+                            ->whereDate('updated_at', $filterDate);
+                    });
+            });
+
+            $bookingsQuery->where(function ($q) use ($filterDate) {
+                $q->whereDate('consultation_date', $filterDate)
+                    ->orWhereHas('schedule', function ($sq) use ($filterDate) {
+                        $sq->whereDate('date', $filterDate);
+                    })
+                    ->orWhere(function ($q2) use ($filterDate) {
+                        $q2->whereNull('consultation_date')
+                            ->whereDoesntHave('schedule')
+                            ->whereDate('created_at', $filterDate);
+                    });
+            });
+        }
+
+        $myBookings = $bookingsQuery->latest()->get();
+        $completedReports = $completedReportsQuery->latest('resolved_at')->get();
 
         // Active veterinarians with upcoming consultation schedules
         $veterinarians = Veterinarian::where('is_active', true)
@@ -80,10 +113,12 @@ class ConsultationController extends Controller
             'activeTab' => $activeTab,
             'consultation' => $consultation,
             'myBookings' => $myBookings,
+            'completedReports' => $completedReports,
             'healthRecords' => $healthRecords,
             'livestocks' => $livestocks,
             'diseases' => $diseases,
             'veterinarians' => $veterinarians,
+            'filterDate' => $filterDate,
         ]);
     }
 
@@ -627,6 +662,56 @@ class ConsultationController extends Controller
             return view('konsultasi.rekam-medis-dokumen', [
                 'record' => $recordData,
                 'rawModel' => $healthRecord,
+                'autoPrint' => $request->boolean('print'),
+            ]);
+        } elseif ($type === 'report') {
+            $report = AnimalHealthReport::with(['user.peternakProfile', 'assignedVeterinarian.user', 'responses.user', 'visits.veterinarian'])->findOrFail($id);
+
+            // Authorization: peternak can only see their own, admin and dokter_hewan can see all
+            if (! $currentUser->isAdmin() && ! $currentUser->isDokterHewan() && $report->user_id !== $currentUser->id) {
+                abort(403, 'Anda tidak berhak mengakses dokumen rekam medis ini.');
+            }
+
+            $owner = $report->user;
+            $doctor = $report->assignedVeterinarian;
+            $latestVisit = $report->visits->where('status', 'selesai')->last() ?? $report->latestVisit;
+            $latestResponse = $report->responses->where('user.role', '!=', 'peternak')->last() ?? $report->responses->last();
+
+            $diagnosis = $latestVisit?->examination_notes
+                ?: ($latestResponse?->hypothesis ?: 'Evaluasi klinis tuntas tercatat pada rekam riwayat penanganan laporan dinas.');
+            $prescription = $latestVisit?->post_visit_recommendations
+                ?: ($latestResponse?->recommendations ?: ($latestResponse?->message ?: 'Perawatan pemulihan, biosecurity kandang, dan pemantauan kondisi ternak.'));
+            $notes = $latestResponse?->follow_up_instructions ?: ($latestVisit?->examination_notes ?: 'Tercatat resmi pada sistem Layanan Kesehatan Hewan Terpadu Disnak Jatim.');
+
+            $recordData = [
+                'type' => 'report',
+                'id' => $report->id,
+                'document_number' => 'RM-JTM/'.($report->resolved_at?->format('Y') ?? date('Y')).'/'.str_replace('-', '/', $report->report_number),
+                'date' => $report->resolved_at ? Carbon::parse($report->resolved_at)->translatedFormat('d F Y') : ($report->updated_at ? $report->updated_at->translatedFormat('d F Y') : now()->translatedFormat('d F Y')),
+                'time' => $report->resolved_at ? $report->resolved_at->format('H:i').' WIB' : '12:00 WIB',
+                'status_label' => 'Selesai Ditangani (Resmi)',
+                'consultation_type' => 'Laporan Kesehatan Hewan'.($report->visits->isNotEmpty() ? ' & Visitasi Lapangan' : ''),
+                'owner_name' => $owner?->name ?? 'Peternak Milenial',
+                'owner_phone' => $owner?->phone_number ?? ($owner?->peternakProfile?->phone ?? '-'),
+                'owner_address' => $report->farm_address ?: ($owner?->peternakProfile?->address ?? ($report->kabupaten ?? 'Provinsi Jawa Timur')),
+                'farm_name' => $report->farm_name ?: ($owner?->peternakProfile?->farm_name ?? 'Peternakan Rakyat Jawa Timur'),
+                'animal_tag' => 'LKH-'.strtoupper(substr($report->report_number, -4)),
+                'animal_name' => $report->livestock_type.' ('.$report->affected_count.' Ekor)',
+                'animal_type' => ucwords(str_replace('_', ' ', $report->livestock_type)),
+                'animal_gender' => 'Campuran (Jantan & Betina)',
+                'subject' => 'Laporan Kesehatan: '.$report->report_number.' ('.$report->livestock_type.')',
+                'complaint' => $report->symptoms,
+                'doctor_name' => $doctor?->name ?? 'drh. Dokter Hewan Dinas',
+                'doctor_puskeswan' => $doctor?->puskeswan ?? 'Puskeswan Disnak Provinsi Jawa Timur',
+                'doctor_sip' => '503/SIP-DISNAK/'.date('Y').'/'.str_pad($report->assigned_veterinarian_id ?? 1, 3, '0', STR_PAD_LEFT),
+                'diagnosis' => $diagnosis,
+                'prescription' => $prescription,
+                'care_instructions' => $this->generateCareInstructions($diagnosis, $prescription, $report->report_number, $notes),
+            ];
+
+            return view('konsultasi.rekam-medis-dokumen', [
+                'record' => $recordData,
+                'rawModel' => $report,
                 'autoPrint' => $request->boolean('print'),
             ]);
         }

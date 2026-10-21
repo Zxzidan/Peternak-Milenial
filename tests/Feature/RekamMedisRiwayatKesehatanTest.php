@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\AnimalHealthReport;
+use App\Models\AnimalHealthReportResponse;
 use App\Models\Consultation;
 use App\Models\ConsultationSchedule;
 use App\Models\HealthRecord;
@@ -245,4 +247,132 @@ test('unauthorized peternak cannot access other users medical record document', 
     ]));
 
     $response->assertStatus(403);
+});
+
+test('completed animal health report creates health record and is displayed in rekam medis tab', function () {
+    $peternak = User::factory()->peternak()->create([
+        'name' => 'Slamet Rahardjo',
+        'email' => 'slamet.test@peternak.id',
+    ]);
+
+    $vetUser = User::factory()->dokterHewan()->create([
+        'name' => 'drh. Nur Cahyo, M.Vet',
+    ]);
+    $veterinarian = Veterinarian::factory()->create([
+        'user_id' => $vetUser->id,
+        'name' => 'drh. Nur Cahyo, M.Vet',
+        'puskeswan' => 'Puskeswan Malang',
+    ]);
+
+    $report = AnimalHealthReport::create([
+        'report_number' => 'LKH-20261021-9999-TEST',
+        'user_id' => $peternak->id,
+        'assigned_veterinarian_id' => $veterinarian->id,
+        'livestock_type' => 'Sapi Potong',
+        'affected_count' => 3,
+        'symptoms' => 'Sapi nafsu makan turun dan lemas',
+        'urgency' => 'sedang',
+        'status' => 'sedang_ditangani',
+    ]);
+
+    // Vet provides response
+    AnimalHealthReportResponse::create([
+        'animal_health_report_id' => $report->id,
+        'user_id' => $vetUser->id,
+        'message' => 'Lakukan pemisahan pakan dan berikan air gula hangat.',
+        'hypothesis' => 'Suspek Indigesti Rumen Akut',
+        'recommendations' => 'Pemberian ragi tape dan larutan molase hangat 2x sehari',
+        'follow_up_instructions' => 'Pantau suhu badan dan feses selama 2 hari',
+        'urgency_level' => 'sedang',
+        'requires_visit' => false,
+    ]);
+
+    // Report transitions to selesai
+    $report->transitionTo('selesai', $vetUser->id, 'Penanganan dinyatakan tuntas.');
+
+    // 1. Verify HealthRecord was automatically created
+    $this->assertDatabaseHas('health_records', [
+        'veterinarian_id' => $vetUser->id,
+        'record_type' => 'pemeriksaan',
+        'diagnosis' => 'Suspek Indigesti Rumen Akut',
+        'treatment' => 'Pemberian ragi tape dan larutan molase hangat 2x sehari',
+    ]);
+
+    // 2. Verify report appears in Rekam Medis tab
+    $response = $this->actingAs($peternak)->get(route('konsultasi', ['tab' => 'rekam_medis']));
+
+    $response->assertStatus(200);
+    $response->assertSee('Rekam Medis');
+    $response->assertSee('LKH-20261021-9999-TEST');
+    $response->assertSee('Sapi nafsu makan turun dan lemas');
+    $response->assertSee('Suspek Indigesti Rumen Akut');
+    $response->assertSee('Pemberian ragi tape dan larutan molase hangat 2x sehari');
+    $response->assertSee('drh. Nur Cahyo, M.Vet');
+    $response->assertSee(route('konsultasi.rekam-medis.download', ['type' => 'report', 'id' => $report->id]));
+
+    // 3. Verify peternak can download official document
+    $docResponse = $this->actingAs($peternak)->get(route('konsultasi.rekam-medis.download', [
+        'type' => 'report',
+        'id' => $report->id,
+    ]));
+
+    $docResponse->assertStatus(200);
+    $docResponse->assertSee('Lembar Hasil Rekam Medis &amp; Petunjuk Penanganan Ternak', false);
+    $docResponse->assertSee('LKH-20261021-9999-TEST');
+    $docResponse->assertSee('Suspek Indigesti Rumen Akut');
+    $docResponse->assertSee('Pemberian ragi tape dan larutan molase hangat 2x sehari');
+});
+
+test('rekam medis tab can filter medical records and consultations by calendar date', function () {
+    $peternak = User::factory()->peternak()->create();
+    $vetUser = User::factory()->dokterHewan()->create();
+    $veterinarian = Veterinarian::factory()->create([
+        'user_id' => $vetUser->id,
+        'name' => 'drh. Agus Pratama',
+        'puskeswan' => 'Puskeswan Blitar',
+    ]);
+
+    $targetDate = '2026-10-15';
+    $otherDate = '2026-10-20';
+
+    // Target date report
+    $targetReport = AnimalHealthReport::create([
+        'report_number' => 'LKH-20261015-TARGET',
+        'user_id' => $peternak->id,
+        'assigned_veterinarian_id' => $veterinarian->id,
+        'livestock_type' => 'Kambing Boer',
+        'affected_count' => 1,
+        'symptoms' => 'Batuk dan bersin pada tanggal 15 Oktober',
+        'urgency' => 'rendah',
+        'status' => 'selesai',
+        'resolved_at' => '2026-10-15 10:00:00',
+    ]);
+
+    // Other date report
+    $otherReport = AnimalHealthReport::create([
+        'report_number' => 'LKH-20261020-OTHER',
+        'user_id' => $peternak->id,
+        'assigned_veterinarian_id' => $veterinarian->id,
+        'livestock_type' => 'Sapi Limosin',
+        'affected_count' => 2,
+        'symptoms' => 'Kembung pada tanggal 20 Oktober',
+        'urgency' => 'sedang',
+        'status' => 'selesai',
+        'resolved_at' => '2026-10-20 14:00:00',
+    ]);
+
+    // Request without filter: should see both
+    $responseAll = $this->actingAs($peternak)->get(route('konsultasi', ['tab' => 'rekam_medis']));
+    $responseAll->assertStatus(200);
+    $responseAll->assertSee('LKH-20261015-TARGET');
+    $responseAll->assertSee('LKH-20261020-OTHER');
+
+    // Request with calendar filter for target date
+    $responseFiltered = $this->actingAs($peternak)->get(route('konsultasi', [
+        'tab' => 'rekam_medis',
+        'filter_date' => $targetDate,
+    ]));
+    $responseFiltered->assertStatus(200);
+    $responseFiltered->assertSee('LKH-20261015-TARGET');
+    $responseFiltered->assertDontSee('LKH-20261020-OTHER');
 });

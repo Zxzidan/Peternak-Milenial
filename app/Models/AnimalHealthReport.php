@@ -140,11 +140,15 @@ class AnimalHealthReport extends Model
         $oldStatus = $this->status;
         $this->status = $newStatus;
 
-        if ($newStatus === 'selesai' && ! $this->resolved_at) {
-            $this->resolved_at = now();
+        if ($newStatus === 'selesai') {
+            if (! $this->resolved_at) {
+                $this->resolved_at = now();
+            }
+            $this->save();
+            $this->syncMedicalRecord($changedById);
+        } else {
+            $this->save();
         }
-
-        $this->save();
 
         $this->statusHistories()->create([
             'changed_by_id' => $changedById,
@@ -152,5 +156,87 @@ class AnimalHealthReport extends Model
             'new_status' => $newStatus,
             'notes' => $notes,
         ]);
+    }
+
+    /**
+     * Synchronize and record official medical record (HealthRecord) upon report completion.
+     */
+    public function syncMedicalRecord(?int $changedById = null): ?HealthRecord
+    {
+        // 1. Resolve veterinarian user id
+        $vetUserId = null;
+        if ($this->assignedVeterinarian?->user_id) {
+            $vetUserId = $this->assignedVeterinarian->user_id;
+        } elseif ($changedById && User::where('id', $changedById)->whereIn('role', ['dokter_hewan', 'admin'])->exists()) {
+            $vetUserId = $changedById;
+        } else {
+            $latestResponseVetId = $this->responses()
+                ->whereHas('user', fn ($q) => $q->whereIn('role', ['dokter_hewan', 'admin']))
+                ->latest()
+                ->value('user_id');
+            $vetUserId = $latestResponseVetId ?? User::where('role', 'dokter_hewan')->value('id') ?? User::where('role', 'admin')->value('id');
+        }
+
+        // 2. Associate or create livestock record for peternak
+        $typeMapping = match (strtolower(trim($this->livestock_type))) {
+            'sapi perah', 'sapi perah (fh)' => 'sapi_perah_fh',
+            'sapi potong', 'sapi potong (limousin/simental/po)' => 'sapi_potong',
+            'kambing', 'kambing (senduro/pe)' => 'kambing_senduro',
+            'domba', 'domba (sapudi/garut)' => 'domba',
+            'unggas' => 'unggas',
+            default => 'sapi_potong',
+        };
+
+        $livestock = Livestock::where('user_id', $this->user_id)
+            ->where('type', $typeMapping)
+            ->first();
+
+        if (! $livestock) {
+            $livestock = Livestock::where('user_id', $this->user_id)->first();
+        }
+
+        if (! $livestock) {
+            $livestock = Livestock::create([
+                'user_id' => $this->user_id,
+                'e_tag_number' => 'ETAG-'.strtoupper(Str::random(6)),
+                'name' => $this->livestock_type,
+                'type' => $typeMapping,
+                'gender' => 'betina',
+                'health_status' => 'sehat',
+            ]);
+        }
+
+        // 3. Extract clinical diagnosis and therapeutic recommendations
+        $latestVisit = $this->latestVisit;
+        $latestResponse = $this->responses()
+            ->whereHas('user', fn ($q) => $q->whereIn('role', ['dokter_hewan', 'admin']))
+            ->latest()
+            ->first();
+
+        $diagnosis = $latestVisit?->examination_notes
+            ?: ($latestResponse?->hypothesis ?: 'Pemeriksaan klinis tuntas terhadap gejala: '.$this->symptoms);
+
+        $treatment = $latestVisit?->post_visit_recommendations
+            ?: ($latestResponse?->recommendations ?: ($latestResponse?->message ?: 'Perawatan pemulihan dan pemantauan kondisi ternak.'));
+
+        $notes = $latestResponse?->follow_up_instructions
+            ?: ($latestResponse?->notes ?: ('Tercatat resmi dari Laporan Kesehatan '.$this->report_number));
+
+        $title = 'Laporan Kesehatan: '.$this->report_number.' ('.$this->livestock_type.')';
+
+        return HealthRecord::updateOrCreate(
+            [
+                'livestock_id' => $livestock->id,
+                'title' => $title,
+            ],
+            [
+                'veterinarian_id' => $vetUserId,
+                'record_type' => 'pemeriksaan',
+                'diagnosis' => $diagnosis,
+                'treatment' => $treatment,
+                'notes' => $notes,
+                'record_date' => $this->resolved_at ? $this->resolved_at->toDateString() : now()->toDateString(),
+            ]
+        );
     }
 }
