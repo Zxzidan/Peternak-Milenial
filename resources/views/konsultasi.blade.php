@@ -541,15 +541,14 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2 flex-wrap">
-                        <button type="button"
-                            onclick="document.getElementById('modal-atur-jadwal').classList.remove('hidden'); loadDoctorAvailableSlots(true);"
+                        <a href="{{ route('kesehatan-hewan.create') }}"
                             class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 px-3.5 py-2 rounded-lg transition shadow-xs">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
-                            <span>Reservasi Konsultasi</span>
-                        </button>
+                            <span>Buat Laporan Kesehatan</span>
+                        </a>
                     </div>
                 </div>
 
@@ -1134,11 +1133,6 @@
                                             class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200 px-3.5 py-2 rounded-lg transition shadow-2xs">
                                             Lapor Kesehatan Hewan
                                         </a>
-                                        <button type="button"
-                                            onclick="document.getElementById('modal-atur-jadwal').classList.remove('hidden'); loadDoctorAvailableSlots(true);"
-                                            class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 px-3.5 py-2 rounded-lg transition shadow-xs">
-                                            Atur Jadwal Konsultasi Dokter
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1792,138 +1786,7 @@
         </script>
     @endif
 
-    <!-- MODAL ATUR JADWAL KONSULTASI MEDIS DOKTER HEWAN (Khusus Peternak) -->
-    <div id="modal-atur-jadwal"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden backdrop-blur-xs">
-        <div
-            class="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 max-h-[92vh] overflow-y-auto relative">
-            <button type="button" onclick="document.getElementById('modal-atur-jadwal').classList.add('hidden')"
-                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl font-bold">
-                &times;
-            </button>
 
-            <div class="flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-gray-700">
-                <div
-                    class="w-9 h-9 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="text-base font-bold text-gray-900 dark:text-white">Atur Jadwal Konsultasi Dokter Hewan
-                    </h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Pilih jam konsultasi sesuai kuota layanan
-                        dokter yang tersedia.</p>
-                </div>
-            </div>
-
-            <form action="{{ route('konsultasi.book') }}" method="POST" class="mt-4 space-y-3.5 text-xs">
-                @csrf
-
-                <!-- Pilih Dokter Hewan -->
-                <div>
-                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Dokter Hewan Bertugas
-                        <span class="text-red-500">*</span></label>
-                    <select id="booking-vet-select" name="veterinarian_id" required onchange="loadDoctorAvailableSlots()"
-                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white font-medium">
-                        @foreach ($veterinarians as $v)
-                            <option value="{{ $v->id }}">{{ $v->name }}
-                                ({{ $v->puskeswan ?? 'Puskeswan Jatim' }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <!-- Tanggal Janji Temu -->
-                    <div>
-                        <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Tanggal Konsultasi
-                            <span class="text-red-500">*</span></label>
-                        <input type="date" id="booking-date" name="consultation_date"
-                            value="{{ now()->toDateString() }}" min="{{ now()->toDateString() }}" required
-                            onchange="loadDoctorAvailableSlots()"
-                            class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
-                    </div>
-
-                    <!-- Tipe Layanan -->
-                    <div>
-                        <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Metode Konsultasi
-                            <span class="text-red-500">*</span></label>
-                        <select name="consultation_type"
-                            class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
-                            <option value="online">Konsultasi Telemedisin (Online)</option>
-                            <option value="tatap_muka">Tatap Muka di Puskeswan</option>
-                            <option value="kunjungan">Permohonan Kunjungan Kandang</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Slot Jam Layanan & Kuota Dokter -->
-                <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <label class="block font-semibold text-gray-700 dark:text-gray-300">
-                            Pilih Jam Konsultasi &amp; Kuota <span class="text-red-500">*</span>
-                        </label>
-                        <span id="slot-loading-indicator" class="text-[11px] text-primary-600 font-medium hidden">
-                            Memeriksa kuota...
-                        </span>
-                    </div>
-                    <select id="booking-schedule-select" name="consultation_schedule_id" required
-                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white font-semibold">
-                        <option value="">-- Pilih Jam & Kuota Tersedia --</option>
-                    </select>
-                    <p id="slot-helper-text" class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
-                        Setiap jam memiliki batas kuota pasien. Jika kuota penuh, silakan pilih jam atau hari lain.
-                    </p>
-                </div>
-
-                <!-- Pilih Ternak (Opsional) -->
-                <div>
-                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Hewan Ternak
-                        (E-Tag)</label>
-                    <select name="livestock_id"
-                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
-                        <option value="">Umum / Tidak Ditautkan ke E-Tag Khusus</option>
-                        @foreach ($livestocks as $animal)
-                            <option value="{{ $animal->id }}">{{ $animal->name }} — {{ $animal->tag_number }}
-                                ({{ $animal->type }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Keluhan / Topik -->
-                <div>
-                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Topik / Masalah Kesehatan
-                        Utama <span class="text-red-500">*</span></label>
-                    <input type="text" name="subject" required
-                        placeholder="Contoh: Sapi perah lesu, suhu tinggi, nafsu makan turun"
-                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
-                </div>
-
-                <!-- Deskripsi Gejala Klinis -->
-                <div>
-                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Rincian Gejala &amp;
-                        Kondisi Ternak <span class="text-red-500">*</span></label>
-                    <textarea name="complaint_details" rows="3" required
-                        placeholder="Jelaskan sejak kapan gejala muncul, suhu tubuh jika diukur, kondisi mata, mulut, feses, dan langkah awal yang sudah diberikan..."
-                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white"></textarea>
-                </div>
-
-                <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    <button type="button" onclick="document.getElementById('modal-atur-jadwal').classList.add('hidden')"
-                        class="px-4 py-2 rounded-xl text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 transition">
-                        Batal
-                    </button>
-                    <button type="submit"
-                        class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 transition shadow-sm">
-                        Kunci Kuota &amp; Jadwalkan Konsultasi
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <!-- MODAL DETAIL LEMBAR REKAM MEDIS & PETUNJUK PENANGANAN -->
     <div id="modal-official-record"

@@ -164,14 +164,25 @@
                                     <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
                                     {{ $report->status_label }}
                                 </span>
-                                <div class="mt-2.5 text-[11px]">
+                                <div class="mt-2 text-[11px]">
+                                    @if($report->assignedVeterinarian)
+                                        <span class="font-semibold text-gray-700 dark:text-gray-300 block">
+                                            {{ $report->assignedVeterinarian->name }}
+                                        </span>
+                                    @else
+                                        <span class="text-amber-600 dark:text-amber-400 font-medium block">
+                                            Menunggu Penugasan
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="mt-1 text-[11px]">
                                     @if($report->last_responded_at)
                                         <span class="text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1">
                                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                                             Ditanggapi {{ $report->last_responded_at->format('d M, H:i') }}
                                         </span>
                                     @else
-                                        <span class="text-gray-400 dark:text-gray-500 italic block">Menunggu tanggapan</span>
+                                        <span class="text-gray-400 dark:text-gray-500 italic block">Menunggu respons dokter</span>
                                     @endif
                                 </div>
                             </div>

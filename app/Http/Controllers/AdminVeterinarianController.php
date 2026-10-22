@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AnimalHealthReport;
 use App\Models\User;
 use App\Models\Veterinarian;
+use App\Services\HealthReportDistributionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,17 @@ class AdminVeterinarianController extends Controller
         $search = $request->query('search');
         $statusFilter = $request->query('status');
 
-        $query = Veterinarian::with('user')->latest();
+        $query = Veterinarian::with('user')
+            ->withCount([
+                'assignedHealthReports as active_reports_count' => function ($q) {
+                    $q->whereIn('status', ['menunggu_respons', 'sedang_ditangani']);
+                },
+                'assignedHealthReports as total_reports_count',
+                'assignedHealthReports as completed_reports_count' => function ($q) {
+                    $q->where('status', 'selesai');
+                },
+            ])
+            ->latest();
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -47,9 +58,10 @@ class AdminVeterinarianController extends Controller
 
         $veterinarians = $query->paginate(10)->withQueryString();
 
-        // Monitoring Statistics for Admin Dinas
+        // Monitoring Statistics for Admin Dinas (termasuk antrean menunggu penugasan)
         $reportMetrics = [
             'total' => AnimalHealthReport::count(),
+            'menunggu_penugasan' => AnimalHealthReport::where('status', 'menunggu_penugasan')->orWhereNull('assigned_veterinarian_id')->whereNotIn('status', ['selesai'])->count(),
             'menunggu_respons' => AnimalHealthReport::where('status', 'menunggu_respons')->count(),
             'sedang_ditangani' => AnimalHealthReport::where('status', 'sedang_ditangani')->count(),
             'sudah_dijawab' => AnimalHealthReport::where('status', 'sudah_dijawab')->count(),
@@ -119,6 +131,9 @@ class AdminVeterinarianController extends Controller
                 'is_active' => true,
             ]);
         });
+
+        // Trigger distribution of any waiting unassigned reports to the newly created doctor
+        app(HealthReportDistributionService::class)->distributePendingReports();
 
         return redirect()->back()
             ->with('success', "Akun Dokter Hewan Dinas untuk {$validated['name']} berhasil dibuat dan aktif.")
@@ -226,6 +241,10 @@ class AdminVeterinarianController extends Controller
         });
 
         $statusText = $newActive ? 'diaktifkan kembali' : 'dinonaktifkan';
+
+        if ($newActive) {
+            app(HealthReportDistributionService::class)->distributePendingReports();
+        }
 
         return redirect()->back()
             ->with('success', "Akun dokter hewan {$veterinarian->name} berhasil {$statusText}.");

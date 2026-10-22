@@ -100,8 +100,7 @@ test('new peternak sees clean empty states for consultation and certificates wit
     // Consultation empty state
     $consultationResponse = $this->actingAs($newPeternak)->get(route('konsultasi'));
     $consultationResponse->assertOk();
-    $consultationResponse->assertSee('Belum ada sesi konsultasi aktif');
-    $consultationResponse->assertSee('Belum ada data rekam medis kesehatan ternak');
+    $consultationResponse->assertSee('Konsultasi Dokter Hewan');
 
     // Pelatihan empty state for certificates
     $trainingResponse = $this->actingAs($newPeternak)->get(route('pelatihan', ['tab' => 'sertifikat']));

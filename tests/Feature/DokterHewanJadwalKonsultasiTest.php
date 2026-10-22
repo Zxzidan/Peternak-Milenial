@@ -116,11 +116,9 @@ test('peternak view replaces active chat box with consultation schedule booking 
     $response->assertDontSee('Konsultasi Medis Aktif:');
     $response->assertDontSee('Ketik balasan untuk dokter hewan...');
 
-    // Ensure new appointment booking and quota system is present
-    $response->assertSee('Jadwal Konsultasi Dokter Hewan Saya');
-    $response->assertSee('Atur Jadwal');
-    $response->assertSee('Atur Jadwal Konsultasi Dokter Hewan');
-    $response->assertSee('Pilih Jam Konsultasi');
+    // Ensure consultation booking modal has been removed
+    $response->assertDontSee('id="modal-atur-jadwal"', false);
+    $response->assertDontSee('Atur Jadwal Konsultasi Dokter Hewan');
 });
 
 test('peternak can query doctor available slots with quota JSON', function () {
@@ -337,4 +335,137 @@ test('peternak can immediately retrieve slots added by drh fauzi without date fo
         ->and($data['slots'][0]['time_label'])->toBe('08:00 - 09:00 WIB')
         ->and($data['slots'][0]['quota'])->toBe(5)
         ->and($data['available_dates'])->toContain($targetDate);
+});
+
+test('peternak can book consultation using online or offline method', function () {
+    $peternak = User::where('role', 'peternak')->first();
+    $vet = Veterinarian::first();
+
+    $slotOnline = ConsultationSchedule::create([
+        'veterinarian_id' => $vet->id,
+        'date' => now()->addDays(5)->toDateString(),
+        'start_time' => '10:00',
+        'end_time' => '11:00',
+        'quota' => 2,
+        'status' => 'buka',
+        'service_type' => 'online',
+    ]);
+
+    $resOnline = $this->actingAs($peternak)->post(route('konsultasi.book'), [
+        'veterinarian_id' => $vet->id,
+        'consultation_schedule_id' => $slotOnline->id,
+        'consultation_date' => $slotOnline->date->toDateString(),
+        'consultation_type' => 'online',
+        'subject' => 'Konsultasi Online Ternak',
+        'complaint_details' => 'Nafsu makan menurun.',
+    ]);
+
+    $resOnline->assertRedirect(route('konsultasi'));
+    $this->assertDatabaseHas('consultations', [
+        'consultation_schedule_id' => $slotOnline->id,
+        'consultation_type' => 'online',
+    ]);
+
+    $slotOffline = ConsultationSchedule::create([
+        'veterinarian_id' => $vet->id,
+        'date' => now()->addDays(6)->toDateString(),
+        'start_time' => '13:00',
+        'end_time' => '14:00',
+        'quota' => 2,
+        'status' => 'buka',
+        'service_type' => 'offline',
+    ]);
+
+    $resOffline = $this->actingAs($peternak)->post(route('konsultasi.book'), [
+        'veterinarian_id' => $vet->id,
+        'consultation_schedule_id' => $slotOffline->id,
+        'consultation_date' => $slotOffline->date->toDateString(),
+        'consultation_type' => 'offline',
+        'subject' => 'Konsultasi Offline Tatap Muka',
+        'complaint_details' => 'Vaksinasi booster.',
+    ]);
+
+    $resOffline->assertRedirect(route('konsultasi'));
+    $this->assertDatabaseHas('consultations', [
+        'consultation_schedule_id' => $slotOffline->id,
+        'consultation_type' => 'offline',
+    ]);
+});
+
+test('dokter_hewan can view registered patients per slot and sees whatsapp link for online consultations', function () {
+    $vetUser = User::where('role', 'dokter_hewan')->first();
+    $vet = Veterinarian::where('user_id', $vetUser->id)->first() ?? Veterinarian::first();
+    $peternak = User::where('role', 'peternak')->first();
+
+    $peternak->update(['phone_number' => '08123456789']);
+
+    $slot = ConsultationSchedule::create([
+        'veterinarian_id' => $vet->id,
+        'date' => now()->addDays(3)->toDateString(),
+        'start_time' => '14:00',
+        'end_time' => '15:00',
+        'quota' => 4,
+        'status' => 'buka',
+        'service_type' => 'online',
+    ]);
+
+    Consultation::create([
+        'user_id' => $peternak->id,
+        'veterinarian_id' => $vetUser->id,
+        'consultation_schedule_id' => $slot->id,
+        'booking_code' => 'BOOK-TEST-WA',
+        'consultation_date' => $slot->date->toDateString(),
+        'consultation_time' => $slot->time_slot_label,
+        'subject' => 'Pemeriksaan Online Sapi Batuk',
+        'complaint_details' => 'Batuk pilek sejak 2 hari.',
+        'consultation_type' => 'online',
+        'status' => 'menunggu_konfirmasi',
+    ]);
+
+    $response = $this->actingAs($vetUser)->get(route('dokter-hewan.jadwal.index'));
+    $response->assertStatus(200);
+
+    // Verify slot table contains Pasien button
+    $response->assertSee('Pasien (1)');
+    $response->assertSee("openSlotPatientsModal({$slot->id})", false);
+
+    // Verify modal contains patient details, Online badge and WhatsApp redirect link
+    $response->assertSee("modal-pasien-slot-{$slot->id}");
+    $response->assertSee('BOOK-TEST-WA');
+    $response->assertSee('Konsultasi Online');
+    $response->assertSee('Arahkan ke WhatsApp');
+    $response->assertSee('https://wa.me/628123456789', false);
+});
+
+test('peternak can book consultation slot without complaint_details and livestock_id', function () {
+    $vet = Veterinarian::first();
+    $peternak = User::where('role', 'peternak')->first();
+
+    $slot = ConsultationSchedule::create([
+        'veterinarian_id' => $vet->id,
+        'date' => now()->addDays(2)->toDateString(),
+        'start_time' => '14:00',
+        'end_time' => '15:00',
+        'quota' => 3,
+        'status' => 'buka',
+        'service_type' => 'online',
+    ]);
+
+    $response = $this->actingAs($peternak)->post(route('konsultasi.book'), [
+        'consultation_schedule_id' => $slot->id,
+        'consultation_type' => 'online',
+        'subject' => 'Konsultasi Nafsu Makan',
+    ]);
+
+    $response->assertRedirect(route('konsultasi'));
+    $response->assertSessionHas('success');
+
+    $this->assertDatabaseHas('consultations', [
+        'user_id' => $peternak->id,
+        'consultation_schedule_id' => $slot->id,
+        'subject' => 'Konsultasi Nafsu Makan',
+        'complaint_details' => null,
+        'livestock_id' => null,
+        'status' => 'menunggu_konfirmasi',
+    ]);
 });

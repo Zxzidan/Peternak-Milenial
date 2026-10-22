@@ -6,6 +6,7 @@ use App\Models\AnimalHealthReport;
 use App\Models\AnimalHealthReportResponse;
 use App\Models\AnimalHealthReportVisit;
 use App\Models\Region;
+use App\Services\HealthReportDistributionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,7 +31,9 @@ class AnimalHealthReportController extends Controller
 
         $tab = $request->query('tab', 'semua');
         if ($tab === 'menunggu_respons') {
-            $query->where('status', 'menunggu_respons');
+            $query->whereIn('status', ['menunggu_respons', 'menunggu_penugasan']);
+        } elseif ($tab === 'menunggu_penugasan') {
+            $query->where('status', 'menunggu_penugasan');
         } elseif ($tab === 'sedang_ditangani') {
             $query->whereIn('status', ['sedang_ditangani', 'menunggu_kunjungan', 'kunjungan_terjadwal', 'menunggu_tindak_lanjut']);
         } elseif ($tab === 'sudah_dijawab') {
@@ -44,7 +47,7 @@ class AnimalHealthReportController extends Controller
         // Real-time KPI summary for Peternak
         $stats = [
             'total' => AnimalHealthReport::where('user_id', $user->id)->count(),
-            'menunggu_respons' => AnimalHealthReport::where('user_id', $user->id)->where('status', 'menunggu_respons')->count(),
+            'menunggu_respons' => AnimalHealthReport::where('user_id', $user->id)->whereIn('status', ['menunggu_respons', 'menunggu_penugasan'])->count(),
             'sedang_ditangani' => AnimalHealthReport::where('user_id', $user->id)->whereIn('status', ['sedang_ditangani', 'menunggu_kunjungan', 'kunjungan_terjadwal', 'menunggu_tindak_lanjut'])->count(),
             'sudah_dijawab' => AnimalHealthReport::where('user_id', $user->id)->where('status', 'sudah_dijawab')->count(),
             'selesai' => AnimalHealthReport::where('user_id', $user->id)->where('status', 'selesai')->count(),
@@ -126,11 +129,19 @@ class AnimalHealthReportController extends Controller
                 'notes' => 'Laporan kesehatan hewan baru diajukan oleh peternak.',
             ]);
 
+            // Distribusi otomatis berbasis beban kerja aktif dokter hewan terendah
+            $distributionService = app(HealthReportDistributionService::class);
+            $report = $distributionService->assignReport($report, $user->id);
+
             return $report;
         });
 
+        $successMessage = $report->assignedVeterinarian
+            ? "Laporan {$report->report_number} berhasil dikirim dan ditugaskan secara otomatis kepada {$report->assignedVeterinarian->name}."
+            : "Laporan {$report->report_number} berhasil dikirim. Status saat ini: Menunggu Penugasan (akan otomatis dialokasikan saat dokter aktif).";
+
         return redirect()->route('kesehatan-hewan.show', $report)
-            ->with('success', "Laporan {$report->report_number} berhasil dikirim ke Dokter Hewan Dinas.");
+            ->with('success', $successMessage);
     }
 
     /**

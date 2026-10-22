@@ -88,6 +88,7 @@ class AnimalHealthReport extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
+            'menunggu_penugasan' => 'Menunggu Penugasan',
             'menunggu_respons' => 'Menunggu Respons',
             'sedang_ditangani' => 'Sedang Ditangani',
             'sudah_dijawab' => 'Sudah Dijawab',
@@ -102,6 +103,7 @@ class AnimalHealthReport extends Model
     public function getStatusBadgeClassesAttribute(): string
     {
         return match ($this->status) {
+            'menunggu_penugasan' => 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/70 dark:text-amber-200 dark:border-amber-700',
             'menunggu_respons' => 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800',
             'sedang_ditangani' => 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800',
             'sudah_dijawab' => 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800',

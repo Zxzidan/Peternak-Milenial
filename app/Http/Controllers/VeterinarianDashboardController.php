@@ -6,6 +6,7 @@ use App\Models\AnimalHealthReport;
 use App\Models\AnimalHealthReportResponse;
 use App\Models\AnimalHealthReportVisit;
 use App\Models\Veterinarian;
+use App\Services\HealthReportDistributionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,16 +19,23 @@ class VeterinarianDashboardController extends Controller
      */
     public function index(Request $request): View
     {
-        $currentVet = auth()->user()?->veterinarianProfile;
+        $user = auth()->user();
+        $currentVet = $user?->veterinarianProfile;
+
+        // Base query for statistics: isolate by assigned veterinarian if dokter_hewan
+        $statsQuery = AnimalHealthReport::query();
+        if ($currentVet && ! $user->isAdmin()) {
+            $statsQuery->where('assigned_veterinarian_id', $currentVet->id);
+        }
 
         // Statistics (100% real-time from DB)
         $stats = [
-            'laporan_masuk' => AnimalHealthReport::where('status', 'menunggu_respons')->count(),
-            'sedang_ditangani' => AnimalHealthReport::where('status', 'sedang_ditangani')->count(),
-            'sudah_dijawab' => AnimalHealthReport::where('status', 'sudah_dijawab')->count(),
-            'perlu_kunjungan' => AnimalHealthReport::whereIn('status', ['menunggu_kunjungan', 'kunjungan_terjadwal'])->count(),
-            'selesai' => AnimalHealthReport::where('status', 'selesai')->count(),
-            'total' => AnimalHealthReport::count(),
+            'laporan_masuk' => (clone $statsQuery)->where('status', 'menunggu_respons')->count(),
+            'sedang_ditangani' => (clone $statsQuery)->where('status', 'sedang_ditangani')->count(),
+            'sudah_dijawab' => (clone $statsQuery)->where('status', 'sudah_dijawab')->count(),
+            'perlu_kunjungan' => (clone $statsQuery)->whereIn('status', ['menunggu_kunjungan', 'kunjungan_terjadwal'])->count(),
+            'selesai' => (clone $statsQuery)->where('status', 'selesai')->count(),
+            'total' => (clone $statsQuery)->count(),
         ];
 
         $defaultTab = $request->routeIs('dokter-hewan.laporan.*') ? 'masuk' : 'semua';
@@ -36,6 +44,11 @@ class VeterinarianDashboardController extends Controller
 
         $query = AnimalHealthReport::with(['user', 'assignedVeterinarian', 'latestVisit'])
             ->latest();
+
+        // Strict RBAC: Dokter hewan can only see reports assigned to them
+        if ($currentVet && ! $user->isAdmin()) {
+            $query->where('assigned_veterinarian_id', $currentVet->id);
+        }
 
         // Apply Tab Filter
         if ($tab === 'masuk') {
@@ -78,9 +91,18 @@ class VeterinarianDashboardController extends Controller
 
     /**
      * Show detailed inspection view of a single health report.
+     * Enforces strict isolation: doctor can only access their assigned report.
      */
     public function show(AnimalHealthReport $report): View
     {
+        $user = auth()->user();
+        $currentVet = $user?->veterinarianProfile;
+
+        // Strict RBAC Isolation
+        if ($currentVet && ! $user->isAdmin() && $report->assigned_veterinarian_id !== $currentVet->id) {
+            abort(403, 'Akses Ditolak: Anda hanya berwenang mengakses laporan yang ditugaskan kepada Anda.');
+        }
+
         $report->load([
             'user.peternakProfile',
             'assignedVeterinarian',
@@ -88,8 +110,6 @@ class VeterinarianDashboardController extends Controller
             'visits.veterinarian',
             'statusHistories.changer',
         ]);
-
-        $currentVet = auth()->user()?->veterinarianProfile;
 
         return view('dokter-hewan.show', [
             'report' => $report,
@@ -103,6 +123,11 @@ class VeterinarianDashboardController extends Controller
     public function storeResponse(Request $request, AnimalHealthReport $report): RedirectResponse
     {
         $user = auth()->user();
+        $currentVet = $user?->veterinarianProfile;
+
+        if ($currentVet && ! $user->isAdmin() && $report->assigned_veterinarian_id !== $currentVet->id) {
+            abort(403, 'Akses Ditolak: Anda hanya berwenang menangani laporan yang ditugaskan kepada Anda.');
+        }
 
         $validated = $request->validate([
             'message' => ['required', 'string'],
@@ -150,6 +175,9 @@ class VeterinarianDashboardController extends Controller
             );
         });
 
+        // Trigger distribution of any pending reports if capacity was freed
+        app(HealthReportDistributionService::class)->distributePendingReports();
+
         return redirect()->route('dokter-hewan.show', $report)
             ->with('success', 'Tanggapan dan rekomendasi profesional berhasil dikirim ke peternak.');
     }
@@ -160,7 +188,13 @@ class VeterinarianDashboardController extends Controller
     public function proposeVisit(Request $request, AnimalHealthReport $report): RedirectResponse
     {
         $user = auth()->user();
-        $vet = $user->veterinarianProfile ?? Veterinarian::first();
+        $currentVet = $user?->veterinarianProfile;
+
+        if ($currentVet && ! $user->isAdmin() && $report->assigned_veterinarian_id !== $currentVet->id) {
+            abort(403, 'Akses Ditolak: Anda hanya berwenang menangani laporan yang ditugaskan kepada Anda.');
+        }
+
+        $vet = $currentVet ?? Veterinarian::first();
 
         $validated = $request->validate([
             'visit_reason' => ['required', 'string'],
@@ -204,6 +238,11 @@ class VeterinarianDashboardController extends Controller
     public function recordVisitResult(Request $request, AnimalHealthReport $report, AnimalHealthReportVisit $visit): RedirectResponse
     {
         $user = auth()->user();
+        $currentVet = $user?->veterinarianProfile;
+
+        if ($currentVet && ! $user->isAdmin() && $report->assigned_veterinarian_id !== $currentVet->id) {
+            abort(403, 'Akses Ditolak: Anda hanya berwenang menangani laporan yang ditugaskan kepada Anda.');
+        }
 
         $validated = $request->validate([
             'examination_notes' => ['required', 'string'],
@@ -229,6 +268,9 @@ class VeterinarianDashboardController extends Controller
             $report->transitionTo($validated['next_report_status'], $user->id, $statusNotes);
         });
 
+        // Trigger pending distribution if finished
+        app(HealthReportDistributionService::class)->distributePendingReports();
+
         return redirect()->route('dokter-hewan.show', $report)
             ->with('success', 'Hasil pemeriksaan lapangan dan rekomendasi telah berhasil disimpan.');
     }
@@ -239,6 +281,11 @@ class VeterinarianDashboardController extends Controller
     public function updateStatus(Request $request, AnimalHealthReport $report): RedirectResponse
     {
         $user = auth()->user();
+        $currentVet = $user?->veterinarianProfile;
+
+        if ($currentVet && ! $user->isAdmin() && $report->assigned_veterinarian_id !== $currentVet->id) {
+            abort(403, 'Akses Ditolak: Anda hanya berwenang mengubah status laporan yang ditugaskan kepada Anda.');
+        }
 
         $validated = $request->validate([
             'status' => ['required', 'in:sedang_ditangani,sudah_dijawab,menunggu_tindak_lanjut,selesai'],
@@ -251,6 +298,11 @@ class VeterinarianDashboardController extends Controller
             $validated['notes'] ?? "Status diperbarui oleh {$user->name} menjadi {$report->getStatusLabelAttribute()}"
         );
 
+        // If report is answered or finished, trigger pending distribution
+        if (in_array($validated['status'], ['sudah_dijawab', 'selesai'])) {
+            app(HealthReportDistributionService::class)->distributePendingReports();
+        }
+
         return redirect()->route('dokter-hewan.show', $report)
             ->with('success', "Status laporan berhasil diperbarui menjadi {$report->status_label}.");
     }
@@ -260,8 +312,16 @@ class VeterinarianDashboardController extends Controller
      */
     public function visits(Request $request): View
     {
+        $user = auth()->user();
+        $currentVet = $user?->veterinarianProfile;
+
         $query = AnimalHealthReportVisit::with(['report.user', 'veterinarian'])
             ->latest('proposed_date');
+
+        // Isolate visits for current veterinarian
+        if ($currentVet && ! $user->isAdmin()) {
+            $query->where('veterinarian_id', $currentVet->id);
+        }
 
         $status = $request->query('status');
         if ($status) {

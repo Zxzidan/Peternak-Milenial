@@ -135,9 +135,9 @@ class ConsultationController extends Controller
         $validated = $request->validate([
             'consultation_schedule_id' => ['required', 'exists:consultation_schedules,id'],
             'subject' => ['required', 'string', 'max:255'],
-            'complaint_details' => ['required', 'string', 'max:2000'],
+            'complaint_details' => ['nullable', 'string', 'max:2000'],
             'livestock_id' => ['nullable', 'exists:livestock,id'],
-            'consultation_type' => ['required', 'in:konsultasi_online,telemedisin,tatap_muka,kunjungan'],
+            'consultation_type' => ['required', 'in:online,offline,konsultasi_online,telemedisin,tatap_muka,kunjungan'],
         ]);
 
         $schedule = ConsultationSchedule::with(['veterinarian.user'])->findOrFail($validated['consultation_schedule_id']);
@@ -178,7 +178,7 @@ class ConsultationController extends Controller
             'consultation_date' => $schedule->date,
             'consultation_time' => $schedule->time_slot_label,
             'subject' => $validated['subject'],
-            'complaint_details' => $validated['complaint_details'],
+            'complaint_details' => $validated['complaint_details'] ?? null,
             'consultation_type' => $validated['consultation_type'],
             'status' => 'menunggu_konfirmasi',
         ]);

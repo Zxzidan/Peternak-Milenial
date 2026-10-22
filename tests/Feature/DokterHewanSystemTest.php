@@ -115,8 +115,9 @@ test('peternak can submit an animal health report and it appears with status men
     $peternakList->assertSee($report->report_number);
     $peternakList->assertSee('Menunggu Respons');
 
-    // Doctor sees the report in incoming reports
-    $vetDashboard = $this->actingAs($dokter)->get(route('dokter-hewan.dashboard', ['tab' => 'masuk']));
+    // Assigned doctor sees the report in incoming reports
+    $assignedDoctorUser = $report->assignedVeterinarian->user;
+    $vetDashboard = $this->actingAs($assignedDoctorUser)->get(route('dokter-hewan.dashboard', ['tab' => 'masuk']));
     $vetDashboard->assertOk();
     $vetDashboard->assertSee($report->report_number);
     $vetDashboard->assertSee($peternak->name);
@@ -130,6 +131,7 @@ test('doctor can respond with initial hypothesis and recommendations without jum
 
     $report = AnimalHealthReport::factory()->create([
         'user_id' => $peternak->id,
+        'assigned_veterinarian_id' => $vetProfile->id,
         'status' => 'menunggu_respons',
     ]);
 
@@ -178,6 +180,7 @@ test('doctor can propose a field visit and peternak can confirm schedule', funct
 
     $report = AnimalHealthReport::factory()->create([
         'user_id' => $peternak->id,
+        'assigned_veterinarian_id' => $vetProfile->id,
         'status' => 'sedang_ditangani',
     ]);
 
@@ -255,10 +258,11 @@ test('peternak A cannot access or view health report of Peternak B', function ()
 test('status changes maintain an audit trail and transitions are consistent', function () {
     $peternak = User::where('role', 'peternak')->first() ?? User::factory()->peternak()->create();
     $dokter = User::factory()->dokterHewan()->create();
-    Veterinarian::factory()->create(['user_id' => $dokter->id]);
+    $vet = Veterinarian::factory()->create(['user_id' => $dokter->id]);
 
     $report = AnimalHealthReport::factory()->create([
         'user_id' => $peternak->id,
+        'assigned_veterinarian_id' => $vet->id,
         'status' => 'menunggu_respons',
     ]);
 
@@ -292,7 +296,9 @@ test('dashboard displays polite empty states and prevents invalid input', functi
     $response->assertSee('Belum ada laporan kesehatan hewan yang perlu ditangani');
 
     // Validation error when submitting incomplete response
-    $report = AnimalHealthReport::factory()->create();
+    $report = AnimalHealthReport::factory()->create([
+        'assigned_veterinarian_id' => $dokter->veterinarianProfile->id,
+    ]);
     $failResponse = $this->actingAs($dokter)->post(route('dokter-hewan.response.store', $report), [
         'message' => '', // Required message is empty
     ]);
@@ -340,6 +346,7 @@ test('complete workflow: admin creates doctor credentials, doctor logs in and ha
     // 2. Peternak mengirim laporan kesehatan
     $report = AnimalHealthReport::factory()->create([
         'user_id' => $peternak->id,
+        'assigned_veterinarian_id' => $dokterUser->veterinarianProfile->id,
         'livestock_type' => 'Sapi Perah',
         'affected_count' => 2,
         'symptoms' => 'Nafsu makan menurun drastis, puting susu bengkak dan kemerahan.',
@@ -433,11 +440,11 @@ test('dokter hewan sidebar does not display rekam medis and pedoman penyakit', f
 
     // Verify core dokter hewan menus are present
     $response->assertSee('Dashboard Dokter');
-    $response->assertSee('Jadwal Konsultasi');
     $response->assertSee('Laporan Kesehatan');
     $response->assertSee('Kunjungan Lapangan');
 
-    // Verify Rekam Medis and Pedoman Penyakit are NOT present in the sidebar for dokter hewan
+    // Verify Jadwal Konsultasi, Rekam Medis and Pedoman Penyakit are NOT present in the sidebar for dokter hewan
+    $response->assertDontSee('Jadwal Konsultasi');
     $response->assertDontSee('title="Rekam Medis"', false);
     $response->assertDontSee('title="Pedoman Penyakit Hewan"', false);
     $response->assertDontSee('/konsultasi?tab=rekam_medis', false);

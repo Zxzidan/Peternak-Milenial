@@ -23,7 +23,7 @@ test('rekam medis tab displays consultation reservation results and clinical hea
     ]);
 
     $vetUser = User::factory()->dokterHewan()->create([
-        'name' => 'drh. Hendra Wijaya',
+        'name' => 'drh. Hendra Wijaya, M.Si',
         'email' => 'drh.hendra@disnak.test',
     ]);
     $veterinarian = Veterinarian::factory()->create([
@@ -55,7 +55,7 @@ test('rekam medis tab displays consultation reservation results and clinical hea
     // Create consultation reservation with diagnosis and prescription
     Consultation::create([
         'user_id' => $peternak->id,
-        'veterinarian_id' => $veterinarian->id,
+        'veterinarian_id' => $vetUser->id,
         'consultation_schedule_id' => $schedule->id,
         'livestock_id' => $livestock->id,
         'subject' => 'Pemeriksaan Nafsu Makan Turun Pasca Melahirkan',
@@ -85,7 +85,7 @@ test('rekam medis tab displays consultation reservation results and clinical hea
     ]);
     Consultation::create([
         'user_id' => $otherPeternak->id,
-        'veterinarian_id' => $veterinarian->id,
+        'veterinarian_id' => $vetUser->id,
         'subject' => 'Rahasia Kasus Penyakit Milik Peternak Lain',
         'complaint_details' => 'Data sensitif yang tidak boleh muncul pada rekam medis pengguna lain.',
         'consultation_type' => 'telemedisin',

@@ -254,6 +254,12 @@
                             @else
                                 <span class="px-2 py-0.5 text-[10px] font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-md">Offline</span>
                             @endif
+                            <div class="mt-1 flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Beban Laporan:</span>
+                                <span class="px-1.5 py-0.5 rounded font-semibold {{ ($vet->active_reports_count ?? 0) > 0 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
+                                    {{ $vet->active_reports_count ?? 0 }} aktif
+                                </span>
+                            </div>
                         </td>
                         <td class="px-4 py-3.5">
                             <form method="POST" action="{{ route('admin.veterinarians.toggle-active', $vet) }}" class="inline">

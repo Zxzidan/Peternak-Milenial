@@ -50,7 +50,7 @@ class VeterinarianScheduleController extends Controller
 
         // Doctor's consultation slots
         $schedulesQuery = ConsultationSchedule::where('veterinarian_id', $currentVet->id)
-            ->with(['consultations.user'])
+            ->with(['consultations.user.peternakProfile', 'consultations.livestock'])
             ->orderBy('date', 'desc')
             ->orderBy('start_time', 'asc');
 
@@ -117,7 +117,7 @@ class VeterinarianScheduleController extends Controller
             'start_time' => ['required', 'string', 'max:10'],
             'end_time' => ['required', 'string', 'max:10'],
             'quota' => ['required', 'integer', 'min:1', 'max:50'],
-            'service_type' => ['nullable', 'in:konsultasi_online,telemedisin,tatap_muka,kunjungan,semua'],
+            'service_type' => ['nullable', 'in:online,offline,konsultasi_online,telemedisin,tatap_muka,kunjungan,semua'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
@@ -128,7 +128,7 @@ class VeterinarianScheduleController extends Controller
             'end_time' => $validated['end_time'],
             'quota' => $validated['quota'],
             'status' => 'buka',
-            'service_type' => $validated['service_type'] ?? 'konsultasi_online',
+            'service_type' => $validated['service_type'] ?? 'online',
             'notes' => $validated['notes'] ?? null,
         ]);
 
@@ -154,11 +154,11 @@ class VeterinarianScheduleController extends Controller
             'date' => ['required', 'date'],
             'quota_per_slot' => ['nullable', 'integer', 'min:1', 'max:50'],
             'default_quota' => ['nullable', 'integer', 'min:1', 'max:50'],
-            'service_type' => ['nullable', 'in:konsultasi_online,telemedisin,tatap_muka,kunjungan,semua'],
+            'service_type' => ['nullable', 'in:online,offline,konsultasi_online,telemedisin,tatap_muka,kunjungan,semua'],
         ]);
 
         $quota = $validated['quota_per_slot'] ?? $validated['default_quota'] ?? 5;
-        $serviceType = $validated['service_type'] ?? 'konsultasi_online';
+        $serviceType = $validated['service_type'] ?? 'online';
 
         $slots = [
             ['08:00', '09:00'],
@@ -216,7 +216,7 @@ class VeterinarianScheduleController extends Controller
         $validated = $request->validate([
             'quota' => ['required', 'integer', 'min:1', 'max:50'],
             'status' => ['nullable', 'in:buka,tutup'],
-            'service_type' => ['nullable', 'in:konsultasi_online,telemedisin,tatap_muka,kunjungan,semua'],
+            'service_type' => ['nullable', 'in:online,offline,konsultasi_online,telemedisin,tatap_muka,kunjungan,semua'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
