@@ -679,7 +679,7 @@ class ConsultationController extends Controller
                 'id' => $consultation->id,
                 'document_number' => 'RM-JTM/'.($consultation->created_at?->format('Y') ?? date('Y')).'/KON-'.str_pad($consultation->id, 4, '0', STR_PAD_LEFT),
                 'date' => $consultation->schedule ? Carbon::parse($consultation->schedule->date)->translatedFormat('d F Y') : ($consultation->created_at ? $consultation->created_at->translatedFormat('d F Y') : now()->translatedFormat('d F Y')),
-                'time' => $consultation->schedule?->time_label ?? ($consultation->consultation_time ?? ($consultation->created_at?->format('H:i').' WIB')),
+                'time' => $consultation->time_formatted,
                 'status_label' => $consultation->status_label,
                 'consultation_type' => ucwords(str_replace('_', ' ', $consultation->consultation_type ?? 'Konsultasi Online')),
                 'owner_name' => $owner?->name ?? 'Peternak Milenial',

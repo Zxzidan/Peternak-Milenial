@@ -20,7 +20,7 @@ test('admin is focused exclusively on product verification in marketplace', func
 
     // Must see Admin verification headlines and badges
     $response->assertSee('Verifikasi Produk Peternak');
-    $response->assertSee('Bidang Pascapanen &amp; Pemasaran', false);
+    $response->assertDontSee('Bidang Pascapanen &amp; Pemasaran', false);
     $response->assertSee('Daftar Verifikasi Produk Peternak');
     $response->assertSee('Menunggu Verifikasi');
     $response->assertSee('Total Produk Peternak');

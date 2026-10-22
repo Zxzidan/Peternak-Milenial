@@ -1092,7 +1092,7 @@ test('masyarakat umum is restricted to public features and blocked with 403 on p
     // Umum CAN access public routes
     $this->actingAs($umum)->get(route('dashboard'))->assertStatus(200);
     $this->actingAs($umum)->get(route('marketplace'))->assertStatus(200);
-    $this->actingAs($umum)->get(route('harga-komoditas'))->assertStatus(200);
+    $this->actingAs($umum)->get(route('harga-komoditas'))->assertStatus(200)->assertDontSee('Bidang Pascapanen &amp; Pemasaran', false);
     $this->actingAs($umum)->get(route('pameran'))->assertStatus(200);
 
     // Umum CANNOT access internal features -> 403 Forbidden
@@ -1218,4 +1218,18 @@ test('register page renders multi-step wizard structure and navigation controls'
     $response->assertSee('Lanjut: Wilayah Domisili');
     $response->assertSee('Sebelumnya');
     $response->assertSee('Sign Up');
+});
+
+test('sidebar renders dashboard navigation link for masyarakat umum', function () {
+    $user = User::factory()->create([
+        'role' => 'umum',
+    ]);
+
+    $response = $this->actingAs($user)->get(route('dashboard'));
+
+    $response->assertStatus(200);
+    $response->assertSee(route('dashboard'));
+    $response->assertSee('Dashboard');
+    $response->assertSee('Marketplace Ternak');
+    $response->assertSee('Pesanan Saya');
 });

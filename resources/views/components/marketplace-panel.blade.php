@@ -21,7 +21,7 @@
                 href="{{ url('/marketplace') }}"
                 class="text-xs font-medium text-white bg-primary-700 hover:bg-primary-800 dark:bg-primary-600 dark:hover:bg-primary-700 px-3 py-1.5 rounded-lg transition"
             >
-                Katalog Lengkap →
+                Katalog Lengkap
             </a>
         </div>
     </div>

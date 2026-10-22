@@ -487,6 +487,7 @@ class DatabaseSeeder extends Seeder
             'price' => 18000,
             'stock' => 150,
             'unit' => 'Liter',
+            'image_path' => 'products/MRcsx5YRbyRohLHyEFoedcHqZ8Uj77NsoLVWBVOh.jpg',
             'is_verified' => true,
             'status' => 'active',
         ]);
@@ -501,6 +502,7 @@ class DatabaseSeeder extends Seeder
             'price' => 145000,
             'stock' => 40,
             'unit' => 'Kilogram',
+            'image_path' => 'products/daging_wagyu_malang.jpg',
             'is_verified' => true,
             'status' => 'active',
         ]);
@@ -515,6 +517,7 @@ class DatabaseSeeder extends Seeder
             'price' => 85000,
             'stock' => 80,
             'unit' => 'Sak',
+            'image_path' => 'products/silase_fermentasi_batu.jpg',
             'is_verified' => true,
             'status' => 'active',
         ]);

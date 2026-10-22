@@ -33,6 +33,21 @@
                 <!-- Menu Khusus Masyarakat: Fokus Marketplace & Pesanan (Shopee-Style) -->
                 <ul class="space-y-1 font-medium">
                     <li>
+                        <a href="{{ route('dashboard') }}"
+                            class="sidebar-link flex items-center px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('dashboard*') ? 'bg-primary-50 text-primary-700 border-primary-200/80 font-semibold dark:bg-primary-950/60 dark:text-primary-300 dark:border-primary-800/60 shadow-2xs' : 'border-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700/60 dark:hover:text-white' }}"
+                            title="Dashboard">
+                            <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 {{ request()->is('dashboard*') ? 'text-primary-700 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400 group-hover:text-primary-700 dark:group-hover:text-white' }}"
+                                fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25-2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                            </svg>
+                            <span class="sidebar-label flex-1 ms-2.5 whitespace-nowrap">
+                                Dashboard
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
                         <a href="{{ route('marketplace') }}"
                             class="sidebar-link flex items-center justify-between px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ request()->is('marketplace*') && !request()->has('pesanan') ? 'bg-orange-50 text-orange-800 border-orange-200/90 font-semibold shadow-2xs' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}"
                             title="Marketplace Ternak">

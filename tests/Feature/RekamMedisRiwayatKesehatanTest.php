@@ -105,6 +105,8 @@ test('rekam medis tab displays consultation reservation results and clinical hea
     $response->assertSee('Berikan larutan propilen glikol 300ml per oral dan multivitamin B-kompleks.');
     $response->assertSee('drh. Hendra Wijaya, M.Si');
     $response->assertSee('ETAG-JTM-777');
+    $response->assertSee('Selesai pukul');
+    $response->assertDontSee('09:00 - 10:00 WIB');
 
     // 2. Assert scoped strictly to current logged-in peternak
     $response->assertDontSee('Rahasia Kasus Penyakit Milik Peternak Lain');

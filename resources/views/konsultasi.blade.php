@@ -806,8 +806,8 @@
                                     $dateIso = $reportDateObj->toDateString();
                                     $dateFormatted = $reportDateObj->translatedFormat('d F Y');
                                     $timeFormatted = $report->resolved_at
-                                        ? $report->resolved_at->format('H:i') . ' WIB'
-                                        : $report->updated_at->format('H:i') . ' WIB';
+                                        ? $report->resolved_at->timezone('Asia/Jakarta')->format('H:i') . ' WIB'
+                                        : $report->updated_at->timezone('Asia/Jakarta')->format('H:i') . ' WIB';
 
                                     $latestVisit = $report->latestVisit;
                                     $latestResponse =
@@ -1018,15 +1018,16 @@
                                     'dibatalkan' => 'Dibatalkan',
                                     default => 'Menunggu Sesi',
                                 };
-                                $bookingDateObj = $booking->schedule
-                                    ? \Carbon\Carbon::parse($booking->schedule->date)
-                                    : ($booking->consultation_date
-                                        ? \Carbon\Carbon::parse($booking->consultation_date)
-                                        : $booking->created_at);
+                                $bookingDateObj = (in_array($booking->status, ['selesai', 'answered', 'closed']) && $booking->updated_at)
+                                    ? $booking->updated_at->timezone('Asia/Jakarta')
+                                    : ($booking->schedule
+                                        ? \Carbon\Carbon::parse($booking->schedule->date)
+                                        : ($booking->consultation_date
+                                            ? \Carbon\Carbon::parse($booking->consultation_date)
+                                            : $booking->created_at));
                                 $dateIso = $bookingDateObj->toDateString();
                                 $dateFormatted = $bookingDateObj->translatedFormat('d F Y');
-                                $timeFormatted =
-                                    $booking->schedule?->time_label ?? $booking->created_at->format('H:i') . ' WIB';
+                                $timeFormatted = $booking->time_formatted;
                             @endphp
                             <div
                                 class="rekam-medis-card bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group relative"

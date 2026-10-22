@@ -244,6 +244,11 @@ class VeterinarianDashboardController extends Controller
             abort(403, 'Akses Ditolak: Anda hanya berwenang menangani laporan yang ditugaskan kepada Anda.');
         }
 
+        if ($visit->status === 'selesai') {
+            return redirect()->route('dokter-hewan.show', $report)
+                ->with('error', 'Pemeriksaan lapangan ini telah selesai ditangani dan hasil evaluasi klinis tidak dapat diedit kembali.');
+        }
+
         $validated = $request->validate([
             'examination_notes' => ['required', 'string'],
             'post_visit_recommendations' => ['nullable', 'string'],

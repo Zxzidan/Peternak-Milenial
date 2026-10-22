@@ -376,6 +376,11 @@ class VeterinarianScheduleController extends Controller
      */
     public function destroyBooking(Consultation $consultation): RedirectResponse
     {
+        if ($consultation->status === 'selesai') {
+            return redirect()->route('dokter-hewan.jadwal.index', ['tab' => 'rekam_medis'])
+                ->with('error', 'Konsultasi yang telah selesai ditangani tidak dapat dihapus.');
+        }
+
         $bookingCode = $consultation->booking_code ?? ('#CONS-'.$consultation->id);
         $peternakName = $consultation->user?->name ?? 'Peternak';
 
@@ -394,6 +399,11 @@ class VeterinarianScheduleController extends Controller
      */
     public function updateBookingStatus(Request $request, Consultation $consultation): RedirectResponse
     {
+        if ($consultation->status === 'selesai') {
+            return redirect()->route('dokter-hewan.jadwal.index', ['tab' => 'rekam_medis'])
+                ->with('error', 'Konsultasi ini telah selesai ditangani. Catatan diagnosis dan resep obat telah dikunci dan tidak dapat diedit kembali.');
+        }
+
         $validated = $request->validate([
             'status' => ['required', 'in:dikonfirmasi,selesai,dibatalkan'],
             'doctor_notes' => ['nullable', 'string', 'max:2000'],

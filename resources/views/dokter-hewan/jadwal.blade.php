@@ -493,11 +493,13 @@
                         @php
                             $isOnline = in_array(strtolower($record->consultation_type ?? ''), ['online', 'telemedisin', 'konsultasi_online'])
                                 || ($record->schedule?->service_type === 'online');
-                            $recordDateObj = $record->schedule
-                                ? \Carbon\Carbon::parse($record->schedule->date)
-                                : ($record->consultation_date ? \Carbon\Carbon::parse($record->consultation_date) : $record->updated_at);
+                            $recordDateObj = (in_array($record->status, ['selesai', 'answered', 'closed']) && $record->updated_at)
+                                ? $record->updated_at->timezone('Asia/Jakarta')
+                                : ($record->schedule
+                                    ? \Carbon\Carbon::parse($record->schedule->date)
+                                    : ($record->consultation_date ? \Carbon\Carbon::parse($record->consultation_date) : $record->updated_at));
                             $dateFormatted = $recordDateObj->translatedFormat('l, d F Y');
-                            $timeFormatted = $record->schedule?->time_slot_label ?? ($record->consultation_time ?? ($record->created_at->format('H:i') . ' WIB'));
+                            $timeFormatted = $record->time_formatted;
                             $userPhone = $record->user?->phone_number ?? $record->user?->peternakProfile?->phone ?? '';
                             $cleanPhone = preg_replace('/[^0-9]/', '', $userPhone);
                             if (str_starts_with($cleanPhone, '0')) {
@@ -617,22 +619,20 @@
                             <!-- Card Action Buttons -->
                             <div class="mt-5 pt-3.5 border-t border-gray-100 dark:border-gray-700/60 flex flex-wrap items-center justify-between gap-2.5">
                                 <div class="text-[11px] text-gray-400 font-mono">
-                                    Dicatat: {{ $record->updated_at->translatedFormat('d M Y, H:i') }} WIB
+                                    Dicatat: {{ $record->updated_at->timezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }} WIB
                                 </div>
 
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <!-- Edit Diagnosis & Resep -->
-                                    <button
-                                        type="button"
-                                        onclick="openCompleteConsultationModal({{ $record->id }}, '{{ $record->booking_code }}', '{{ addslashes($record->user?->name ?? 'Peternak') }}', '{{ addslashes($record->subject) }}', '{{ addslashes($record->doctor_notes ?? '') }}', '{{ addslashes($record->prescription ?? '') }}')"
-                                        class="inline-flex items-center justify-center gap-1.5 h-8 px-3 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 dark:bg-primary-950/60 dark:text-primary-300 dark:hover:bg-primary-900/60 rounded-xl border border-primary-200 dark:border-primary-800 transition cursor-pointer shadow-2xs"
-                                        title="Edit catatan diagnosa & resep obat"
+                                    <!-- Diagnosis Terkunci (Permanen) -->
+                                    <span
+                                        class="inline-flex items-center justify-center gap-1.5 h-8 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-750 rounded-xl border border-gray-200 dark:border-gray-700 select-none cursor-default"
+                                        title="Hasil evaluasi medis dan resep obat telah selesai dan terkunci permanen"
                                     >
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                        <svg class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                                         </svg>
-                                        <span>Edit Diagnosis</span>
-                                    </button>
+                                        <span>Diagnosis Terkunci</span>
+                                    </span>
 
                                     <!-- WhatsApp Peternak -->
                                     @if($cleanPhone)
@@ -1171,6 +1171,13 @@
             @csrf
             @method('PATCH')
             <input type="hidden" name="status" value="selesai">
+
+            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-900/60 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2">
+                <svg class="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span><strong>Perhatian:</strong> Setelah sesi konsultasi diselesaikan, catatan diagnosis dan resep obat akan terkunci secara permanen dan tidak dapat diedit kembali demi keabsahan dokumen rekam medis.</span>
+            </div>
 
             <div>
                 <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Catatan Pemeriksaan & Diagnosis Dokter</label>

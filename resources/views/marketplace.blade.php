@@ -33,23 +33,6 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 sm:pb-6 border-b border-gray-200 dark:border-gray-800">
         <div>
-            <div class="flex items-center gap-2 mb-2 sm:mb-2.5 flex-wrap">
-                @if(auth()->check() && auth()->user()->isAdmin())
-                    <span class="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 text-xs font-medium px-2 py-0.5 rounded">
-                        Bidang Pascapanen &amp; Pemasaran
-                    </span>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">
-                        · Disnak Jatim
-                    </span>
-                @else
-                    <span class="bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300 text-xs font-medium px-2 py-0.5 rounded">
-                        Pasar Digital Peternak Milenial Jatim
-                    </span>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">
-                        · Bebas Ongkir Subsidi Jatim
-                    </span>
-                @endif
-            </div>
             <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-snug">
                 @if(auth()->check() && auth()->user()->isAdmin())
                     Verifikasi Produk Peternak
@@ -732,7 +715,7 @@
         </div>
 
         <!-- Grid Katalog Produk -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             @forelse ($products as $product)
             <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-xs hover:shadow-sm transition-all flex flex-col justify-between overflow-hidden">
                 <!-- Visual Header -->
@@ -779,7 +762,7 @@
 
                     <!-- Card Body -->
                     <div class="p-4">
-                        <h3 class="text-sm font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug">
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-white line-clamp-1 leading-snug" title="{{ $product->name }}">
                             {{ $product->name }}
                         </h3>
 

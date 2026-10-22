@@ -15,6 +15,7 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 sm:pb-6 border-b border-gray-200 dark:border-gray-800">
         <div>
+            @if(auth()->check() && !auth()->user()->isUmum())
             <div class="flex items-center gap-2 mb-2 sm:mb-2.5">
                 <span class="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 text-xs font-medium px-2 py-0.5 rounded">
                     Bidang Pascapanen &amp; Pemasaran
@@ -23,6 +24,7 @@
                     · Disnak Jatim
                 </span>
             </div>
+            @endif
             <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-snug">
                 @if($activeTab === 'tren')
                     Tren Harga Komoditas

@@ -76,4 +76,9 @@ class ConsultationSchedule extends Model
 
         return "{$start} - {$end} WIB";
     }
+
+    public function getTimeLabelAttribute(): string
+    {
+        return $this->time_slot_label;
+    }
 }

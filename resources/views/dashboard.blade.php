@@ -40,7 +40,7 @@
             <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div class="max-w-2xl">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/20 text-white border border-white/30 mb-2">
-                        🛒 Portal Belanja Ternak Jatim
+                        Portal Belanja Ternak Jatim
                     </span>
                     <h2 class="text-xl sm:text-2xl font-bold text-white leading-tight">
                         Selamat Datang, {{ auth()->user()->name }}!
@@ -49,23 +49,20 @@
                         Beli langsung produk susu segar, daging higienis, telur bernutrisi, dan madu murni dari peternak lokal Jawa Timur dengan jaminan standar mutu Dinas Peternakan.
                     </p>
                     <div class="flex items-center gap-4 mt-4 pt-4 border-t border-white/20 text-xs">
-                        <div class="flex items-center gap-1.5">
-                            <span>🚚</span>
+                        <div class="flex items-center">
                             <span class="font-semibold">Bebas Ongkir Jatim</span>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <span>🛡️</span>
+                        <div class="flex items-center">
                             <span class="font-semibold">Higienis &amp; Halal</span>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <span>💎</span>
+                        <div class="flex items-center">
                             <span class="font-semibold">Harga Peternak</span>
                         </div>
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0">
                     <a href="{{ route('marketplace') }}" class="px-5 py-3 bg-white text-orange-700 font-bold rounded-xl text-xs hover:bg-orange-50 shadow-xs transition text-center">
-                        Mulai Belanja Sekarang →
+                        Mulai Belanja Sekarang
                     </a>
                     <a href="{{ route('pesanan') }}" class="px-5 py-3 bg-white/20 text-white font-semibold rounded-xl text-xs hover:bg-white/30 border border-white/30 transition text-center">
                         Pantau Pesanan Saya
@@ -82,8 +79,10 @@
                     <h3 class="text-2xl sm:text-3xl font-bold text-slate-900">{{ $activeProductCount }}</h3>
                     <span class="text-xs text-slate-500 mt-1 block">Produk Terverifikasi Dinas</span>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center text-2xl">
-                    🛍️
+                <div class="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                    </svg>
                 </div>
             </div>
 
@@ -93,8 +92,10 @@
                     <h3 class="text-2xl sm:text-3xl font-bold text-slate-900">{{ $umumMetrics['myOrdersCount'] }}</h3>
                     <span class="text-xs text-slate-500 mt-1 block">Transaksi Aktif / Berjalan</span>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">
-                    📦
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                    </svg>
                 </div>
             </div>
 
@@ -104,8 +105,11 @@
                     <h3 class="text-2xl sm:text-3xl font-bold text-slate-900">{{ $commodityCount }}</h3>
                     <span class="text-xs text-slate-500 mt-1 block">Sektor Pangan &amp; Peternakan</span>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl">
-                    🥩
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                    </svg>
                 </div>
             </div>
         </div>
@@ -118,41 +122,68 @@
                     <p class="text-xs text-slate-500">Produk peternakan terverifikasi langsung dari kelompok peternak Jawa Timur</p>
                 </div>
                 <a href="{{ route('marketplace') }}" class="text-xs font-bold text-orange-600 hover:text-orange-700">
-                    Buka Marketplace Lengkap →
+                    Buka Marketplace Lengkap
                 </a>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 @forelse($buyerFeaturedProducts as $fp)
-                @php
-                    $pEmoji = match(true) {
-                        str_contains(strtolower($fp->category?->name ?? ''), 'susu') => '🥛',
-                        str_contains(strtolower($fp->category?->name ?? ''), 'daging') => '🥩',
-                        str_contains(strtolower($fp->category?->name ?? ''), 'pakan') => '🌾',
-                        str_contains(strtolower($fp->category?->name ?? ''), 'bibit') => '🐂',
-                        default => '📦'
-                    };
-                @endphp
-                <div class="border border-slate-200 rounded-2xl p-4 flex flex-col justify-between hover:border-orange-300 shadow-2xs hover:shadow-xs transition group">
+                <div class="border border-slate-200 rounded-2xl p-3 sm:p-3.5 flex flex-col justify-between hover:border-orange-300 shadow-2xs hover:shadow-xs transition group bg-white">
                     <div>
-                        <div class="flex items-center justify-between text-xs mb-3">
-                            <span class="text-[11px] font-medium text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                                📍 {{ str_replace(['Kabupaten ', 'Kota '], '', $fp->region?->name ?? 'Jatim') }}
-                            </span>
-                            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                                ✓ Verified
-                            </span>
+                        <!-- Foto Produk Nyata Terverifikasi Admin -->
+                        <div class="relative h-44 w-full rounded-xl overflow-hidden bg-slate-100 mb-3.5">
+                            @if($fp->image_path)
+                                <img
+                                    src="{{ asset('storage/' . $fp->image_path) }}"
+                                    alt="{{ $fp->name }}"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                >
+                                <div class="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-black/20 pointer-events-none"></div>
+                            @else
+                                <div class="w-full h-full flex flex-col items-center justify-center bg-linear-to-br from-slate-100 to-slate-200 text-slate-400 p-4">
+                                    <div class="w-12 h-12 rounded-xl bg-white/80 border border-slate-200 flex items-center justify-center text-orange-600 mb-1.5 shadow-xs">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-[11px] font-medium text-slate-500">Foto belum diunggah</span>
+                                </div>
+                            @endif
+
+                            <!-- Badges Overlay -->
+                            <div class="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-1.5 z-10 pointer-events-none">
+                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-white bg-black/60 backdrop-blur-xs px-2.5 py-1 rounded-lg border border-white/20 shadow-xs">
+                                    📍 {{ str_replace(['Kabupaten ', 'Kota '], '', $fp->region?->name ?? 'Jatim') }}
+                                </span>
+                                @if($fp->is_verified)
+                                    <span class="bg-emerald-600/95 backdrop-blur-xs text-white border border-emerald-400/40 text-[10px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 shadow-xs">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                        Verified
+                                    </span>
+                                @endif
+                            </div>
+
+                            <!-- Category Badge (Bottom Left) -->
+                            <div class="absolute bottom-2.5 left-2.5 z-10 pointer-events-none">
+                                <span class="text-[10px] font-semibold text-white/95 bg-black/50 backdrop-blur-xs px-2 py-0.5 rounded-md border border-white/10">
+                                    {{ $fp->category?->name ?? 'Komoditas' }}
+                                </span>
+                            </div>
                         </div>
-                        <div class="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-2xl mb-2">
-                            {{ $pEmoji }}
-                        </div>
-                        <h4 class="font-bold text-slate-900 text-sm group-hover:text-orange-600 transition line-clamp-1">{{ $fp->name }}</h4>
+
+                        <h4 class="font-bold text-slate-900 text-sm group-hover:text-orange-600 transition line-clamp-1" title="{{ $fp->name }}">{{ $fp->name }}</h4>
                         <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">{{ $fp->description }}</p>
+
+                        @if($fp->seller)
+                        <div class="mt-2.5 flex items-center gap-1.5 text-[11px] text-slate-500">
+                            <span class="font-medium text-slate-700 truncate">Peternak: {{ $fp->seller->name }}</span>
+                        </div>
+                        @endif
                     </div>
                     <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                         <div>
                             <span class="text-[10px] text-slate-400 block">Harga</span>
-                            <span class="font-bold text-orange-600 text-sm">Rp {{ number_format($fp->price, 0, ',', '.') }}</span>
+                            <span class="font-bold text-orange-600 text-sm tabular-nums">Rp {{ number_format($fp->price, 0, ',', '.') }}</span>
                         </div>
                         <a href="{{ route('marketplace') }}" class="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs transition shadow-2xs">
                             Beli Sekarang
@@ -174,7 +205,7 @@
                     <p class="text-xs text-slate-500">Pantau transaksi belanja terkini</p>
                 </div>
                 <a href="{{ route('pesanan') }}" class="text-xs font-bold text-orange-600 hover:text-orange-700">
-                    Lihat Semua Pesanan →
+                    Lihat Semua Pesanan
                 </a>
             </div>
             <div class="space-y-2.5">
@@ -212,9 +243,8 @@
                         <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border {{ $boStatusBadge }}">
                             {{ $boStatusLabel }}
                         </span>
-                        <a href="{{ route('pesanan') }}#order-{{ $bo->id }}" class="text-xs font-semibold text-primary-700 hover:text-primary-800 transition inline-flex items-center gap-1">
+                        <a href="{{ route('pesanan') }}#order-{{ $bo->id }}" class="text-xs font-semibold text-primary-700 hover:text-primary-800 transition">
                             <span>Lacak Detail</span>
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
                         </a>
                     </div>
                 </div>

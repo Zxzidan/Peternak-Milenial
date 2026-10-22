@@ -47,9 +47,10 @@ test('masyarakat can search and filter livestock products in marketplace catalog
     // Catalog view renders with Shopee elements
     $response = $this->actingAs($masyarakat)->get(route('marketplace'));
     $response->assertOk();
-    $response->assertSee('Pasar Digital Peternak Milenial Jatim');
-    $response->assertSee('Bebas Ongkir');
+    $response->assertSee('Marketplace Peternak Milenial');
     $response->assertSee('Beli Sekarang');
+    $response->assertDontSee('Pasar Digital Peternak Milenial Jatim');
+    $response->assertDontSee('Bebas Ongkir Subsidi Jatim');
 
     // Filter by category
     if ($catSusu) {
@@ -242,4 +243,17 @@ test('order show route allows authorized buyer and forbids other users', functio
     // Unauthorized stranger gets 403 Forbidden
     $unauthResponse = $this->actingAs($stranger)->getJson(route('marketplace.orders.show', $order));
     $unauthResponse->assertStatus(403);
+});
+
+test('masyarakat dashboard displays verified farmer product image instead of emoji icon', function () {
+    $masyarakat = User::where('role', 'umum')->first() ?? User::factory()->create(['role' => 'umum']);
+
+    $response = $this->actingAs($masyarakat)->get(route('dashboard'));
+
+    $response->assertOk();
+    $response->assertSee('Rekomendasi Produk Pilihan Hari Ini');
+    $response->assertSee('storage/products/', false);
+    $response->assertDontSee('🥛');
+    $response->assertDontSee('🥩');
+    $response->assertDontSee('🌾');
 });

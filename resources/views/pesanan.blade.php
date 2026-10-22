@@ -3,20 +3,11 @@
 @section('title', 'Pesanan Saya — Dinas Peternakan Jawa Timur')
 
 @section('content')
-<div class="space-y-4 sm:space-y-5">
-    <!-- Breadcrumb & Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80">
+<div class="space-y-6 sm:space-y-7 pt-2 sm:pt-4 pb-8">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 sm:pb-6 border-b border-slate-200/90">
         <div>
-            <nav class="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-500 mb-1" aria-label="Breadcrumb">
-                <a href="{{ route('dashboard') }}" class="hover:text-slate-900 transition">Dashboard</a>
-                <span class="text-slate-300">/</span>
-                <a href="{{ route('marketplace') }}" class="hover:text-slate-900 transition">Marketplace</a>
-                <span class="text-slate-300">/</span>
-                <span class="text-slate-900 font-semibold">
-                    {{ auth()->check() && auth()->user()->isPeternak() ? 'Pesanan Masuk' : 'Pesanan Saya' }}
-                </span>
-            </nav>
-            <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
                 @if(auth()->check() && auth()->user()->isPeternak())
                     Pesanan Masuk dari Masyarakat
                 @elseif(auth()->check() && auth()->user()->isUmum())
@@ -25,7 +16,7 @@
                     Semua Transaksi Pesanan
                 @endif
             </h1>
-            <p class="text-xs text-slate-500 mt-0.5">
+            <p class="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-2xl leading-relaxed">
                 @if(auth()->check() && auth()->user()->isPeternak())
                     Kelola alur pemrosesan pesanan dan pantau seluruh transaksi pembelian komoditas ternak yang masuk dari masyarakat.
                 @elseif(auth()->check() && auth()->user()->isUmum())
@@ -36,11 +27,11 @@
             </p>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0">
+        <div class="flex items-center gap-2.5 shrink-0">
             @if(auth()->check() && auth()->user()->isPeternak())
                 <a
                     href="{{ route('marketplace') }}"
-                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200/80 px-3 py-1.5 rounded-lg transition shadow-2xs"
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200/80 px-3.5 py-2 rounded-xl transition shadow-2xs"
                 >
                     <svg class="w-3.5 h-3.5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
@@ -50,7 +41,7 @@
             @else
                 <a
                     href="{{ route('marketplace') }}"
-                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200/80 px-3 py-1.5 rounded-lg transition shadow-2xs"
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200/80 px-3.5 py-2 rounded-xl transition shadow-2xs"
                 >
                     <svg class="w-3.5 h-3.5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
@@ -62,58 +53,58 @@
     </div>
 
     <!-- Quick Metrics Overview -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
-        <div class="p-3 sm:p-3.5 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
+        <div class="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200/90 shadow-xs flex flex-col justify-between">
+            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
                 {{ auth()->check() && auth()->user()->isPeternak() ? 'Total Pesanan Masuk' : 'Total Pesanan' }}
             </span>
-            <div class="mt-1 flex items-baseline justify-between">
-                <span class="text-lg sm:text-xl font-bold text-slate-900 tabular-nums">{{ $orderCounts['all'] }}</span>
-                <span class="text-[11px] text-slate-400">
+            <div class="flex items-baseline justify-between">
+                <span class="text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">{{ $orderCounts['all'] }}</span>
+                <span class="text-xs text-slate-400">
                     {{ auth()->check() && auth()->user()->isPeternak() ? 'Dari masyarakat' : 'Semua riwayat' }}
                 </span>
             </div>
         </div>
 
-        <div class="p-3 sm:p-3.5 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+        <div class="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200/90 shadow-xs flex flex-col justify-between">
+            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
                 {{ auth()->check() && auth()->user()->isPeternak() ? 'Perlu Diproses' : 'Sedang Diproses' }}
             </span>
-            <div class="mt-1 flex items-baseline justify-between">
-                <span class="text-lg sm:text-xl font-bold text-sky-700 tabular-nums">{{ $orderCounts['processing'] + $orderCounts['pending'] }}</span>
-                <span class="text-[11px] text-sky-600 font-medium">Pengemasan</span>
+            <div class="flex items-baseline justify-between">
+                <span class="text-2xl sm:text-3xl font-bold text-sky-700 tabular-nums">{{ $orderCounts['processing'] + $orderCounts['pending'] }}</span>
+                <span class="text-xs text-sky-600 font-medium">Pengemasan</span>
             </div>
         </div>
 
-        <div class="p-3 sm:p-3.5 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Dalam Pengiriman</span>
-            <div class="mt-1 flex items-baseline justify-between">
-                <span class="text-lg sm:text-xl font-bold text-indigo-700 tabular-nums">{{ $orderCounts['shipped'] }}</span>
-                <span class="text-[11px] text-indigo-600 font-medium">Kurir dingin</span>
+        <div class="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200/90 shadow-xs flex flex-col justify-between">
+            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">Dalam Pengiriman</span>
+            <div class="flex items-baseline justify-between">
+                <span class="text-2xl sm:text-3xl font-bold text-indigo-700 tabular-nums">{{ $orderCounts['shipped'] }}</span>
+                <span class="text-xs text-indigo-600 font-medium">Kurir dingin</span>
             </div>
         </div>
 
-        <div class="p-3 sm:p-3.5 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+        <div class="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200/90 shadow-xs flex flex-col justify-between">
+            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
                 {{ auth()->check() && auth()->user()->isPeternak() ? 'Selesai Terkirim' : 'Selesai Diterima' }}
             </span>
-            <div class="mt-1 flex items-baseline justify-between">
-                <span class="text-lg sm:text-xl font-bold text-emerald-700 tabular-nums">{{ $orderCounts['completed'] }}</span>
-                <span class="text-[11px] text-emerald-600 font-medium">Transaksi tuntas</span>
+            <div class="flex items-baseline justify-between">
+                <span class="text-2xl sm:text-3xl font-bold text-emerald-700 tabular-nums">{{ $orderCounts['completed'] }}</span>
+                <span class="text-xs text-emerald-600 font-medium">Transaksi tuntas</span>
             </div>
         </div>
     </div>
 
     <!-- Main Orders Container -->
-    <div class="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
         <!-- Filter Tabs & Search Bar -->
-        <div class="px-3.5 py-2.5 sm:px-4 sm:py-3 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div class="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <!-- Filter Tabs -->
-            <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-xs no-scrollbar">
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 text-xs no-scrollbar">
                 <button
                     type="button"
                     onclick="filterOrders('all', this)"
-                    class="order-tab-btn active px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-primary-700 text-white transition shrink-0 flex items-center gap-1.5 shadow-2xs"
+                    class="order-tab-btn active px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary-700 text-white transition shrink-0 flex items-center gap-1.5 shadow-2xs"
                 >
                     <span>Semua</span>
                     <span class="px-1.5 py-0.2 rounded bg-white/20 text-[10px] tabular-nums">{{ $orderCounts['all'] }}</span>
@@ -121,7 +112,7 @@
                 <button
                     type="button"
                     onclick="filterOrders('pending', this)"
-                    class="order-tab-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition shrink-0 flex items-center gap-1.5"
+                    class="order-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition shrink-0 flex items-center gap-1.5"
                 >
                     <span>Menunggu</span>
                     <span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px] tabular-nums">{{ $orderCounts['pending'] }}</span>
@@ -129,7 +120,7 @@
                 <button
                     type="button"
                     onclick="filterOrders('processing', this)"
-                    class="order-tab-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition shrink-0 flex items-center gap-1.5"
+                    class="order-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition shrink-0 flex items-center gap-1.5"
                 >
                     <span>Diproses</span>
                     <span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px] tabular-nums">{{ $orderCounts['processing'] }}</span>
@@ -137,7 +128,7 @@
                 <button
                     type="button"
                     onclick="filterOrders('shipped', this)"
-                    class="order-tab-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition shrink-0 flex items-center gap-1.5"
+                    class="order-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition shrink-0 flex items-center gap-1.5"
                 >
                     <span>Dikirim</span>
                     <span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px] tabular-nums">{{ $orderCounts['shipped'] }}</span>
@@ -145,7 +136,7 @@
                 <button
                     type="button"
                     onclick="filterOrders('completed', this)"
-                    class="order-tab-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition shrink-0 flex items-center gap-1.5"
+                    class="order-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition shrink-0 flex items-center gap-1.5"
                 >
                     <span>Selesai</span>
                     <span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px] tabular-nums">{{ $orderCounts['completed'] }}</span>
@@ -153,7 +144,7 @@
                 <button
                     type="button"
                     onclick="filterOrders('cancelled', this)"
-                    class="order-tab-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition shrink-0 flex items-center gap-1.5"
+                    class="order-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition shrink-0 flex items-center gap-1.5"
                 >
                     <span>Dibatalkan</span>
                     <span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px] tabular-nums">{{ $orderCounts['cancelled'] }}</span>
@@ -161,22 +152,22 @@
             </div>
 
             <!-- Quick Search Input -->
-            <form action="{{ route('pesanan') }}" method="GET" class="relative w-full sm:w-56 md:w-64">
+            <form action="{{ route('pesanan') }}" method="GET" class="relative w-full sm:w-60 md:w-68">
                 <input
                     type="text"
                     name="q"
                     value="{{ $searchQuery ?? '' }}"
                     placeholder="Cari nomor pesanan / produk..."
-                    class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-7 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-primary-500 transition"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3.5 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-primary-500 transition"
                 >
-                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
             </form>
         </div>
 
         <!-- Orders List Body -->
-        <div class="p-4 sm:p-5">
+        <div class="p-5 sm:p-6">
             @if($orders->isEmpty())
                 @if(!auth()->check())
                 <!-- Guest View: Prompt to Login -->
@@ -226,8 +217,8 @@
                 </div>
                 @endif
             @else
-                <!-- Compact Order List -->
-                <div class="space-y-2.5">
+                <!-- Order List -->
+                <div class="space-y-4">
                     @foreach ($orders as $order)
                     @php
                         $firstItem = $order->items->first();
@@ -235,7 +226,7 @@
                         $itemVarietyCount = $order->items->count();
                     @endphp
                     <div
-                        class="order-card group bg-white border border-slate-200/90 hover:border-slate-300 rounded-xl p-3 sm:p-3.5 transition-all duration-150 hover:shadow-xs cursor-pointer flex flex-col gap-2.5"
+                        class="order-card group bg-white border border-slate-200/90 hover:border-slate-300 rounded-2xl p-4 sm:p-5 transition-all duration-150 hover:shadow-xs cursor-pointer flex flex-col gap-3.5"
                         data-status="{{ $order->status }}"
                         data-order-code="{{ $order->order_code }}"
                         onclick="openOrderDetail('{{ $order->order_code }}')"
@@ -245,10 +236,10 @@
                         aria-label="Lihat rincian pesanan nomor {{ $order->order_code }}"
                     >
                         <!-- Top Meta Row: Status Badge, Order ID, Date, Seller Name -->
-                        <div class="flex items-center justify-between gap-2.5 flex-wrap">
-                            <div class="flex items-center gap-2 flex-wrap">
+                        <div class="flex items-center justify-between gap-3 flex-wrap">
+                            <div class="flex items-center gap-2.5 flex-wrap">
                                 <!-- Status Badge: Refined, non-jarring tonal pill -->
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold border {{ $order->status_badge_class }}">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold border {{ $order->status_badge_class }}">
                                     {{ $order->status_label }}
                                 </span>
 
@@ -282,14 +273,14 @@
                         </div>
 
                         <!-- Middle Content Row: Product Thumbnail, Summary & Total Price -->
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2 border-t border-slate-100">
-                            <div class="flex items-center gap-3 min-w-0">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3.5 border-t border-slate-100">
+                            <div class="flex items-center gap-3.5 min-w-0">
                                 <!-- Thumbnail Preview -->
-                                <div class="w-11 h-11 rounded-lg bg-slate-50 border border-slate-200/80 overflow-hidden shrink-0 flex items-center justify-center">
+                                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-xl bg-slate-50 border border-slate-200/80 overflow-hidden shrink-0 flex items-center justify-center">
                                     @if($firstItem?->product?->image_path)
                                         <img src="{{ asset('storage/' . $firstItem->product->image_path) }}" alt="{{ $firstItem->product->name }}" class="w-full h-full object-cover">
                                     @else
-                                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                        <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
                                         </svg>
                                     @endif
@@ -297,7 +288,7 @@
 
                                 <!-- Product Info & Summary -->
                                 <div class="min-w-0 flex-1">
-                                    <h4 class="text-xs sm:text-[13px] font-semibold text-slate-900 truncate">
+                                    <h4 class="text-xs sm:text-sm font-semibold text-slate-900 truncate">
                                         @if($itemVarietyCount === 1)
                                             {{ $firstItem?->product?->name ?? 'Produk Peternakan' }}
                                         @else
@@ -305,11 +296,11 @@
                                             <span class="font-normal text-slate-500 text-xs">+ {{ $itemVarietyCount - 1 }} produk lainnya</span>
                                         @endif
                                     </h4>
-                                    <p class="text-[11px] text-slate-500 mt-0.5">
+                                    <p class="text-[11px] sm:text-xs text-slate-500 mt-1">
                                         {{ $totalItemCount }} produk · <span class="font-medium text-slate-700 tabular-nums">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
                                     </p>
                                     @if(auth()->check() && auth()->user()->isPeternak() && $order->shipping_address)
-                                        <p class="text-[11px] text-slate-500 mt-1 flex items-center gap-1 truncate">
+                                        <p class="text-[11px] text-slate-500 mt-1.5 flex items-center gap-1 truncate">
                                             <span class="text-slate-400">📍 Kirim:</span>
                                             <span class="text-slate-700 font-medium truncate">{{ $order->shipping_address }}</span>
                                         </p>
@@ -319,17 +310,17 @@
 
                             <!-- Total Payment Box -->
                             <div class="sm:text-right shrink-0">
-                                <span class="text-[10px] text-slate-400 block font-medium">
+                                <span class="text-[10px] sm:text-[11px] text-slate-400 block font-medium">
                                     {{ auth()->check() && auth()->user()->isPeternak() ? 'Nilai Pesanan' : 'Total Pembayaran' }}
                                 </span>
-                                <span class="text-xs sm:text-sm font-bold text-slate-900 tabular-nums">
+                                <span class="text-sm sm:text-base font-bold text-slate-900 tabular-nums">
                                     Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                                 </span>
                             </div>
                         </div>
 
                         <!-- Bottom Action Row: "Lihat Detail →" & Contextual Action Buttons -->
-                        <div class="flex items-center justify-between gap-3 pt-1.5 border-t border-slate-100/80 text-xs">
+                        <div class="flex items-center justify-between gap-3 pt-3 border-t border-slate-100/80 text-xs">
                             <div class="inline-flex items-center gap-1.5 text-primary-700 group-hover:text-primary-800 font-semibold transition">
                                 <span>Lihat Detail</span>
                                 <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

@@ -307,6 +307,72 @@ test('dokter_hewan can confirm and complete consultation with doctor notes and p
         ->and($booking->prescription)->toContain('Berikan multivitamin');
 });
 
+test('dokter_hewan cannot edit diagnosis once consultation is already selesai', function () {
+    $vetUser = User::where('role', 'dokter_hewan')->first();
+    $booking = Consultation::where('status', '!=', 'dibatalkan')->first();
+    expect($booking)->not->toBeNull();
+
+    $booking->update([
+        'status' => 'selesai',
+        'doctor_notes' => 'Diagnosis awal sebelum dikunci.',
+        'prescription' => 'Resep awal sebelum dikunci.',
+    ]);
+
+    $originalNotes = $booking->doctor_notes;
+    $originalPrescription = $booking->prescription;
+
+    $response = $this->actingAs($vetUser)->patch(route('dokter-hewan.jadwal.booking.status', $booking), [
+        'status' => 'selesai',
+        'doctor_notes' => 'Mencoba mengubah diagnosis yang sudah selesai.',
+        'prescription' => 'Mencoba resep baru yang diubah.',
+    ]);
+
+    $response->assertRedirect();
+    $response->assertSessionHas('error');
+
+    $booking->refresh();
+    expect($booking->doctor_notes)->toBe($originalNotes)
+        ->and($booking->prescription)->toBe($originalPrescription);
+});
+
+test('dokter_hewan cannot delete consultation that is already selesai', function () {
+    $vetUser = User::where('role', 'dokter_hewan')->first();
+    $booking = Consultation::where('status', '!=', 'dibatalkan')->first();
+    expect($booking)->not->toBeNull();
+
+    $booking->update([
+        'status' => 'selesai',
+        'doctor_notes' => 'Diagnosis tuntas.',
+    ]);
+
+    $response = $this->actingAs($vetUser)->delete(route('dokter-hewan.jadwal.booking.destroy', $booking));
+
+    $response->assertRedirect();
+    $response->assertSessionHas('error');
+
+    $booking->refresh();
+    expect($booking->status)->toBe('selesai');
+});
+
+test('completed consultation view in rekam medis tab does not show edit diagnosis button and shows diagnosis terkunci', function () {
+    $vetUser = User::where('role', 'dokter_hewan')->first();
+    $vet = Veterinarian::where('user_id', $vetUser->id)->first() ?? Veterinarian::first();
+    $booking = Consultation::where('status', '!=', 'dibatalkan')->first();
+    expect($booking)->not->toBeNull();
+
+    $booking->update([
+        'veterinarian_id' => $vetUser->id,
+        'status' => 'selesai',
+        'doctor_notes' => 'Diagnosis resmi tercatat.',
+    ]);
+
+    $response = $this->actingAs($vetUser)->get(route('dokter-hewan.jadwal.index', ['tab' => 'rekam_medis']));
+    $response->assertOk();
+    $response->assertDontSee('Edit Diagnosis');
+    $response->assertSee('Diagnosis Terkunci');
+    $response->assertSee('Selesai pukul');
+});
+
 test('peternak can immediately retrieve slots added by drh fauzi without date format mismatch', function () {
     $vet = Veterinarian::where('name', 'like', '%Fauzi%')->first();
     expect($vet)->not->toBeNull();
