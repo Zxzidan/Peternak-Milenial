@@ -24,6 +24,8 @@ test('dokter_hewan can view schedule and quota management page', function () {
     $response->assertSee('Total Kuota Hari Ini');
     $response->assertSee('Generate Slot Harian');
     $response->assertSee('Tambah Slot Jam Baru');
+    $response->assertSee('<span>Edit</span>', false);
+    $response->assertDontSee('<span>Edit Kuota</span>', false);
 });
 
 test('dokter_hewan can create a new consultation slot with hourly quota', function () {
@@ -90,11 +92,13 @@ test('dokter_hewan can toggle slot status between buka and tutup', function () {
     expect($slot->status)->toBe($expectedStatus);
 });
 
-test('dokter_hewan can update slot quota and notes', function () {
+test('dokter_hewan can update slot time, quota, and notes', function () {
     $vetUser = User::where('role', 'dokter_hewan')->first();
     $slot = ConsultationSchedule::first();
 
     $response = $this->actingAs($vetUser)->put(route('dokter-hewan.jadwal.update', $slot), [
+        'start_time' => '07:30',
+        'end_time' => '08:45',
         'quota' => 10,
         'service_type' => 'tatap_muka',
         'notes' => 'Diperluas untuk 10 pendaftar',
@@ -103,6 +107,8 @@ test('dokter_hewan can update slot quota and notes', function () {
     $response->assertRedirect();
     $slot->refresh();
     expect($slot->quota)->toBe(10)
+        ->and(substr((string) $slot->start_time, 0, 5))->toBe('07:30')
+        ->and(substr((string) $slot->end_time, 0, 5))->toBe('08:45')
         ->and($slot->notes)->toBe('Diperluas untuk 10 pendaftar');
 });
 
@@ -116,9 +122,10 @@ test('peternak view replaces active chat box with consultation schedule booking 
     $response->assertDontSee('Konsultasi Medis Aktif:');
     $response->assertDontSee('Ketik balasan untuk dokter hewan...');
 
-    // Ensure consultation booking modal has been removed
-    $response->assertDontSee('id="modal-atur-jadwal"', false);
-    $response->assertDontSee('Atur Jadwal Konsultasi Dokter Hewan');
+    // Ensure consultation booking modal and appointment system is present
+    $response->assertSee('id="modal-atur-jadwal"', false);
+    $response->assertSee('Atur Jadwal Konsultasi Dokter Hewan');
+    $response->assertSee('Pilih Jam Konsultasi');
 });
 
 test('peternak can query doctor available slots with quota JSON', function () {
@@ -468,4 +475,326 @@ test('peternak can book consultation slot without complaint_details and livestoc
         'livestock_id' => null,
         'status' => 'menunggu_konfirmasi',
     ]);
+});
+
+test('peternak can book consultation slot without subject input (defaults to complaint_details or fallback)', function () {
+    $vet = Veterinarian::first();
+    $peternak = User::where('role', 'peternak')->first();
+
+    $slot = ConsultationSchedule::create([
+        'veterinarian_id' => $vet->id,
+        'date' => now()->addDays(3)->toDateString(),
+        'start_time' => '10:00',
+        'end_time' => '11:00',
+        'quota' => 2,
+        'status' => 'buka',
+        'service_type' => 'online',
+    ]);
+
+    $response = $this->actingAs($peternak)->post(route('konsultasi.book'), [
+        'consultation_schedule_id' => $slot->id,
+        'consultation_type' => 'online',
+        'complaint_details' => 'Sapi perah tampak lemas dan tidak mau berdiri sejak kemarin sore.',
+    ]);
+
+    $response->assertRedirect(route('konsultasi'));
+    $response->assertSessionHas('success');
+
+    $this->assertDatabaseHas('consultations', [
+        'user_id' => $peternak->id,
+        'consultation_schedule_id' => $slot->id,
+        'complaint_details' => 'Sapi perah tampak lemas dan tidak mau berdiri sejak kemarin sore.',
+        'livestock_id' => null,
+        'status' => 'menunggu_konfirmasi',
+    ]);
+});
+
+test('getDoctorSlots excludes slots whose end time has already passed for today', function () {
+    $vet = Veterinarian::first();
+    $peternak = User::where('role', 'peternak')->first();
+
+    $today = now('Asia/Jakarta')->toDateString();
+
+    // Expired slot (00:00 - 00:01)
+    $expiredSlot = ConsultationSchedule::create([
+        'veterinarian_id' => $vet->id,
+        'date' => $today,
+        'start_time' => '00:00',
+        'end_time' => '00:01',
+        'quota' => 5,
+        'status' => 'buka',
+        'service_type' => 'online',
+    ]);
+
+    // Future slot (23:50 - 23:59)
+    $futureSlot = ConsultationSchedule::create([
+        'veterinarian_id' => $vet->id,
+        'date' => $today,
+        'start_time' => '23:50',
+        'end_time' => '23:59',
+        'quota' => 5,
+        'status' => 'buka',
+        'service_type' => 'online',
+    ]);
+
+    $response = $this->actingAs($peternak)->getJson(route('konsultasi.veterinarians.slots', [
+        'veterinarian' => $vet->id,
+        'date' => $today,
+    ]));
+
+    $response->assertStatus(200);
+    $slotIds = collect($response->json('slots'))->pluck('id')->all();
+
+    expect($slotIds)->not->toContain($expiredSlot->id)
+        ->and($slotIds)->toContain($futureSlot->id);
+});
+
+test('peternak cannot book a consultation slot whose end time has already passed', function () {
+    $vet = Veterinarian::first();
+    $peternak = User::where('role', 'peternak')->first();
+
+    $today = now('Asia/Jakarta')->toDateString();
+
+    $expiredSlot = ConsultationSchedule::create([
+        'veterinarian_id' => $vet->id,
+        'date' => $today,
+        'start_time' => '00:00',
+        'end_time' => '00:01',
+        'quota' => 5,
+        'status' => 'buka',
+        'service_type' => 'online',
+    ]);
+
+    $response = $this->actingAs($peternak)->post(route('konsultasi.book'), [
+        'consultation_schedule_id' => $expiredSlot->id,
+        'consultation_type' => 'online',
+        'complaint_details' => 'Mencoba memesan slot yang sudah lewat batas waktu.',
+    ]);
+
+    $response->assertRedirect(route('konsultasi'));
+    $response->assertSessionHas('error');
+
+    $this->assertDatabaseMissing('consultations', [
+        'consultation_schedule_id' => $expiredSlot->id,
+        'user_id' => $peternak->id,
+    ]);
+});
+
+test('dokter_hewan can delete a consultation booking and it is retained as cancelled history', function () {
+    $vetUser = User::where('role', 'dokter_hewan')->first();
+    $consultation = Consultation::first();
+    expect($consultation)->not->toBeNull();
+
+    $response = $this->actingAs($vetUser)->delete(route('dokter-hewan.jadwal.booking.destroy', $consultation));
+    $response->assertRedirect(route('dokter-hewan.jadwal.index'));
+    $response->assertSessionHas('success');
+
+    $this->assertDatabaseHas('consultations', [
+        'id' => $consultation->id,
+        'status' => 'dibatalkan',
+        'consultation_schedule_id' => null,
+    ]);
+});
+
+test('dokter_hewan can delete a schedule slot and attached bookings are retained as cancelled history', function () {
+    $vetUser = User::where('role', 'dokter_hewan')->first();
+    $slot = ConsultationSchedule::has('consultations')->first();
+    expect($slot)->not->toBeNull();
+
+    $bookingIds = $slot->consultations->pluck('id')->all();
+    expect($bookingIds)->not->toBeEmpty();
+
+    $response = $this->actingAs($vetUser)->delete(route('dokter-hewan.jadwal.destroy', $slot));
+    $response->assertRedirect(route('dokter-hewan.jadwal.index'));
+    $response->assertSessionHas('success');
+
+    $this->assertDatabaseMissing('consultation_schedules', [
+        'id' => $slot->id,
+    ]);
+
+    foreach ($bookingIds as $bId) {
+        $this->assertDatabaseHas('consultations', [
+            'id' => $bId,
+            'status' => 'dibatalkan',
+            'consultation_schedule_id' => null,
+        ]);
+    }
+});
+
+test('peternak sees cancellation history and prompt to select a new doctor when booking is deleted by doctor', function () {
+    $peternak = User::where('role', 'peternak')->first();
+    expect($peternak)->not->toBeNull();
+
+    $vet = Veterinarian::first();
+    $vetUser = $vet->user ?? User::where('role', 'dokter_hewan')->first();
+
+    $consultation = Consultation::create([
+        'user_id' => $peternak->id,
+        'veterinarian_id' => $vetUser->id,
+        'booking_code' => 'TEST-CANCELLED-DOC-01',
+        'subject' => 'Pemeriksaan Kambing Demam',
+        'complaint_details' => 'Suhu tubuh panas sejak kemarin',
+        'consultation_date' => now()->toDateString(),
+        'consultation_time' => '09:00 - 10:00 WIB',
+        'status' => 'dibatalkan',
+        'doctor_notes' => 'Jadwal reservasi konsultasi ini telah dihapus oleh dokter hewan. Anda diminta untuk memilih dokter hewan yang baru atau mengatur ulang jadwal konsultasi.',
+    ]);
+
+    $response = $this->actingAs($peternak)->get(route('konsultasi', ['tab' => 'jadwal']));
+    $response->assertOk();
+    $response->assertSee('TEST-CANCELLED-DOC-01');
+    $response->assertSee('Riwayat Jadwal Dihapus / Dibatalkan');
+    $response->assertSee('Jadwal Dihapus Dokter');
+    $response->assertSee('Pilih Dokter yang Baru');
+});
+
+test('completed consultation is not shown in reservation section but appears in rekam medis', function () {
+    $peternak = User::where('role', 'peternak')->first();
+    expect($peternak)->not->toBeNull();
+
+    $vet = Veterinarian::first();
+    $vetUser = $vet->user ?? User::where('role', 'dokter_hewan')->first();
+
+    $completedBooking = Consultation::create([
+        'user_id' => $peternak->id,
+        'veterinarian_id' => $vetUser->id,
+        'booking_code' => 'TEST-COMPLETED-RM-01',
+        'subject' => 'Pemeriksaan Sapi Bunting',
+        'complaint_details' => 'Cek kebuntingan trimester 2',
+        'doctor_notes' => 'Kondisi janin ternak sehat dan aktif.',
+        'prescription' => 'Vitamin ADE 10ml, suplemen kalsium pakan.',
+        'consultation_date' => now()->toDateString(),
+        'consultation_time' => '10:00 - 11:00 WIB',
+        'status' => 'selesai',
+    ]);
+
+    // In reservation tab (jadwal), completed consultation MUST NOT be displayed
+    $resResponse = $this->actingAs($peternak)->get(route('konsultasi', ['tab' => 'jadwal']));
+    $resResponse->assertOk();
+    $resResponse->assertDontSee('TEST-COMPLETED-RM-01');
+
+    // In rekam_medis tab, completed consultation MUST be displayed
+    $rmResponse = $this->actingAs($peternak)->get(route('konsultasi', ['tab' => 'rekam_medis']));
+    $rmResponse->assertOk();
+    $rmResponse->assertSee('TEST-COMPLETED-RM-01');
+    $rmResponse->assertSee('Kondisi janin ternak sehat dan aktif.');
+    $rmResponse->assertSee('Vitamin ADE 10ml, suplemen kalsium pakan.');
+});
+
+test('dokter_hewan schedule excludes completed consultations from slot patient modal and displays them in rekam medis section with filter', function () {
+    $vetUser = User::where('role', 'dokter_hewan')->first();
+    $vet = Veterinarian::where('user_id', $vetUser->id)->first() ?? Veterinarian::first();
+    $peternak = User::where('role', 'peternak')->first();
+
+    $today = now()->toDateString();
+    $slot = ConsultationSchedule::create([
+        'veterinarian_id' => $vet->id,
+        'date' => $today,
+        'start_time' => '10:00',
+        'end_time' => '11:00',
+        'quota' => 5,
+        'status' => 'buka',
+        'service_type' => 'online',
+    ]);
+
+    // Active consultation (still waiting for examination)
+    $activeConsultation = Consultation::create([
+        'user_id' => $peternak->id,
+        'veterinarian_id' => $vetUser->id,
+        'consultation_schedule_id' => $slot->id,
+        'booking_code' => 'TEST-ACTIVE-PATIENT-99',
+        'subject' => 'Pemeriksaan Demam Ternak',
+        'complaint_details' => 'Suhu tinggi belum sembuh',
+        'consultation_date' => $today,
+        'consultation_time' => '10:00 - 11:00 WIB',
+        'status' => 'dikonfirmasi',
+    ]);
+
+    // Completed consultation (already finished by doctor)
+    $completedConsultation = Consultation::create([
+        'user_id' => $peternak->id,
+        'veterinarian_id' => $vetUser->id,
+        'consultation_schedule_id' => $slot->id,
+        'booking_code' => 'TEST-FINISHED-PATIENT-88',
+        'subject' => 'Pemeriksaan Sapi Mastitis',
+        'complaint_details' => 'Puting bengkak dan susu menggumpal',
+        'doctor_notes' => 'Mastitis subklinis kuadran kanan depan.',
+        'prescription' => 'Intramammary antibiotik 1 syringe + antiinflamasi.',
+        'consultation_date' => $today,
+        'consultation_time' => '10:00 - 11:00 WIB',
+        'status' => 'selesai',
+    ]);
+
+    $response = $this->actingAs($vetUser)->get(route('dokter-hewan.jadwal.index'));
+    $response->assertOk();
+
+    // 1. The modal for the slot must contain the active patient
+    $response->assertSee('TEST-ACTIVE-PATIENT-99');
+    $response->assertSee('Daftar Pasien Menunggu Pemeriksaan');
+
+    // 2. The modal's patient table list must NOT contain the finished patient as an active row
+    // We check that in modal-pasien-slot-$slot->id, only active patients are listed
+    $content = $response->getContent();
+    $modalStart = strpos($content, "id=\"modal-pasien-slot-{$slot->id}\"");
+    $modalEnd = strpos($content, '<!-- Modal Footer -->', $modalStart);
+    $modalHtml = substr($content, $modalStart, $modalEnd - $modalStart);
+
+    expect($modalHtml)->toContain('TEST-ACTIVE-PATIENT-99');
+    expect($modalHtml)->not->toContain('TEST-FINISHED-PATIENT-88');
+
+    // 3. The dedicated Rekam Medis section MUST contain the completed consultation
+    $response->assertSee('Riwayat Pemeriksaan & Rekam Medis Pasien', false);
+    $response->assertSee('TEST-FINISHED-PATIENT-88');
+    $response->assertSee('Mastitis subklinis kuadran kanan depan.');
+    $response->assertSee('Intramammary antibiotik 1 syringe + antiinflamasi.', false);
+    $response->assertSee('Selesai Ditangani');
+    $response->assertSee(route('konsultasi.rekam-medis.download', ['type' => 'consultation', 'id' => $completedConsultation->id]));
+
+    // 4. Test date filter for Rekam Medis
+    $filterMatchResponse = $this->actingAs($vetUser)->get(route('dokter-hewan.jadwal.index', [
+        'filter_rm_date' => $today,
+    ]));
+    $filterMatchResponse->assertOk();
+    $filterMatchResponse->assertSee('TEST-FINISHED-PATIENT-88');
+
+    $yesterday = now()->subDays(10)->toDateString();
+    $filterMismatchResponse = $this->actingAs($vetUser)->get(route('dokter-hewan.jadwal.index', [
+        'filter_rm_date' => $yesterday,
+    ]));
+    $filterMismatchResponse->assertOk();
+    $filterMismatchResponse->assertDontSee('TEST-FINISHED-PATIENT-88');
+    $filterMismatchResponse->assertSee('Tidak ada riwayat rekam medis yang sesuai filter');
+
+    // 5. Test search filter for Rekam Medis
+    $searchMatchResponse = $this->actingAs($vetUser)->get(route('dokter-hewan.jadwal.index', [
+        'search_rm' => 'Mastitis',
+    ]));
+    $searchMatchResponse->assertOk();
+    $searchMatchResponse->assertSee('TEST-FINISHED-PATIENT-88');
+
+    $searchMismatchResponse = $this->actingAs($vetUser)->get(route('dokter-hewan.jadwal.index', [
+        'search_rm' => 'NonExistentKeywordXYZ123',
+    ]));
+    $searchMismatchResponse->assertOk();
+    $searchMismatchResponse->assertDontSee('TEST-FINISHED-PATIENT-88');
+});
+
+test('dokter_hewan schedule page renders navbar tabs and switches between slot and rekam medis views', function () {
+    $vetUser = User::where('role', 'dokter_hewan')->first();
+
+    // Default view: tab is slot
+    $responseDefault = $this->actingAs($vetUser)->get(route('dokter-hewan.jadwal.index'));
+    $responseDefault->assertOk();
+    $responseDefault->assertSee('id="tab-btn-slot"', false);
+    $responseDefault->assertSee('id="tab-btn-rekam-medis"', false);
+    $responseDefault->assertSee('Daftar Slot Jam Layanan');
+    $responseDefault->assertSee('Riwayat Pemeriksaan & Rekam Medis', false);
+    $responseDefault->assertSee('id="tab-pane-slot" class=""', false);
+    $responseDefault->assertSee('id="tab-pane-rekam-medis" class="hidden"', false);
+
+    // Rekam medis tab view
+    $responseRm = $this->actingAs($vetUser)->get(route('dokter-hewan.jadwal.index', ['tab' => 'rekam_medis']));
+    $responseRm->assertOk();
+    $responseRm->assertSee('id="tab-pane-slot" class="hidden"', false);
+    $responseRm->assertSee('id="tab-pane-rekam-medis" class=""', false);
 });

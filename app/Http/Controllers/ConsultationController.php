@@ -45,7 +45,11 @@ class ConsultationController extends Controller
         if ($isStaff) {
             $consultation = Consultation::with(['messages.sender', 'veterinarian', 'user', 'schedule.veterinarian', 'livestock'])->latest('updated_at')->first();
             $bookingsQuery = Consultation::with(['user.peternakProfile', 'veterinarian', 'schedule.veterinarian', 'livestock'])
-                ->where('status', '!=', 'dibatalkan');
+                ->whereIn('status', ['menunggu_konfirmasi', 'dikonfirmasi', 'open']);
+            $cancelledBookingsQuery = Consultation::with(['user.peternakProfile', 'veterinarian', 'schedule.veterinarian', 'livestock'])
+                ->where('status', 'dibatalkan');
+            $completedConsultationsQuery = Consultation::with(['user.peternakProfile', 'veterinarian', 'schedule.veterinarian', 'livestock', 'messages.sender'])
+                ->whereIn('status', ['selesai', 'answered', 'closed']);
             $livestocks = Livestock::with(['healthRecords.veterinarian'])->get();
             $healthRecords = HealthRecord::with(['livestock', 'veterinarian'])->latest('record_date')->get();
             $completedReportsQuery = AnimalHealthReport::where('status', 'selesai')
@@ -58,7 +62,15 @@ class ConsultationController extends Controller
                 ->first();
 
             $bookingsQuery = Consultation::where('user_id', $currentUser->id)
-                ->where('status', '!=', 'dibatalkan')
+                ->whereIn('status', ['menunggu_konfirmasi', 'dikonfirmasi', 'open'])
+                ->with(['veterinarian', 'schedule.veterinarian', 'livestock', 'messages.sender']);
+
+            $cancelledBookingsQuery = Consultation::where('user_id', $currentUser->id)
+                ->where('status', 'dibatalkan')
+                ->with(['veterinarian', 'schedule.veterinarian', 'livestock']);
+
+            $completedConsultationsQuery = Consultation::where('user_id', $currentUser->id)
+                ->whereIn('status', ['selesai', 'answered', 'closed'])
                 ->with(['veterinarian', 'schedule.veterinarian', 'livestock', 'messages.sender']);
 
             $livestocks = Livestock::where('user_id', $currentUser->id)->with(['healthRecords.veterinarian'])->get();
@@ -91,9 +103,23 @@ class ConsultationController extends Controller
                             ->whereDate('created_at', $filterDate);
                     });
             });
+
+            $completedConsultationsQuery->where(function ($q) use ($filterDate) {
+                $q->whereDate('consultation_date', $filterDate)
+                    ->orWhereHas('schedule', function ($sq) use ($filterDate) {
+                        $sq->whereDate('date', $filterDate);
+                    })
+                    ->orWhere(function ($q2) use ($filterDate) {
+                        $q2->whereNull('consultation_date')
+                            ->whereDoesntHave('schedule')
+                            ->whereDate('created_at', $filterDate);
+                    });
+            });
         }
 
         $myBookings = $bookingsQuery->latest()->get();
+        $cancelledBookings = $cancelledBookingsQuery->latest('updated_at')->get();
+        $completedConsultations = $completedConsultationsQuery->latest()->get();
         $completedReports = $completedReportsQuery->latest('resolved_at')->get();
 
         // Active veterinarians with upcoming consultation schedules
@@ -113,6 +139,8 @@ class ConsultationController extends Controller
             'activeTab' => $activeTab,
             'consultation' => $consultation,
             'myBookings' => $myBookings,
+            'cancelledBookings' => $cancelledBookings,
+            'completedConsultations' => $completedConsultations,
             'completedReports' => $completedReports,
             'healthRecords' => $healthRecords,
             'livestocks' => $livestocks,
@@ -134,7 +162,7 @@ class ConsultationController extends Controller
 
         $validated = $request->validate([
             'consultation_schedule_id' => ['required', 'exists:consultation_schedules,id'],
-            'subject' => ['required', 'string', 'max:255'],
+            'subject' => ['nullable', 'string', 'max:255'],
             'complaint_details' => ['nullable', 'string', 'max:2000'],
             'livestock_id' => ['nullable', 'exists:livestock,id'],
             'consultation_type' => ['required', 'in:online,offline,konsultasi_online,telemedisin,tatap_muka,kunjungan'],
@@ -146,6 +174,19 @@ class ConsultationController extends Controller
             return redirect()->route('konsultasi')
                 ->withInput()
                 ->with('error', "Mohon maaf, slot jadwal {$schedule->time_slot_label} saat ini sedang ditutup.");
+        }
+
+        // Prevent booking slots that have already passed their time limit
+        $now = now('Asia/Jakarta');
+        $today = $now->toDateString();
+        $currentTime = $now->format('H:i');
+        $scheduleDate = $schedule->date instanceof CarbonInterface ? $schedule->date->toDateString() : substr((string) $schedule->date, 0, 10);
+        $scheduleEndTime = substr((string) $schedule->end_time, 0, 5);
+
+        if ($scheduleDate < $today || ($scheduleDate === $today && $scheduleEndTime <= $currentTime)) {
+            return redirect()->route('konsultasi')
+                ->withInput()
+                ->with('error', "Mohon maaf, jam layanan {$schedule->time_slot_label} pada tanggal {$scheduleDate} telah melewati batas waktu.");
         }
 
         if ($schedule->remaining_quota <= 0) {
@@ -169,6 +210,12 @@ class ConsultationController extends Controller
         $bookingCode = 'JDW-'.date('Ymd').'-'.strtoupper(Str::random(5));
         $vetUserId = $schedule->veterinarian?->user_id;
 
+        $subject = ! empty(trim($validated['subject'] ?? ''))
+            ? trim($validated['subject'])
+            : (! empty(trim($validated['complaint_details'] ?? ''))
+                ? Str::limit(trim($validated['complaint_details']), 60)
+                : 'Konsultasi Kesehatan Hewan');
+
         $consultation = Consultation::create([
             'user_id' => $currentUser->id,
             'veterinarian_id' => $vetUserId,
@@ -177,7 +224,7 @@ class ConsultationController extends Controller
             'livestock_id' => $validated['livestock_id'] ?? null,
             'consultation_date' => $schedule->date,
             'consultation_time' => $schedule->time_slot_label,
-            'subject' => $validated['subject'],
+            'subject' => $subject,
             'complaint_details' => $validated['complaint_details'] ?? null,
             'consultation_type' => $validated['consultation_type'],
             'status' => 'menunggu_konfirmasi',
@@ -206,7 +253,11 @@ class ConsultationController extends Controller
                 ->with('error', 'Konsultasi yang sudah selesai tidak dapat dibatalkan.');
         }
 
-        $consultation->update(['status' => 'dibatalkan']);
+        $consultation->update([
+            'status' => 'dibatalkan',
+            'consultation_schedule_id' => null,
+            'doctor_notes' => 'Reservasi jadwal konsultasi dibatalkan oleh peternak.',
+        ]);
 
         return redirect()->route('konsultasi')
             ->with('success', "Reservasi jadwal konsultasi '{$consultation->booking_code}' berhasil dibatalkan. Kuota layanan telah dikembalikan.");
@@ -217,34 +268,67 @@ class ConsultationController extends Controller
      */
     public function getDoctorSlots(Veterinarian $veterinarian, Request $request): JsonResponse
     {
-        $date = $request->query('date', now()->toDateString());
+        $now = now('Asia/Jakarta');
+        $today = $now->toDateString();
+        $currentTime = $now->format('H:i');
 
-        $slots = ConsultationSchedule::where('veterinarian_id', $veterinarian->id)
-            ->whereDate('date', $date)
-            ->where('status', 'buka')
-            ->with(['consultations'])
-            ->orderBy('start_time')
-            ->get()
-            ->map(function ($s) {
-                return [
-                    'id' => $s->id,
-                    'time_label' => $s->time_slot_label,
-                    'start_time' => substr((string) $s->start_time, 0, 5),
-                    'end_time' => substr((string) $s->end_time, 0, 5),
-                    'quota' => $s->quota,
-                    'booked_count' => $s->booked_count,
-                    'remaining_quota' => $s->remaining_quota,
-                    'is_full' => $s->is_full,
-                    'service_type' => $s->service_type,
-                ];
-            });
+        $date = $request->query('date', $today);
 
-        // Also fetch upcoming dates that have active slots for this doctor
-        $availableDates = ConsultationSchedule::where('veterinarian_id', $veterinarian->id)
-            ->whereDate('date', '>=', now()->toDateString())
+        // If date is in the past, return empty list
+        if ($date < $today) {
+            $slots = collect();
+        } else {
+            $slots = ConsultationSchedule::where('veterinarian_id', $veterinarian->id)
+                ->whereDate('date', $date)
+                ->where('status', 'buka')
+                ->with(['consultations'])
+                ->orderBy('start_time')
+                ->get()
+                ->filter(function ($s) use ($date, $today, $currentTime) {
+                    // If date is today, exclude slots whose end time has already passed
+                    if ($date === $today) {
+                        $endTime = substr((string) $s->end_time, 0, 5);
+                        if ($endTime <= $currentTime) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                })
+                ->map(function ($s) {
+                    return [
+                        'id' => $s->id,
+                        'time_label' => $s->time_slot_label,
+                        'start_time' => substr((string) $s->start_time, 0, 5),
+                        'end_time' => substr((string) $s->end_time, 0, 5),
+                        'quota' => $s->quota,
+                        'booked_count' => $s->booked_count,
+                        'remaining_quota' => $s->remaining_quota,
+                        'is_full' => $s->is_full,
+                        'service_type' => $s->service_type,
+                    ];
+                })
+                ->values();
+        }
+
+        // Also fetch upcoming dates that have active and unexpired slots for this doctor
+        $upcomingSchedules = ConsultationSchedule::where('veterinarian_id', $veterinarian->id)
+            ->whereDate('date', '>=', $today)
             ->where('status', 'buka')
             ->orderBy('date')
-            ->get()
+            ->get();
+
+        $availableDates = $upcomingSchedules
+            ->filter(function ($s) use ($today, $currentTime) {
+                $scheduleDate = $s->date instanceof CarbonInterface ? $s->date->toDateString() : substr((string) $s->date, 0, 10);
+                if ($scheduleDate === $today) {
+                    $endTime = substr((string) $s->end_time, 0, 5);
+
+                    return $endTime > $currentTime;
+                }
+
+                return $scheduleDate > $today;
+            })
             ->map(fn ($s) => $s->date instanceof CarbonInterface ? $s->date->toDateString() : substr((string) $s->date, 0, 10))
             ->unique()
             ->values();

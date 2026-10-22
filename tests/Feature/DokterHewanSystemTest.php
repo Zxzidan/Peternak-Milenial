@@ -431,20 +431,21 @@ test('veterinarian sees KPI stat cards on dashboard but cards are hidden on lapo
     $filteredResponse->assertDontSee('Sedang Ditangani (');
 });
 
-test('dokter hewan sidebar does not display rekam medis and pedoman penyakit', function () {
+test('dokter hewan sidebar displays dashboard, jadwal konsultasi, laporan kesehatan, and kunjungan lapangan', function () {
     $dokter = User::factory()->dokterHewan()->create();
     Veterinarian::factory()->create(['user_id' => $dokter->id]);
 
     $response = $this->actingAs($dokter)->get(route('dokter-hewan.dashboard'));
     $response->assertOk();
 
-    // Verify core dokter hewan menus are present
+    // Verify core dokter hewan menus are present including Jadwal Konsultasi
     $response->assertSee('Dashboard Dokter');
+    $response->assertSee('Jadwal Konsultasi');
+    $response->assertSee(route('dokter-hewan.jadwal.index'));
     $response->assertSee('Laporan Kesehatan');
     $response->assertSee('Kunjungan Lapangan');
 
-    // Verify Jadwal Konsultasi, Rekam Medis and Pedoman Penyakit are NOT present in the sidebar for dokter hewan
-    $response->assertDontSee('Jadwal Konsultasi');
+    // Verify Rekam Medis and Pedoman Penyakit are NOT present in the sidebar for dokter hewan
     $response->assertDontSee('title="Rekam Medis"', false);
     $response->assertDontSee('title="Pedoman Penyakit Hewan"', false);
     $response->assertDontSee('/konsultasi?tab=rekam_medis', false);

@@ -380,8 +380,9 @@
                             <div class="space-y-3">
                                 @foreach ($myBookings as $booking)
                                     <div
-                                        class="p-3.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700/80 bg-gray-50/50 dark:bg-gray-750/30 flex flex-col md:flex-row md:items-center justify-between gap-3.5">
-                                        <div class="flex-1 space-y-1.5">
+                                        class="p-3.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700/80 bg-gray-50/60 dark:bg-gray-750/30 flex flex-col md:flex-row md:items-start justify-between gap-3.5">
+                                        <div class="flex-1 space-y-2.5">
+                                            <!-- Baris 1: Kode, Tanggal, Jam & Status -->
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <span
                                                     class="font-mono text-xs font-bold text-primary-700 dark:text-primary-300">
@@ -389,7 +390,7 @@
                                                 </span>
                                                 <span class="text-gray-300 dark:text-gray-600">&bull;</span>
                                                 <span class="text-xs font-semibold text-gray-800 dark:text-gray-200">
-                                                    {{ \Carbon\Carbon::parse($booking->consultation_date ?? $booking->created_at)->translatedFormat('l, d F Y') }}
+                                                    {{ \Carbon\Carbon::parse($booking->consultation_date ?? $booking->created_at)->locale('id')->translatedFormat('l, d F Y') }}
                                                 </span>
                                                 <span
                                                     class="text-xs px-2 py-0.5 rounded-md bg-gray-200/80 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-300">
@@ -398,66 +399,86 @@
 
                                                 @if ($booking->status === 'menunggu_konfirmasi')
                                                     <span
-                                                        class="px-2 py-0.5 text-[10px] font-bold text-amber-800 bg-amber-100 dark:bg-amber-950/70 dark:text-amber-300 rounded-full">
+                                                        class="px-2.5 py-0.5 text-[10px] font-bold text-amber-800 bg-amber-100 dark:bg-amber-950/70 dark:text-amber-300 rounded-full">
                                                         Menunggu Konfirmasi Dokter
                                                     </span>
                                                 @elseif($booking->status === 'dikonfirmasi')
                                                     <span
-                                                        class="px-2 py-0.5 text-[10px] font-bold text-blue-800 bg-blue-100 dark:bg-blue-950/70 dark:text-blue-300 rounded-full">
+                                                        class="px-2.5 py-0.5 text-[10px] font-bold text-blue-800 bg-blue-100 dark:bg-blue-950/70 dark:text-blue-300 rounded-full">
                                                         Jadwal Dikonfirmasi
                                                     </span>
                                                 @elseif($booking->status === 'selesai')
                                                     <span
-                                                        class="px-2 py-0.5 text-[10px] font-bold text-emerald-800 bg-emerald-100 dark:bg-emerald-950/70 dark:text-emerald-300 rounded-full">
+                                                        class="px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 bg-emerald-100 dark:bg-emerald-950/70 dark:text-emerald-300 rounded-full">
                                                         Selesai Ditangani
                                                     </span>
                                                 @elseif($booking->status === 'dibatalkan')
                                                     <span
-                                                        class="px-2 py-0.5 text-[10px] font-bold text-rose-800 bg-rose-100 dark:bg-rose-950/70 dark:text-rose-300 rounded-full">
+                                                        class="px-2.5 py-0.5 text-[10px] font-bold text-rose-800 bg-rose-100 dark:bg-rose-950/70 dark:text-rose-300 rounded-full">
                                                         Dibatalkan
                                                     </span>
                                                 @endif
                                             </div>
 
+                                            <!-- Baris 2: Informasi Dokter & Ternak -->
                                             <div
-                                                class="text-xs text-gray-700 dark:text-gray-300 flex flex-wrap items-center gap-x-3 gap-y-1">
-                                                <div>
-                                                    <span class="text-gray-500">Dokter:</span>
+                                                class="text-xs text-gray-700 dark:text-gray-300 flex flex-wrap items-center gap-x-4 gap-y-1">
+                                                <div class="inline-flex items-center gap-1.5">
+                                                    <span class="text-gray-500 dark:text-gray-400">Dokter:</span>
                                                     <strong
-                                                        class="text-gray-900 dark:text-white">{{ $booking->veterinarian?->name ?? 'Dokter Hewan Dinas' }}</strong>
+                                                        class="text-gray-900 dark:text-white font-semibold">{{ $booking->veterinarian?->name ?? 'Dokter Hewan Dinas' }}</strong>
                                                     <span
-                                                        class="text-[11px] text-gray-500">({{ $booking->veterinarian?->puskeswan ?? 'Puskeswan Dinas' }})</span>
+                                                        class="text-[11px] text-gray-500 dark:text-gray-400">({{ $booking->veterinarian?->puskeswan ?? 'Puskeswan Dinas' }})</span>
                                                 </div>
                                                 @if ($booking->livestock)
-                                                    <div>
-                                                        <span class="text-gray-500">Ternak:</span>
+                                                    <span class="text-gray-300 dark:text-gray-600 hidden sm:inline">&bull;</span>
+                                                    <div class="inline-flex items-center gap-1.5">
+                                                        <span class="text-gray-500 dark:text-gray-400">Ternak:</span>
                                                         <span
                                                             class="font-semibold text-gray-800 dark:text-gray-200">{{ $booking->livestock->name }}</span>
                                                         <span
-                                                            class="text-[10px] font-mono text-primary-600 bg-primary-50 dark:bg-primary-950 px-1.5 py-0.5 rounded">{{ $booking->livestock->tag_number }}</span>
+                                                            class="text-[10px] font-mono text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 border border-primary-200/60 dark:border-primary-800/60 px-1.5 py-0.5 rounded">{{ $booking->livestock->tag_number }}</span>
                                                     </div>
                                                 @endif
                                             </div>
 
-                                            <div class="text-xs text-gray-600 dark:text-gray-400">
-                                                <span class="font-medium text-gray-900 dark:text-gray-100">Keluhan:</span>
-                                                {{ $booking->subject }}
-                                                @if ($booking->complaint_details)
-                                                    <span
-                                                        class="text-gray-500 italic block mt-0.5">&ldquo;{{ $booking->complaint_details }}&rdquo;</span>
+                                            <!-- Baris 3: Keluhan -->
+                                            @php
+                                                $complaintSub = trim($booking->subject ?? '');
+                                                $complaintDet = trim($booking->complaint_details ?? '');
+                                                $hasValidSub = !empty($complaintSub) && $complaintSub !== '-';
+                                                $hasValidDet = !empty($complaintDet) && $complaintDet !== '-' && $complaintDet !== $complaintSub;
+                                            @endphp
+                                            <div class="text-xs text-gray-700 dark:text-gray-300 flex flex-wrap items-baseline gap-1.5">
+                                                <span class="text-gray-500 dark:text-gray-400 font-medium">Keluhan:</span>
+                                                @if ($hasValidSub)
+                                                    <span class="font-semibold text-gray-900 dark:text-white">{{ $complaintSub }}</span>
+                                                    @if ($hasValidDet)
+                                                        <span class="text-gray-400 dark:text-gray-500">&mdash;</span>
+                                                        <span class="text-gray-600 dark:text-gray-400 italic">&ldquo;{{ $complaintDet }}&rdquo;</span>
+                                                    @endif
+                                                @elseif ($hasValidDet)
+                                                    <span class="font-semibold text-gray-900 dark:text-white">{{ $complaintDet }}</span>
+                                                @else
+                                                    <span class="text-gray-400 dark:text-gray-500">-</span>
                                                 @endif
                                             </div>
 
+                                            <!-- Baris 4: Hasil Pemeriksaan & Resep Dokter -->
                                             @if ($booking->doctor_notes || $booking->prescription)
                                                 <div
-                                                    class="mt-2 p-2.5 rounded-lg bg-emerald-50/80 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 text-xs text-emerald-900 dark:text-emerald-200 space-y-1">
+                                                    class="p-3 sm:p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/50 text-xs text-emerald-950 dark:text-emerald-200 space-y-2">
                                                     @if ($booking->doctor_notes)
-                                                        <div><strong>Hasil Pemeriksaan / Diagnosis:</strong>
-                                                            {{ $booking->doctor_notes }}</div>
+                                                        <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2.5">
+                                                            <span class="font-bold text-emerald-900 dark:text-emerald-300 sm:w-56 shrink-0">Hasil Pemeriksaan / Diagnosis:</span>
+                                                            <span class="text-emerald-950 dark:text-emerald-100 flex-1 leading-relaxed">{{ $booking->doctor_notes }}</span>
+                                                        </div>
                                                     @endif
                                                     @if ($booking->prescription)
-                                                        <div><strong>Resep / Anjuran Pengobatan:</strong>
-                                                            {{ $booking->prescription }}</div>
+                                                        <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2.5 {{ $booking->doctor_notes ? 'pt-2 border-t border-emerald-200/50 dark:border-emerald-800/40' : '' }}">
+                                                            <span class="font-bold text-emerald-900 dark:text-emerald-300 sm:w-56 shrink-0">Resep / Anjuran Pengobatan:</span>
+                                                            <span class="text-emerald-950 dark:text-emerald-100 flex-1 leading-relaxed">{{ $booking->prescription }}</span>
+                                                        </div>
                                                     @endif
                                                 </div>
                                             @endif
@@ -512,6 +533,104 @@
                                 @endif
                             </div>
                         @endif
+
+                        @if (isset($cancelledBookings) && $cancelledBookings->count() > 0)
+                            <!-- Riwayat Reservasi Dibatalkan / Dihapus Dokter -->
+                            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700/80 space-y-3.5">
+                                <div class="flex items-center justify-between gap-2 flex-wrap">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-xs sm:text-sm font-bold text-gray-900 dark:text-white leading-snug">
+                                                Riwayat Jadwal Dihapus / Dibatalkan
+                                            </h3>
+                                            <p class="text-[11px] text-gray-500 dark:text-gray-400">
+                                                Daftar jadwal konsultasi yang dihapus oleh dokter hewan. Anda diminta memilih dokter hewan baru.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[11px] px-2.5 py-1 rounded-full font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/70 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/60">
+                                        {{ $cancelledBookings->count() }} Riwayat
+                                    </span>
+                                </div>
+
+                                <div class="space-y-3">
+                                    @foreach ($cancelledBookings as $cancelled)
+                                        <div class="p-3.5 sm:p-4 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/40 dark:bg-rose-950/20 space-y-3 transition-all shadow-2xs">
+                                            <!-- Baris 1: Kode, Tanggal, Jam & Status -->
+                                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <span class="font-mono text-xs font-bold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-700">
+                                                        {{ $cancelled->booking_code ?? '#CONS-' . $cancelled->id }}
+                                                    </span>
+                                                    <span class="text-gray-300 dark:text-gray-600">&bull;</span>
+                                                    <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                        Jadwal Semula: <strong class="text-gray-800 dark:text-gray-200 font-semibold">{{ \Carbon\Carbon::parse($cancelled->consultation_date ?? $cancelled->created_at)->locale('id')->translatedFormat('l, d F Y') }}</strong>
+                                                    </span>
+                                                    <span class="text-xs px-2 py-0.5 rounded-md bg-gray-200/80 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-300">
+                                                        {{ $cancelled->consultation_time ?? ($cancelled->schedule?->time_slot_label ?? 'Waktu Tidak Tersedia') }}
+                                                    </span>
+                                                </div>
+
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold text-rose-800 bg-rose-100 dark:bg-rose-950/70 dark:text-rose-300 rounded-full border border-rose-300 dark:border-rose-800">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+                                                    <span>Jadwal Dihapus Dokter</span>
+                                                </span>
+                                            </div>
+
+                                            <!-- Baris 2: Info Dokter & Ternak -->
+                                            <div class="text-xs text-gray-700 dark:text-gray-300 flex flex-wrap items-center gap-x-4 gap-y-1">
+                                                <div class="inline-flex items-center gap-1.5">
+                                                    <span class="text-gray-500 dark:text-gray-400">Dokter Sebelumnya:</span>
+                                                    <strong class="text-gray-900 dark:text-white font-semibold">{{ $cancelled->veterinarian?->name ?? 'Dokter Hewan Puskeswan' }}</strong>
+                                                    <span class="text-[11px] text-gray-500 dark:text-gray-400">({{ $cancelled->veterinarian?->puskeswan ?? 'Puskeswan Disnak Jatim' }})</span>
+                                                </div>
+                                                @if ($cancelled->livestock)
+                                                    <span class="text-gray-300 dark:text-gray-600 hidden sm:inline">&bull;</span>
+                                                    <div class="inline-flex items-center gap-1.5">
+                                                        <span class="text-gray-500 dark:text-gray-400">Ternak:</span>
+                                                        <span class="font-semibold text-gray-800 dark:text-gray-200">{{ $cancelled->livestock->name }}</span>
+                                                        <span class="text-[10px] font-mono text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 border border-primary-200/60 dark:border-primary-800/60 px-1.5 py-0.5 rounded">{{ $cancelled->livestock->tag_number }}</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            <!-- Baris 3: Alert & Prompt Ganti Dokter Baru -->
+                                            <div class="p-3.5 rounded-xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-800/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                <div class="flex items-start gap-2.5">
+                                                    <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    <div class="text-xs text-amber-900 dark:text-amber-200 space-y-0.5">
+                                                        <span class="font-bold block">Pemberitahuan: Jadwal ini telah dihapus oleh dokter hewan.</span>
+                                                        <p class="text-amber-800 dark:text-amber-300 leading-relaxed">
+                                                            {{ $cancelled->doctor_notes ?: 'Jadwal reservasi konsultasi ini telah dihapus oleh dokter hewan. Anda diminta untuk mengganti atau memilih dokter hewan yang baru agar kesehatan ternak Anda dapat segera diperiksa.' }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div class="shrink-0 pt-1 sm:pt-0">
+                                                    <button
+                                                        type="button"
+                                                        onclick="switchSubTab('dokter'); window.scrollTo({top: 0, behavior: 'smooth'});"
+                                                        class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-primary-700 hover:bg-primary-800 active:bg-primary-900 rounded-xl transition shadow-xs cursor-pointer whitespace-nowrap"
+                                                    >
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                                                        </svg>
+                                                        <span>Pilih Dokter yang Baru</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             @endif
@@ -541,8 +660,18 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2 flex-wrap">
-                        <a href="{{ route('kesehatan-hewan.create') }}"
+                        <button type="button"
+                            onclick="document.getElementById('modal-atur-jadwal').classList.remove('hidden'); loadDoctorAvailableSlots(true);"
                             class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 px-3.5 py-2 rounded-lg transition shadow-xs">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                            </svg>
+                            <span>Reservasi Konsultasi</span>
+                        </button>
+                        <a href="{{ route('kesehatan-hewan.create') }}"
+                            class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200 px-3.5 py-2 rounded-lg transition shadow-2xs">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -563,8 +692,8 @@
                             ]);
                         }
                     }
-                    if (isset($myBookings)) {
-                        foreach ($myBookings as $b) {
+                    if (isset($completedConsultations)) {
+                        foreach ($completedConsultations as $b) {
                             $d = $b->schedule
                                 ? \Carbon\Carbon::parse($b->schedule->date)
                                 : ($b->consultation_date
@@ -863,8 +992,8 @@
                             @endforeach
                         @endif
 
-                        {{-- 2. REKAM MEDIS DARI RESERVASI KONSULTASI --}}
-                        @forelse($myBookings as $booking)
+                        {{-- 2. REKAM MEDIS DARI RESERVASI KONSULTASI SELESAI --}}
+                        @forelse($completedConsultations as $booking)
                             @php
                                 $doctorMsg = $booking->messages->first(
                                     fn($m) => $m->sender?->isDokterHewan() || $m->sender?->isAdmin(),
@@ -903,14 +1032,20 @@
                                 class="rekam-medis-card bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group relative"
                                 data-record-date="{{ $dateIso }}">
                                 <div class="space-y-4">
-                                    <!-- 1. Card Top Bar: E-Tag / Kategori Ternak -->
+                                    <!-- 1. Card Top Bar: No. Booking & E-Tag / Kategori Ternak -->
                                     <div
-                                        class="flex items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/60">
-                                        <div class="flex items-center gap-2 min-w-0 flex-1">
-                                            @if ($booking->livestock)
+                                        class="flex items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/60 flex-wrap">
+                                        <div class="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
+                                            @if ($booking->booking_code)
                                                 <span
                                                     class="inline-flex items-center gap-1.5 font-mono font-bold text-xs text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 border border-primary-200/80 dark:border-primary-800/60 px-2.5 py-1 rounded-lg shrink-0">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-primary-600"></span>
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                    <span>{{ $booking->booking_code }}</span>
+                                                </span>
+                                            @endif
+                                            @if ($booking->livestock)
+                                                <span
+                                                    class="inline-flex items-center gap-1.5 font-mono font-bold text-xs text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 px-2.5 py-1 rounded-lg shrink-0">
                                                     <span>ETAG:
                                                         {{ $booking->livestock->tag_number ?? ($booking->livestock->e_tag_number ?? '-') }}</span>
                                                 </span>
@@ -925,6 +1060,11 @@
                                                 </span>
                                             @endif
                                         </div>
+
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                                            <span>Selesai Ditangani</span>
+                                        </span>
                                     </div>
 
                                     <!-- 2. Doctor Profile Section: Nama Dokter Dibuat Memanjang & Tidak Tertimpa -->
@@ -1110,8 +1250,8 @@
                             </div>
                         </div>
 
-                        {{-- Empty State (if both completedReports and myBookings are empty) --}}
-                        @if ((!isset($completedReports) || $completedReports->isEmpty()) && $myBookings->isEmpty())
+                        {{-- Empty State (if both completedReports and completedConsultations are empty) --}}
+                        @if ((!isset($completedReports) || $completedReports->isEmpty()) && (!isset($completedConsultations) || $completedConsultations->isEmpty()))
                             <div
                                 class="col-span-full py-12 text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 p-6">
                                 <div class="max-w-sm mx-auto space-y-3">
@@ -1788,6 +1928,115 @@
 
 
 
+    <!-- MODAL ATUR JADWAL KONSULTASI MEDIS DOKTER HEWAN (Khusus Peternak) -->
+    <div id="modal-atur-jadwal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden backdrop-blur-xs">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 max-h-[92vh] overflow-y-auto relative">
+            <button type="button" onclick="document.getElementById('modal-atur-jadwal').classList.add('hidden')"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl font-bold">
+                &times;
+            </button>
+
+            <div class="flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-gray-700">
+                <div
+                    class="w-9 h-9 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-gray-900 dark:text-white">Atur Jadwal Konsultasi Dokter Hewan
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Pilih jam konsultasi sesuai kuota layanan
+                        dokter yang tersedia.</p>
+                </div>
+            </div>
+
+            <form action="{{ route('konsultasi.book') }}" method="POST" class="mt-4 space-y-3.5 text-xs">
+                @csrf
+
+                <!-- Pilih Dokter Hewan -->
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Dokter Hewan Bertugas
+                        <span class="text-red-500">*</span></label>
+                    <select id="booking-vet-select" name="veterinarian_id" required onchange="loadDoctorAvailableSlots()"
+                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white font-medium">
+                        @foreach ($veterinarians as $v)
+                            <option value="{{ $v->id }}">{{ $v->name }}
+                                ({{ $v->puskeswan ?? 'Puskeswan Jatim' }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Tanggal Janji Temu -->
+                    <div>
+                        <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Tanggal Konsultasi
+                            <span class="text-red-500">*</span></label>
+                        <input type="date" id="booking-date" name="consultation_date"
+                            value="{{ now('Asia/Jakarta')->toDateString() }}" min="{{ now('Asia/Jakarta')->toDateString() }}" required
+                            onchange="loadDoctorAvailableSlots()"
+                            class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                    </div>
+
+                    <!-- Tipe Layanan -->
+                    <div>
+                        <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Metode Konsultasi
+                            <span class="text-red-500">*</span></label>
+                        <select name="consultation_type"
+                            class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                            <option value="online">Online</option>
+                            <option value="offline">Offline</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Slot Jam Layanan & Kuota Dokter -->
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block font-semibold text-gray-700 dark:text-gray-300">
+                            Pilih Jam Konsultasi &amp; Kuota <span class="text-red-500">*</span>
+                        </label>
+                        <span id="slot-loading-indicator" class="text-[11px] text-primary-600 font-medium hidden">
+                            Memeriksa kuota...
+                        </span>
+                    </div>
+                    <select id="booking-schedule-select" name="consultation_schedule_id" required
+                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white font-semibold">
+                        <option value="">-- Pilih Jam Konsultasi --</option>
+                    </select>
+                    <p id="slot-helper-text" class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                        Setiap jam memiliki batas kuota pasien. Silakan pilih jam dengan kuota tersedia.
+                    </p>
+                </div>
+
+                <!-- Keluhan & Rincian Kondisi Ternak -->
+                <div>
+                    <label class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                        Keluhan &amp; Rincian Gejala Klinis <span class="text-[11px] text-gray-400 font-normal">(Opsional)</span>
+                    </label>
+                    <textarea name="complaint_details" rows="3"
+                        placeholder="Tuliskan keluhan atau gejala ternak di sini..."
+                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <button type="button" onclick="document.getElementById('modal-atur-jadwal').classList.add('hidden')"
+                        class="px-4 py-2 rounded-xl text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 transition">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 transition shadow-sm">
+                        Kunci Kuota &amp; Jadwalkan Konsultasi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL DETAIL LEMBAR REKAM MEDIS & PETUNJUK PENANGANAN -->
     <div id="modal-official-record"
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden backdrop-blur-xs">
@@ -1956,7 +2205,22 @@
                     slotSelect.disabled = false;
                     slotSelect.innerHTML = '';
 
-                    if (!data.slots || data.slots.length === 0) {
+                    // Filter out slots that have passed their cutoff limit if date is today or past
+                    const now = new Date();
+                    const nowHours = String(now.getHours()).padStart(2, '0');
+                    const nowMinutes = String(now.getMinutes()).padStart(2, '0');
+                    const currentTimeStr = `${nowHours}:${nowMinutes}`;
+                    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+                    const activeSlots = (data.slots || []).filter(slot => {
+                        if (date < todayStr) return false;
+                        if (date === todayStr && slot.end_time && slot.end_time <= currentTimeStr) {
+                            return false;
+                        }
+                        return true;
+                    });
+
+                    if (activeSlots.length === 0) {
                         slotSelect.innerHTML =
                             '<option value="">(Tidak ada slot jam layanan dibuka pada tanggal ini)</option>';
 
@@ -1975,7 +2239,7 @@
                             }).join(' ');
 
                             helperText.innerHTML =
-                                `Dokter belum membuka layanan pada tanggal yang dipilih.<br><span class="font-bold text-gray-700 dark:text-gray-200">Pilih tanggal dokter yang tersedia:</span><div class="mt-1 flex flex-wrap gap-1">${dateButtons}</div>`;
+                                `Slot jam layanan hari ini telah selesai atau belum dibuka.<br><span class="font-bold text-gray-700 dark:text-gray-200">Pilih tanggal dokter yang tersedia:</span><div class="mt-1 flex flex-wrap gap-1">${dateButtons}</div>`;
                             helperText.className = 'text-[11px] text-amber-700 dark:text-amber-300 mt-1.5';
                         } else {
                             helperText.innerText =
@@ -1991,11 +2255,11 @@
 
                     const defaultOpt = document.createElement('option');
                     defaultOpt.value = '';
-                    defaultOpt.innerText = '-- Pilih Jam Konsultasi Tersedia --';
+                    defaultOpt.innerText = '-- Pilih Jam Konsultasi --';
                     slotSelect.appendChild(defaultOpt);
 
                     let availableCount = 0;
-                    data.slots.forEach(slot => {
+                    activeSlots.forEach(slot => {
                         const opt = document.createElement('option');
                         opt.value = slot.id;
                         if (slot.is_full) {

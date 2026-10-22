@@ -6,6 +6,7 @@ use App\Models\Consultation;
 use App\Models\ConsultationSchedule;
 use App\Models\HealthRecord;
 use App\Models\Veterinarian;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class VeterinarianScheduleController extends Controller
         }
 
         $selectedDate = $request->query('date', now()->toDateString());
-        $bookingTab = $request->query('tab', 'semua');
+        $bookingTab = $request->query('booking_tab', 'semua');
 
         // Statistics
         $today = now()->toDateString();
@@ -43,7 +44,17 @@ class VeterinarianScheduleController extends Controller
                 ->whereDate('consultation_date', $today)
                 ->where('status', '!=', 'dibatalkan')
                 ->count(),
-            'completed_count' => Consultation::where('veterinarian_id', $user?->id ?? $currentVet->user_id)
+            'completed_count' => Consultation::where(function ($q) use ($user, $currentVet) {
+                if ($user) {
+                    $q->where('veterinarian_id', $user->id);
+                }
+                if ($currentVet->user_id) {
+                    $q->orWhere('veterinarian_id', $currentVet->user_id);
+                }
+                $q->orWhereHas('schedule', function ($sq) use ($currentVet) {
+                    $sq->where('veterinarian_id', $currentVet->id);
+                });
+            })
                 ->where('status', 'selesai')
                 ->count(),
         ];
@@ -88,6 +99,92 @@ class VeterinarianScheduleController extends Controller
 
         $bookings = $bookingsQuery->paginate(10, ['*'], 'bookings_page')->withQueryString();
 
+        // Riwayat Rekam Medis & Riwayat Pemeriksaan Selesai (Tempat Berbeda & Terpisah)
+        $filterRmDate = $request->query('filter_rm_date') ?? $request->query('rm_date');
+        $searchRm = $request->query('search_rm');
+
+        $completedQuery = Consultation::where(function ($q) use ($user, $currentVet) {
+            if ($user) {
+                $q->where('veterinarian_id', $user->id);
+            }
+            if ($currentVet->user_id) {
+                $q->orWhere('veterinarian_id', $currentVet->user_id);
+            }
+            $q->orWhereHas('schedule', function ($sq) use ($currentVet) {
+                $sq->where('veterinarian_id', $currentVet->id);
+            });
+        })
+            ->where('status', 'selesai')
+            ->with(['user.peternakProfile', 'livestock', 'schedule', 'veterinarian']);
+
+        if (! empty($filterRmDate)) {
+            $completedQuery->where(function ($q) use ($filterRmDate) {
+                $q->whereDate('consultation_date', $filterRmDate)
+                    ->orWhereHas('schedule', function ($sq) use ($filterRmDate) {
+                        $sq->whereDate('date', $filterRmDate);
+                    })
+                    ->orWhereDate('updated_at', $filterRmDate);
+            });
+        }
+
+        if (! empty($searchRm)) {
+            $completedQuery->where(function ($q) use ($searchRm) {
+                $q->where('booking_code', 'like', "%{$searchRm}%")
+                    ->orWhere('subject', 'like', "%{$searchRm}%")
+                    ->orWhere('doctor_notes', 'like', "%{$searchRm}%")
+                    ->orWhere('prescription', 'like', "%{$searchRm}%")
+                    ->orWhereHas('user', function ($uq) use ($searchRm) {
+                        $uq->where('name', 'like', "%{$searchRm}%");
+                    })
+                    ->orWhereHas('livestock', function ($lq) use ($searchRm) {
+                        $lq->where('name', 'like', "%{$searchRm}%")
+                            ->orWhere('tag_number', 'like', "%{$searchRm}%")
+                            ->orWhere('type', 'like', "%{$searchRm}%");
+                    });
+            });
+        }
+
+        $completedConsultations = $completedQuery->latest('updated_at')->paginate(8, ['*'], 'rm_page')->withQueryString();
+
+        // Available dates for quick filter chips
+        $availableRmDates = Consultation::where(function ($q) use ($user, $currentVet) {
+            if ($user) {
+                $q->where('veterinarian_id', $user->id);
+            }
+            if ($currentVet->user_id) {
+                $q->orWhere('veterinarian_id', $currentVet->user_id);
+            }
+            $q->orWhereHas('schedule', function ($sq) use ($currentVet) {
+                $sq->where('veterinarian_id', $currentVet->id);
+            });
+        })
+            ->where('status', 'selesai')
+            ->latest('updated_at')
+            ->take(30)
+            ->get()
+            ->map(function ($c) {
+                $d = $c->schedule?->date
+                    ? Carbon::parse($c->schedule->date)
+                    : ($c->consultation_date ? Carbon::parse($c->consultation_date) : $c->updated_at);
+
+                return [
+                    'iso' => $d->toDateString(),
+                    'label' => $d->translatedFormat('d M Y'),
+                ];
+            })
+            ->unique('iso')
+            ->values();
+
+        // Active Navbar Tab: 'slot' (Daftar Slot Jam Layanan) vs 'rekam_medis' (Riwayat Pemeriksaan & Rekam Medis)
+        $activeTab = $request->query('tab');
+        if (empty($activeTab) || ! in_array($activeTab, ['slot', 'rekam_medis'])) {
+            if ($request->filled('filter_rm_date') || $request->filled('search_rm')) {
+                $activeTab = 'rekam_medis';
+            } else {
+                $activeTab = 'slot';
+            }
+        }
+
         return view('dokter-hewan.jadwal', [
             'currentVet' => $currentVet,
             'stats' => $stats,
@@ -95,6 +192,11 @@ class VeterinarianScheduleController extends Controller
             'bookings' => $bookings,
             'selectedDate' => $selectedDate,
             'bookingTab' => $bookingTab,
+            'activeTab' => $activeTab,
+            'completedConsultations' => $completedConsultations,
+            'filterRmDate' => $filterRmDate,
+            'searchRm' => $searchRm,
+            'availableRmDates' => $availableRmDates,
         ]);
     }
 
@@ -209,42 +311,82 @@ class VeterinarianScheduleController extends Controller
     }
 
     /**
-     * Update slot quota and notes.
+     * Update slot quota, time, and notes.
      */
     public function updateSlot(Request $request, ConsultationSchedule $schedule): RedirectResponse
     {
         $validated = $request->validate([
+            'start_time' => ['nullable', 'string', 'max:10'],
+            'end_time' => ['nullable', 'string', 'max:10'],
             'quota' => ['required', 'integer', 'min:1', 'max:50'],
             'status' => ['nullable', 'in:buka,tutup'],
             'service_type' => ['nullable', 'in:online,offline,konsultasi_online,telemedisin,tatap_muka,kunjungan,semua'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $schedule->update([
+        $updateData = [
             'quota' => $validated['quota'],
             'status' => $validated['status'] ?? $schedule->status,
             'service_type' => $validated['service_type'] ?? $schedule->service_type,
             'notes' => array_key_exists('notes', $validated) ? $validated['notes'] : $schedule->notes,
-        ]);
+        ];
+
+        if (! empty($validated['start_time'])) {
+            $updateData['start_time'] = $validated['start_time'];
+        }
+
+        if (! empty($validated['end_time'])) {
+            $updateData['end_time'] = $validated['end_time'];
+        }
+
+        $schedule->update($updateData);
+
+        // Update consultation_time in active consultations if time slot changed
+        if (! empty($validated['start_time']) || ! empty($validated['end_time'])) {
+            $schedule->activeConsultations()->update([
+                'consultation_time' => $schedule->time_slot_label,
+            ]);
+        }
 
         return redirect()->route('dokter-hewan.jadwal.index')
             ->with('success', "Data slot jadwal jam {$schedule->time_slot_label} berhasil diperbarui.");
     }
 
     /**
-     * Delete a schedule slot if it has no active bookings.
+     * Delete a schedule slot along with any attached bookings.
      */
     public function destroySlot(ConsultationSchedule $schedule): RedirectResponse
     {
-        if ($schedule->activeConsultations()->exists()) {
-            return redirect()->route('dokter-hewan.jadwal.index')
-                ->with('error', 'Slot jadwal tidak dapat dihapus karena sudah memiliki peternak yang melakukan booking aktif. Silakan batalkan booking terlebih dahulu atau tutup slot.');
-        }
+        $timeLabel = $schedule->time_slot_label;
 
+        // Mark any consultations attached to this slot as cancelled by doctor and detach slot
+        $schedule->consultations()->update([
+            'status' => 'dibatalkan',
+            'consultation_schedule_id' => null,
+            'doctor_notes' => 'Slot jadwal konsultasi telah dihapus oleh dokter hewan. Anda diminta untuk memilih dokter hewan yang baru atau mengatur ulang jadwal konsultasi.',
+        ]);
         $schedule->delete();
 
         return redirect()->route('dokter-hewan.jadwal.index')
-            ->with('success', 'Slot jadwal konsultasi berhasil dihapus.');
+            ->with('success', "Slot jadwal konsultasi {$timeLabel} berhasil dihapus.");
+    }
+
+    /**
+     * Delete a peternak consultation booking.
+     */
+    public function destroyBooking(Consultation $consultation): RedirectResponse
+    {
+        $bookingCode = $consultation->booking_code ?? ('#CONS-'.$consultation->id);
+        $peternakName = $consultation->user?->name ?? 'Peternak';
+
+        $consultation->update([
+            'status' => 'dibatalkan',
+            'consultation_schedule_id' => null,
+            'doctor_notes' => 'Jadwal reservasi konsultasi ini telah dihapus oleh dokter hewan. Anda diminta untuk memilih dokter hewan yang baru atau mengatur ulang jadwal konsultasi.',
+        ]);
+
+        return redirect()->route('dokter-hewan.jadwal.index')
+            ->with('success', "Data booking '{$bookingCode}' atas nama {$peternakName} berhasil dihapus dari jadwal.");
     }
 
     /**
@@ -258,9 +400,15 @@ class VeterinarianScheduleController extends Controller
             'prescription' => ['nullable', 'string', 'max:2000'],
         ]);
 
+        $doctorNotes = $validated['doctor_notes'] ?? $consultation->doctor_notes;
+        if ($validated['status'] === 'dibatalkan' && empty($doctorNotes)) {
+            $doctorNotes = 'Jadwal reservasi konsultasi ini telah dibatalkan oleh dokter hewan. Anda diminta untuk memilih dokter hewan yang baru atau mengatur ulang jadwal konsultasi.';
+        }
+
         $consultation->update([
             'status' => $validated['status'],
-            'doctor_notes' => $validated['doctor_notes'] ?? $consultation->doctor_notes,
+            'consultation_schedule_id' => $validated['status'] === 'dibatalkan' ? null : $consultation->consultation_schedule_id,
+            'doctor_notes' => $doctorNotes,
             'prescription' => $validated['prescription'] ?? $consultation->prescription,
         ]);
 

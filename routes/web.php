@@ -96,8 +96,8 @@ Route::middleware(['role:admin'])->group(function () {
     Route::delete('/harga-komoditas/{price}', [CommodityPriceController::class, 'destroy'])->name('harga-komoditas.destroy');
 });
 
-// 8. Konsultasi Dokter & Rekam Medis Digital (Hanya Admin & Peternak)
-Route::middleware(['role:admin,peternak'])->group(function () {
+// 8. Konsultasi Dokter & Rekam Medis Digital
+Route::middleware(['role:admin,peternak,dokter_hewan'])->group(function () {
     Route::get('/konsultasi', [ConsultationController::class, 'index'])->name('konsultasi');
     Route::post('/konsultasi/start', [ConsultationController::class, 'startConsultation'])->name('konsultasi.start');
     Route::post('/konsultasi/{consultation}/messages', [ConsultationController::class, 'sendMessage'])->name('konsultasi.message');
@@ -151,6 +151,7 @@ Route::middleware(['role:dokter_hewan'])->prefix('dokter-hewan')->name('dokter-h
     Route::put('/jadwal/{schedule}', [VeterinarianScheduleController::class, 'updateSlot'])->name('jadwal.update');
     Route::delete('/jadwal/{schedule}', [VeterinarianScheduleController::class, 'destroySlot'])->name('jadwal.destroy');
     Route::patch('/jadwal/bookings/{consultation}/status', [VeterinarianScheduleController::class, 'updateBookingStatus'])->name('jadwal.booking.status');
+    Route::delete('/jadwal/bookings/{consultation}', [VeterinarianScheduleController::class, 'destroyBooking'])->name('jadwal.booking.destroy');
 });
 
 // 8.3 Pelaporan Kesehatan Hewan oleh Peternak
