@@ -265,6 +265,7 @@
         </div>
     </div>
 
+    @if(!($currentUser && $currentUser->isAdmin()))
     <!-- 3. Current Section Breadcrumb Header (Navigation Managed Exclusively via Sidebar) -->
     <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
         <div class="flex items-center gap-2 text-xs sm:text-sm">
@@ -272,28 +273,23 @@
             <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
             <span class="font-bold text-gray-900 dark:text-white">
                 @if($activeTab === 'pembelajaran')
-                    Video &amp; Pembelajaran
+                    Video Pembelajaran
                 @elseif($activeTab === 'zoom')
                     Jadwal Kelas Zoom
                 @elseif($activeTab === 'bimtek_offline')
-                    Bimtek Offline (Tatap Muka)
+                    Bimtek Offline
                 @elseif($activeTab === 'kuis')
-                    Kuis &amp; Soal Evaluasi
+                    Soal Evaluasi
                 @elseif($activeTab === 'sertifikat')
                     Sertifikat Digital
                 @endif
             </span>
         </div>
-
-        @if($currentUser && $currentUser->isAdmin())
-        <div class="hidden sm:flex items-center gap-2">
-            <span class="text-xs text-gray-500 font-medium">Mode Administrator Dinas</span>
-        </div>
-        @endif
     </div>
+    @endif
 
     <!-- 4. Main Content Area -->
-    <div class="w-full space-y-7">
+    <div class="w-full space-y-7 {{ $currentUser && $currentUser->isAdmin() ? 'pt-8 sm:pt-10' : '' }}">
 
             @if($activeTab === 'pembelajaran')
             <!-- ========================================== -->
@@ -548,12 +544,14 @@
             <div class="space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
+                        @if(!($currentUser && $currentUser->isAdmin()))
                         <div class="flex items-center gap-2 mb-1">
                             <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 text-[11px] font-bold">
                                 Kelas Daring Interaktif
                             </span>
                             <span class="text-xs text-gray-500">Live Zoom Meetings</span>
                         </div>
+                        @endif
                         <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                             Jadwal Pembelajaran &amp; Kelas Zoom Interaktif
                         </h2>
@@ -721,12 +719,14 @@
                 <!-- Header Title & Action Buttons -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
+                        @if(!($currentUser && $currentUser->isAdmin()))
                         <div class="flex items-center gap-2 mb-1">
                             <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 text-[11px] font-extrabold uppercase tracking-wide">
                                 Tatap Muka Lapangan
                             </span>
                             <span class="text-xs text-gray-500">BBPP Batu &amp; Sentra Peternakan Jatim</span>
                         </div>
+                        @endif
                         <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                             Jadwal Bimbingan Teknis (Bimtek) Offline &amp; Praktik Lapangan
                         </h2>
@@ -979,12 +979,14 @@
             <div class="space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
+                        @if(!($currentUser && $currentUser->isAdmin()))
                         <div class="flex items-center gap-2 mb-1">
                             <span class="px-2 py-0.5 rounded bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-300 text-[11px] font-bold">
-                                {{ $currentUser && $currentUser->isAdmin() ? 'Pengelolaan Kurikulum' : 'Evaluasi Mandiri' }}
+                                Evaluasi Mandiri
                             </span>
                             <span class="text-xs text-gray-500">Passing Grade: 70%</span>
                         </div>
+                        @endif
                         <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                             {{ $currentUser && $currentUser->isAdmin() ? 'Bank Soal & Kuis Evaluasi Pembelajaran' : 'Kuis & Soal Uji Pemahaman Materi Peternak' }}
                         </h2>
@@ -1130,12 +1132,14 @@
             <div class="space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
+                        @if(!($currentUser && $currentUser->isAdmin()))
                         <div class="flex items-center gap-2 mb-1">
                             <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 text-[11px] font-bold">
                                 Terverifikasi E-Signature
                             </span>
                             <span class="text-xs text-gray-500">Dinas Peternakan Provinsi Jawa Timur</span>
                         </div>
+                        @endif
                         <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                             {{ $currentUser && $currentUser->isAdmin() ? 'Manajemen E-Sertifikat Pelatihan' : 'Sertifikat Kompetensi Digital Saya' }}
                         </h2>

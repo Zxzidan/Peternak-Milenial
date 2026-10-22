@@ -319,13 +319,10 @@
                             </div>
                         </div>
 
-                        <!-- Bottom Action Row: "Lihat Detail →" & Contextual Action Buttons -->
+                        <!-- Bottom Action Row: "Lihat Detail" & Contextual Action Buttons -->
                         <div class="flex items-center justify-between gap-3 pt-3 border-t border-slate-100/80 text-xs">
-                            <div class="inline-flex items-center gap-1.5 text-primary-700 group-hover:text-primary-800 font-semibold transition">
+                            <div class="inline-flex items-center text-primary-700 group-hover:text-primary-800 font-semibold transition">
                                 <span>Lihat Detail</span>
-                                <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                </svg>
                             </div>
 
                             <!-- Direct Status Action Buttons -->
@@ -419,22 +416,22 @@
 
                     <!-- Hidden Pre-Rendered Full Detail Data for this Order -->
                     <div id="order-detail-data-{{ $order->order_code }}" class="hidden">
-                        <div class="space-y-3.5">
+                        <div class="space-y-5 sm:space-y-6">
                             <!-- Status Header & Timeline Card -->
-                            <div class="p-3.5 rounded-xl border border-slate-200/90 bg-slate-50/70">
-                                <div class="flex items-center justify-between gap-3 mb-1.5">
+                            <div class="p-4.5 sm:p-5 rounded-2xl border border-slate-200/90 bg-slate-50/80 shadow-2xs">
+                                <div class="flex items-center justify-between gap-3 mb-2 sm:mb-2.5">
                                     <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Status Pesanan</span>
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold border {{ $order->status_badge_class }}">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border {{ $order->status_badge_class }}">
                                         {{ $order->status_label }}
                                     </span>
                                 </div>
-                                <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                                <p class="text-xs text-slate-600 leading-relaxed mb-4">
                                     {{ $order->status_description }}
                                 </p>
 
                                 @if($order->status !== 'cancelled')
                                 <!-- Minimalist 5-Step Order Stepper -->
-                                <div class="pt-2.5 border-t border-slate-200/70">
+                                <div class="pt-3.5 sm:pt-4 border-t border-slate-200/80">
                                     @php
                                         $currStep = $order->status_step_index;
                                         $steps = [
@@ -445,7 +442,7 @@
                                             5 => 'Selesai',
                                         ];
                                     @endphp
-                                    <div class="grid grid-cols-5 gap-1 text-center">
+                                    <div class="grid grid-cols-5 gap-1.5 text-center">
                                         @foreach($steps as $sIdx => $sLabel)
                                         @php
                                             $isDone = $sIdx <= $currStep;
@@ -453,7 +450,7 @@
                                         @endphp
                                         <div class="flex flex-col items-center">
                                             <!-- Step Dot / Icon -->
-                                            <div class="w-5.5 h-5.5 rounded-full flex items-center justify-center text-[10px] font-bold mb-1 transition {{ $isDone ? ($order->status === 'completed' ? 'bg-emerald-600 text-white' : 'bg-primary-700 text-white') : 'bg-slate-200 text-slate-500' }}">
+                                            <div class="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full flex items-center justify-center text-xs font-bold mb-1.5 sm:mb-2 transition {{ $isDone ? ($order->status === 'completed' ? 'bg-emerald-600 text-white' : 'bg-primary-700 text-white') : 'bg-slate-200 text-slate-500' }}">
                                                 @if($isDone && $sIdx < $currStep)
                                                     ✓
                                                 @else
@@ -461,7 +458,7 @@
                                                 @endif
                                             </div>
                                             <!-- Step Label -->
-                                            <span class="text-[10px] font-medium leading-tight {{ $isCurrent ? 'text-slate-900 font-bold' : ($isDone ? 'text-slate-700' : 'text-slate-400') }}">
+                                            <span class="text-[10px] sm:text-[11px] font-medium leading-tight {{ $isCurrent ? 'text-slate-900 font-bold' : ($isDone ? 'text-slate-700' : 'text-slate-400') }}">
                                                 {{ $sLabel }}
                                             </span>
                                         </div>
@@ -469,7 +466,7 @@
                                     </div>
                                 </div>
                                 @else
-                                <div class="p-2.5 rounded-lg bg-rose-50 border border-rose-200/80 text-rose-700 text-xs">
+                                <div class="p-3 rounded-xl bg-rose-50 border border-rose-200/80 text-rose-700 text-xs">
                                     Pesanan ini telah dibatalkan. Tidak ada penagihan atau proses pengiriman lanjutan untuk transaksi ini.
                                 </div>
                                 @endif
@@ -477,44 +474,44 @@
 
                             <!-- Produk yang Dipesan (Line Items) -->
                             <div>
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="text-[11px] font-bold text-slate-900 uppercase tracking-wider">
+                                <div class="flex items-center justify-between mb-3 sm:mb-3.5">
+                                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">
                                         Produk yang Dipesan ({{ $order->items->count() }})
                                     </h4>
-                                    <span class="text-[10px] text-slate-500 font-medium">
+                                    <span class="text-xs text-slate-500 font-medium">
                                         {{ $order->items->sum('quantity') }} total item
                                     </span>
                                 </div>
 
-                                <div class="space-y-2">
+                                <div class="space-y-3">
                                     @foreach($order->items as $item)
-                                    <div class="p-3 rounded-xl border border-slate-200/90 bg-white flex items-start justify-between gap-2.5">
-                                        <div class="flex items-start gap-2.5 min-w-0">
-                                            <div class="w-11 h-11 rounded-lg bg-slate-100 border border-slate-200/80 overflow-hidden shrink-0 flex items-center justify-center">
+                                    <div class="p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 bg-white flex items-start justify-between gap-3 sm:gap-4 shadow-2xs">
+                                        <div class="flex items-start gap-3 sm:gap-3.5 min-w-0">
+                                            <div class="w-13 h-13 sm:w-16 sm:h-16 rounded-xl bg-slate-100 border border-slate-200/80 overflow-hidden shrink-0 flex items-center justify-center shadow-2xs">
                                                 @if($item->product?->image_path)
                                                     <img src="{{ asset('storage/' . $item->product->image_path) }}" alt="{{ $item->product->name }}" class="w-full h-full object-cover">
                                                 @else
-                                                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                                    <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
                                                     </svg>
                                                 @endif
                                             </div>
 
                                             <div class="min-w-0">
-                                                <h5 class="text-xs font-bold text-slate-900 leading-snug">
+                                                <h5 class="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
                                                     {{ $item->product?->name ?? 'Produk Peternakan' }}
                                                 </h5>
-                                                <div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-slate-500 flex-wrap">
+                                                <div class="flex items-center gap-2 mt-1 sm:mt-1.5 text-xs text-slate-500 flex-wrap">
                                                     <span>{{ $item->quantity }} {{ $item->product?->unit ?? 'unit' }}</span>
                                                     <span>×</span>
                                                     <span class="tabular-nums">Rp {{ number_format($item->price_per_unit, 0, ',', '.') }}</span>
                                                     @if($item->product?->category)
-                                                        <span class="px-1.5 py-0.2 bg-slate-100 rounded text-[10px] text-slate-600 font-medium">
+                                                        <span class="px-2 py-0.5 bg-slate-100 rounded-md text-[10px] text-slate-600 font-medium">
                                                             {{ $item->product->category->name }}
                                                         </span>
                                                     @endif
                                                 </div>
-                                                <div class="text-[10px] text-slate-400 mt-0.5">
+                                                <div class="text-[11px] text-slate-400 mt-1 sm:mt-1.5">
                                                     @if(auth()->check() && auth()->user()->isPeternak())
                                                         <span class="text-emerald-700 font-medium">✓ Produk dari Peternakan Anda</span>
                                                     @else
@@ -525,7 +522,7 @@
                                         </div>
 
                                         <div class="text-right shrink-0">
-                                            <span class="text-xs font-bold text-slate-900 tabular-nums">
+                                            <span class="text-xs sm:text-sm font-bold text-slate-900 tabular-nums">
                                                 Rp {{ number_format($item->subtotal, 0, ',', '.') }}
                                             </span>
                                         </div>
@@ -535,35 +532,35 @@
                             </div>
 
                             <!-- Informasi Pengiriman & Penerima -->
-                            <div class="p-3.5 rounded-xl border border-slate-200/90 bg-white">
-                                <h4 class="text-[11px] font-bold text-slate-900 uppercase tracking-wider mb-2.5">
+                            <div class="p-4.5 sm:p-5 rounded-2xl border border-slate-200/90 bg-white shadow-2xs">
+                                <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3.5 sm:mb-4">
                                     Informasi Penerima &amp; Alamat
                                 </h4>
-                                <div class="space-y-2 text-xs text-slate-600">
-                                    <div class="flex items-start justify-between gap-2.5">
-                                        <span class="text-slate-400 w-24 shrink-0">Penerima</span>
+                                <div class="space-y-3 sm:space-y-3.5 text-xs text-slate-600">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <span class="text-slate-400 w-28 sm:w-32 shrink-0 font-medium">Penerima</span>
                                         <span class="font-semibold text-slate-900 text-right flex-1">
                                             {{ $order->buyer?->name ?? 'Pembeli Umum' }}
                                         </span>
                                     </div>
 
-                                    <div class="flex items-start justify-between gap-2.5">
-                                        <span class="text-slate-400 w-24 shrink-0">No. HP</span>
+                                    <div class="flex items-start justify-between gap-3">
+                                        <span class="text-slate-400 w-28 sm:w-32 shrink-0 font-medium">No. HP</span>
                                         <span class="font-mono text-slate-800 text-right flex-1">
                                             {{ $order->buyer_phone ?: ($order->buyer?->phone_number ?: '-') }}
                                         </span>
                                     </div>
 
-                                    <div class="flex items-start justify-between gap-2.5">
-                                        <span class="text-slate-400 w-24 shrink-0">Alamat Kirim</span>
+                                    <div class="flex items-start justify-between gap-3">
+                                        <span class="text-slate-400 w-28 sm:w-32 shrink-0 font-medium">Alamat Kirim</span>
                                         <span class="text-slate-800 text-right flex-1 leading-relaxed">
                                             {{ $order->shipping_address }}
                                         </span>
                                     </div>
 
                                     @if($order->clean_notes)
-                                    <div class="flex items-start justify-between gap-2.5 pt-1.5 border-t border-slate-100">
-                                        <span class="text-slate-400 w-24 shrink-0">Catatan</span>
+                                    <div class="flex items-start justify-between gap-3 pt-2.5 sm:pt-3 border-t border-slate-100">
+                                        <span class="text-slate-400 w-28 sm:w-32 shrink-0 font-medium">Catatan</span>
                                         <span class="text-slate-700 italic text-right flex-1">
                                             "{{ $order->clean_notes }}"
                                         </span>
@@ -573,11 +570,11 @@
                             </div>
 
                             <!-- Rincian Biaya & Pembayaran -->
-                            <div class="p-3.5 rounded-xl border border-slate-200/90 bg-white">
-                                <h4 class="text-[11px] font-bold text-slate-900 uppercase tracking-wider mb-2">
+                            <div class="p-4.5 sm:p-5 rounded-2xl border border-slate-200/90 bg-white shadow-2xs">
+                                <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3.5 sm:mb-4">
                                     Rincian Pembayaran
                                 </h4>
-                                <div class="space-y-1.5 text-xs">
+                                <div class="space-y-2.5 sm:space-y-3 text-xs">
                                     <div class="flex items-center justify-between text-slate-600">
                                         <span>Subtotal Produk</span>
                                         <span class="font-medium text-slate-900 tabular-nums">
@@ -606,12 +603,12 @@
                                         </span>
                                     </div>
 
-                                    <div class="pt-2 border-t border-slate-200 flex items-center justify-between">
+                                    <div class="pt-3.5 sm:pt-4 border-t border-slate-200/90 flex items-center justify-between">
                                         <div>
-                                            <span class="text-xs font-bold text-slate-900 block">Total Pembayaran</span>
-                                            <span class="text-[10px] text-slate-400">Termasuk PPN &amp; subsidi logistik</span>
+                                            <span class="text-xs sm:text-sm font-bold text-slate-900 block">Total Pembayaran</span>
+                                            <span class="text-[11px] text-slate-400">Termasuk PPN &amp; subsidi logistik</span>
                                         </div>
-                                        <span class="text-sm sm:text-base font-bold text-slate-900 tabular-nums">
+                                        <span class="text-base sm:text-lg font-bold text-slate-900 tabular-nums">
                                             Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                                         </span>
                                     </div>
@@ -619,25 +616,25 @@
                             </div>
 
                             <!-- Informasi Pihak Terkait & Verifikasi -->
-                            <div class="p-3 rounded-xl border border-slate-200/90 bg-slate-50/50 flex items-center justify-between gap-3 text-xs">
+                            <div class="p-4 rounded-2xl border border-slate-200/90 bg-slate-50/60 flex items-center justify-between gap-3 text-xs">
                                 <div>
                                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                                         {{ auth()->check() && auth()->user()->isPeternak() ? 'Masyarakat Pembeli' : 'Penjual / Peternak Binaan' }}
                                     </span>
-                                    <span class="font-bold text-slate-900 text-xs">
+                                    <span class="font-bold text-slate-900 text-xs sm:text-sm">
                                         {{ auth()->check() && auth()->user()->isPeternak() ? ($order->buyer?->name ?? 'Masyarakat Pembeli') : ($firstItem?->seller?->name ?? 'Peternak Milenial Jatim') }}
                                     </span>
-                                    <span class="text-[11px] text-slate-500 block">
+                                    <span class="text-xs text-slate-500 block mt-0.5">
                                         {{ auth()->check() && auth()->user()->isPeternak() ? ($order->buyer_phone ?: ($order->buyer?->phone_number ?: 'Jawa Timur')) : ($firstItem?->product?->region?->name ?? 'Jawa Timur') }}
                                     </span>
                                 </div>
-                                <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold shrink-0">
+                                <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-[11px] font-bold shrink-0">
                                     {{ auth()->check() && auth()->user()->isPeternak() ? '👤 Pemesan Terdaftar' : '✓ Binaan Resmi' }}
                                 </span>
                             </div>
 
                             <!-- Drawer Contextual Action Buttons in Source -->
-                            <div class="pt-1.5 border-t border-slate-200 flex flex-col sm:flex-row items-center gap-2">
+                            <div class="pt-3 sm:pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center gap-2.5">
                                 @if(auth()->check() && auth()->user()->isPeternak())
                                     @if($order->status === 'pending')
                                         <form action="{{ route('marketplace.orders.status', $order) }}" method="POST" class="w-full sm:flex-1">
@@ -645,7 +642,7 @@
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="processing">
                                             <input type="hidden" name="from" value="pesanan">
-                                            <button type="submit" class="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg transition shadow-xs flex items-center justify-center gap-1.5">
+                                            <button type="submit" class="w-full py-2.5 sm:py-3 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
                                                 <span>Proses &amp; Kemas Pesanan</span>
                                             </button>
                                         </form>
@@ -655,7 +652,7 @@
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="shipped">
                                             <input type="hidden" name="from" value="pesanan">
-                                            <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition shadow-xs flex items-center justify-center gap-1.5">
+                                            <button type="submit" class="w-full py-2.5 sm:py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
                                                 <span>Kirim Pesanan ke Kurir</span>
                                             </button>
                                         </form>
@@ -665,7 +662,7 @@
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="completed">
                                             <input type="hidden" name="from" value="pesanan">
-                                            <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition shadow-xs flex items-center justify-center gap-1.5">
+                                            <button type="submit" class="w-full py-2.5 sm:py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                                                 <span>Konfirmasi Pesanan Telah Diterima</span>
                                             </button>
@@ -678,7 +675,7 @@
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="cancelled">
                                             <input type="hidden" name="from" value="pesanan">
-                                            <button type="submit" class="w-full sm:w-auto px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition">
+                                            <button type="submit" class="w-full sm:w-auto px-4 py-2.5 sm:py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition cursor-pointer">
                                                 Batalkan
                                             </button>
                                         </form>
@@ -691,7 +688,7 @@
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="completed">
                                             <input type="hidden" name="from" value="pesanan">
-                                            <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition shadow-xs flex items-center justify-center gap-1.5">
+                                            <button type="submit" class="w-full py-2.5 sm:py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                                                 <span>Konfirmasi Pesanan Diterima</span>
                                             </button>
@@ -703,7 +700,7 @@
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="cancelled">
                                             <input type="hidden" name="from" value="pesanan">
-                                            <button type="submit" class="w-full sm:w-auto px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition">
+                                            <button type="submit" class="w-full sm:w-auto px-4 py-2.5 sm:py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition cursor-pointer">
                                                 Batalkan
                                             </button>
                                         </form>
@@ -713,7 +710,7 @@
                                 <button
                                     type="button"
                                     onclick="printOrderInvoice('{{ $order->order_code }}')"
-                                    class="w-full sm:w-auto px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5"
+                                    class="w-full sm:w-auto px-4 py-2.5 sm:py-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
                                 >
                                     <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24-3.279 2.135-6.079 5.28-6.079s5.52 2.8 5.28 6.079M6.75 6.75h10.5M4.5 19.5h15a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25h-15A2.25 2.25 0 002.25 10.5v6.75A2.25 2.25 0 004.5 19.5z" />
@@ -734,24 +731,24 @@
 
     <aside
         id="order-drawer"
-        class="fixed inset-y-0 right-0 z-50 w-full sm:max-w-md md:max-w-lg bg-white shadow-2xl border-l border-slate-200 flex flex-col transform translate-x-full transition-transform duration-300 ease-out"
+        class="fixed inset-y-0 right-0 z-50 w-full sm:max-w-lg md:max-w-xl bg-white shadow-2xl border-l border-slate-200 flex flex-col transform translate-x-full transition-transform duration-300 ease-out"
         role="dialog"
         aria-modal="true"
         aria-labelledby="drawer-title"
     >
         <!-- Drawer Header -->
-        <div class="px-4.5 py-3 border-b border-slate-200 flex items-center justify-between gap-3 bg-white sticky top-0 z-10">
+        <div class="px-5 sm:px-6 py-4.5 sm:py-5 border-b border-slate-200 flex items-center justify-between gap-4 bg-white sticky top-0 z-10">
             <div>
-                <h3 id="drawer-title" class="text-sm font-bold text-slate-900">
+                <h3 id="drawer-title" class="text-base sm:text-lg font-bold text-slate-900">
                     Detail Pesanan
                 </h3>
-                <div class="flex items-center gap-2 mt-0.5">
+                <div class="flex items-center gap-2.5 mt-1">
                     <span id="drawer-order-code" class="font-mono text-xs font-semibold text-slate-700"></span>
                     <button
                         type="button"
                         id="drawer-copy-btn"
                         onclick="copyCurrentOrderCode(this)"
-                        class="text-[11px] font-semibold text-primary-700 hover:text-primary-800 transition inline-flex items-center gap-1"
+                        class="text-xs font-semibold text-primary-700 hover:text-primary-800 transition inline-flex items-center gap-1 cursor-pointer"
                         title="Salin nomor pesanan"
                     >
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
@@ -764,10 +761,10 @@
                 <button
                     type="button"
                     onclick="closeOrderDetail()"
-                    class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+                    class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition cursor-pointer"
                     aria-label="Tutup detail pesanan"
                 >
-                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -775,17 +772,17 @@
         </div>
 
         <!-- Drawer Scrollable Body Content -->
-        <div id="drawer-body-content" class="p-4 sm:p-4.5 overflow-y-auto flex-1 custom-scrollbar">
+        <div id="drawer-body-content" class="p-5 sm:p-6 overflow-y-auto flex-1 custom-scrollbar">
             <!-- Content dynamically injected from selected order template -->
         </div>
 
         <!-- Drawer Footer -->
-        <div class="px-4.5 py-2.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs">
-            <span class="text-slate-400 text-[10px]">Tekan <kbd class="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-600 font-mono text-[10px]">ESC</kbd> untuk menutup</span>
+        <div class="px-5 sm:px-6 py-3.5 sm:py-4 border-t border-slate-200/90 bg-slate-50/90 flex items-center justify-between text-xs">
+            <span class="text-slate-400 text-[11px]">Tekan <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600 font-mono text-[10px]">ESC</kbd> untuk menutup</span>
             <button
                 type="button"
                 onclick="closeOrderDetail()"
-                class="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-medium rounded-lg transition"
+                class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition cursor-pointer"
             >
                 Tutup
             </button>

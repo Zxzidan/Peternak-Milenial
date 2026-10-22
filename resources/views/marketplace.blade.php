@@ -178,81 +178,128 @@
 
         <!-- Tabel Verifikasi Produk -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xs overflow-hidden">
-            <div class="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <div class="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                 <div>
-                    <h2 class="text-sm font-bold text-gray-900 dark:text-white">Daftar Verifikasi Produk Peternak</h2>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Tinjau mutu dan validasi komoditas peternak.</p>
+                    <h2 class="text-sm sm:text-base font-bold text-gray-900 dark:text-white">Daftar Verifikasi Produk Peternak</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Tinjau mutu dan validasi komoditas peternak.</p>
                 </div>
-                <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                <span class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                     {{ $myProducts->count() }} Produk
                 </span>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-xs text-left text-gray-600 dark:text-gray-300">
-                    <thead class="text-[11px] text-gray-700 uppercase bg-gray-50 dark:bg-gray-750 dark:text-gray-300">
+                <table class="w-full text-xs text-center text-gray-600 dark:text-gray-300">
+                    <thead class="text-[11px] text-gray-700 uppercase bg-gray-50/90 dark:bg-gray-750 dark:text-gray-300 text-center">
                         <tr>
-                            <th class="px-4 py-3">Nama Produk</th>
-                            <th class="px-4 py-3">Kategori &amp; Wilayah</th>
-                            <th class="px-4 py-3">Peternak Pengunggah</th>
-                            <th class="px-4 py-3">Harga &amp; Stok</th>
-                            <th class="px-4 py-3">Status Verifikasi</th>
-                            <th class="px-4 py-3 text-right">Aksi Verifikasi</th>
+                            <th class="px-5 sm:px-6 py-4 text-center whitespace-nowrap">Nama Produk</th>
+                            <th class="px-5 py-4 text-center whitespace-nowrap">Kategori &amp; Wilayah</th>
+                            <th class="px-5 py-4 text-center whitespace-nowrap">Peternak Pengunggah</th>
+                            <th class="px-5 py-4 text-center whitespace-nowrap">Harga &amp; Stok</th>
+                            <th class="px-5 py-4 text-center whitespace-nowrap">Status Verifikasi</th>
+                            <th class="px-5 sm:px-6 py-4 text-center whitespace-nowrap">Aksi Verifikasi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                         @forelse ($myProducts as $prod)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-750/50 transition">
-                            <td class="px-4 py-3">
-                                <div class="font-bold text-gray-900 dark:text-white">{{ $prod->name }}</div>
-                                <div class="text-[11px] text-gray-400 line-clamp-1 max-w-xs">{{ $prod->description }}</div>
+                            <td class="px-5 sm:px-6 py-4.5 align-middle text-left">
+                                <div class="flex items-center gap-3.5">
+                                    <!-- Thumbnail Foto Produk -->
+                                    <div class="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gray-100 dark:bg-gray-750 overflow-hidden shrink-0 border border-gray-200 dark:border-gray-700 shadow-2xs group/img">
+                                        @if($prod->image_path)
+                                            <img
+                                                src="{{ asset('storage/' . $prod->image_path) }}"
+                                                alt="{{ $prod->name }}"
+                                                class="w-full h-full object-cover transition-transform duration-300 group-hover/img:scale-110 cursor-pointer"
+                                                onclick="openProductImageModal('{{ asset('storage/' . $prod->image_path) }}', '{{ addslashes($prod->name) }}', '{{ addslashes($prod->seller?->name ?? 'Peternak Binaan') }}')"
+                                                title="Klik untuk memperbesar gambar produk"
+                                            >
+                                            <div class="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors pointer-events-none flex items-center justify-center">
+                                                <svg class="w-4 h-4 text-white opacity-0 group-hover/img:opacity-100 transition-opacity drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"/></svg>
+                                            </div>
+                                        @else
+                                            <div class="w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-750">
+                                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                                </svg>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- Nama Produk -->
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-gray-900 dark:text-white text-xs sm:text-[13px] leading-snug">{{ $prod->name }}</div>
+                                    </div>
+                                </div>
                             </td>
-                            <td class="px-4 py-3">
-                                <div>{{ $prod->category?->name ?? 'Komoditas' }}</div>
-                                <div class="text-[11px] text-gray-400">📍 {{ $prod->region?->name ?? 'Jawa Timur' }}</div>
+                            <td class="px-5 py-4.5 align-middle text-center">
+                                <div class="font-medium text-gray-800 dark:text-gray-200">{{ $prod->category?->name ?? 'Komoditas' }}</div>
+                                <div class="text-[11px] text-gray-400 dark:text-gray-400 mt-1 flex items-center justify-center gap-1">
+                                    <span>📍</span>
+                                    <span>{{ $prod->region?->name ?? 'Jawa Timur' }}</span>
+                                </div>
                             </td>
-                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">
-                                👨‍🌾 {{ $prod->seller?->name ?? 'Peternak Binaan' }}
+                            <td class="px-5 py-4.5 align-middle text-center font-medium text-gray-800 dark:text-gray-200">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <span>👨‍🌾</span>
+                                    <span class="font-semibold">{{ $prod->seller?->name ?? 'Peternak Binaan' }}</span>
+                                </div>
                             </td>
-                            <td class="px-4 py-3">
-                                <span class="font-semibold text-gray-900 dark:text-white">Rp {{ number_format($prod->price, 0, ',', '.') }}</span>
-                                <div class="text-[11px] text-gray-400">Stok: {{ $prod->stock }} {{ $prod->unit }}</div>
+                            <td class="px-5 py-4.5 align-middle text-center">
+                                <span class="font-bold text-gray-900 dark:text-white text-xs sm:text-[13px]">Rp {{ number_format($prod->price, 0, ',', '.') }}</span>
+                                <div class="text-[11px] text-gray-400 dark:text-gray-400 mt-1">Stok: <strong class="text-gray-700 dark:text-gray-300 font-medium">{{ $prod->stock }}</strong> {{ $prod->unit }}</div>
                             </td>
-                            <td class="px-4 py-3">
+                            <td class="px-5 py-4.5 align-middle text-center">
                                 @if ($prod->is_verified)
-                                    <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
-                                        ✓ Terverifikasi / Dipublikasikan
+                                    <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-semibold px-2.5 py-1 rounded-full inline-flex items-center justify-center gap-1.5 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 whitespace-nowrap">
+                                        <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                        <span>Terverifikasi</span>
                                     </span>
                                 @else
-                                    <span class="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800">
-                                        Menunggu Verifikasi Admin
+                                    <span class="bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-semibold px-2.5 py-1 rounded-full inline-flex items-center justify-center gap-1.5 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800 whitespace-nowrap">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                        <span>Menunggu Verifikasi Admin</span>
                                     </span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-right space-x-1.5">
-                                @if(! $prod->is_verified)
-                                    <form action="{{ route('marketplace.products.verify', $prod) }}" method="POST" class="inline">
+                            <td class="px-5 sm:px-6 py-4.5 align-middle text-center whitespace-nowrap">
+                                <div class="flex items-center justify-center gap-2">
+                                    @if($prod->image_path)
+                                        <button
+                                            type="button"
+                                            onclick="openProductImageModal('{{ asset('storage/' . $prod->image_path) }}', '{{ addslashes($prod->name) }}', '{{ addslashes($prod->seller?->name ?? 'Peternak Binaan') }}')"
+                                            class="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-650 dark:text-gray-200 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition inline-flex items-center gap-1 cursor-pointer"
+                                            title="Lihat Foto Produk"
+                                        >
+                                            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                                            <span>Foto</span>
+                                        </button>
+                                    @endif
+                                    @if(! $prod->is_verified)
+                                        <form action="{{ route('marketplace.products.verify', $prod) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="tab" value="verifikasi">
+                                            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg transition shadow-2xs cursor-pointer">
+                                                Setujui &amp; Publikasi
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <form action="{{ route('marketplace.products.destroy', $prod) }}" method="POST" class="inline" onsubmit="return confirm('Hapus produk {{ $prod->name }} dari database?')">
                                         @csrf
-                                        @method('PATCH')
+                                        @method('DELETE')
                                         <input type="hidden" name="tab" value="verifikasi">
-                                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg transition shadow-xs">
-                                            Setujui &amp; Publikasi
+                                        <button type="submit" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 dark:bg-rose-950/50 dark:border-rose-800 dark:text-rose-300 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition cursor-pointer">
+                                            Hapus
                                         </button>
                                     </form>
-                                @endif
-                                <form action="{{ route('marketplace.products.destroy', $prod) }}" method="POST" class="inline" onsubmit="return confirm('Hapus produk {{ $prod->name }} dari database?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <input type="hidden" name="tab" value="verifikasi">
-                                    <button type="submit" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 dark:bg-rose-950/50 dark:border-rose-800 dark:text-rose-300 text-[10px] font-semibold px-2 py-1 rounded-lg transition">
-                                        Hapus
-                                    </button>
-                                </form>
+                                </div>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-12 text-center">
+                            <td colspan="6" class="px-5 py-12 text-center">
                                 <div class="max-w-xs mx-auto text-gray-400 dark:text-gray-500">
                                     <svg class="w-10 h-10 mx-auto mb-2 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
@@ -265,6 +312,29 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Modal Preview Foto Produk untuk Admin -->
+        <div id="modal-product-image-preview" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-xs flex items-center justify-center p-4" onclick="if(event.target === this) closeProductImageModal()">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700 animate-in fade-in zoom-in duration-200" onclick="event.stopPropagation()">
+                <div class="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                    <div class="min-w-0 pr-3">
+                        <h3 id="modal-product-image-title" class="text-sm sm:text-base font-bold text-gray-900 dark:text-white truncate"></h3>
+                        <p id="modal-product-image-seller" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate"></p>
+                    </div>
+                    <button type="button" onclick="closeProductImageModal()" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-500 flex items-center justify-center transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <div class="p-4 bg-gray-50 dark:bg-gray-900 flex items-center justify-center min-h-64 max-h-[70vh] overflow-hidden">
+                    <img id="modal-product-image-src" src="" alt="Foto Produk" class="max-h-[65vh] w-auto max-w-full rounded-xl object-contain shadow-md">
+                </div>
+                <div class="p-3.5 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                    <button type="button" onclick="closeProductImageModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs font-semibold rounded-lg transition cursor-pointer">
+                        Tutup
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -417,7 +487,7 @@
 
                                 @if ($prod->is_verified)
                                     <span class="bg-emerald-600/95 backdrop-blur-xs text-white border border-emerald-400/40 text-[10px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 shadow-xs">
-                                        ✓ Terverifikasi / Dipublikasikan
+                                        ✓ Terverifikasi
                                     </span>
                                 @else
                                     <span class="bg-amber-500/95 backdrop-blur-xs text-white border border-amber-400/40 text-[10px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 shadow-xs">
@@ -440,10 +510,6 @@
                             <h3 class="text-sm font-bold text-gray-900 dark:text-white line-clamp-1 leading-snug group-hover:text-primary-700 dark:group-hover:text-primary-400 transition" title="{{ $prod->name }}">
                                 {{ $prod->name }}
                             </h3>
-
-                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed min-h-[32px]">
-                                {{ $prod->description ?? 'Belum ada keterangan produk.' }}
-                            </p>
 
                             <!-- Kotak Detail Harga & Stok -->
                             <div class="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-gray-50 dark:bg-gray-750 border border-gray-100 dark:border-gray-700/60 text-xs">
@@ -766,10 +832,6 @@
                             {{ $product->name }}
                         </h3>
 
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5 line-clamp-2 leading-relaxed">
-                            {{ $product->description }}
-                        </p>
-
                         <div class="mt-3 pt-2 border-t border-gray-100 dark:border-gray-700/60 flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300">
                             <span class="text-gray-400">👨‍🌾</span>
                             <span class="truncate font-medium">{{ $product->seller?->name ?? 'Peternak Binaan' }}</span>
@@ -791,13 +853,22 @@
                         </div>
 
                         <div class="flex items-center gap-1.5 shrink-0">
+                            <button
+                                type="button"
+                                onclick="openProductDetailModal('{{ $product->id }}')"
+                                class="inline-flex items-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-650 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-lg border border-gray-200 dark:border-gray-600 transition cursor-pointer"
+                                title="Lihat Deskripsi &amp; Detail Produk"
+                            >
+                                Detail
+                            </button>
+
                             @if(auth()->check() && auth()->user()->isAdmin())
                                 @if(!$product->is_verified)
                                 <form action="{{ route('marketplace.products.verify', $product) }}" method="POST" class="inline">
                                     @csrf
                                     @method('PATCH')
                                     <input type="hidden" name="tab" value="katalog">
-                                    <button type="submit" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition shadow-xs">
+                                    <button type="submit" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition shadow-xs cursor-pointer">
                                         Setujui
                                     </button>
                                 </form>
@@ -807,7 +878,7 @@
                                     @csrf
                                     @method('DELETE')
                                     <input type="hidden" name="tab" value="katalog">
-                                    <button type="submit" class="p-1.5 text-gray-400 hover:text-rose-600 transition" title="Hapus Produk">
+                                    <button type="submit" class="p-1.5 text-gray-400 hover:text-rose-600 transition cursor-pointer" title="Hapus Produk">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
                                     </button>
                                 </form>
@@ -815,7 +886,7 @@
                                 <button
                                     type="button"
                                     onclick="openBuyModal('{{ $product->id }}')"
-                                    class="inline-flex items-center px-3.5 py-1.5 bg-primary-700 hover:bg-primary-800 text-white text-xs font-semibold rounded-lg transition shadow-xs"
+                                    class="inline-flex items-center px-3.5 py-1.5 bg-primary-700 hover:bg-primary-800 text-white text-xs font-semibold rounded-lg transition shadow-xs cursor-pointer"
                                 >
                                     Beli Sekarang
                                 </button>
@@ -824,158 +895,266 @@
                     </div>
                 </div>
 
-                <!-- Modal Checkout Transaksi -->
-                <div id="buy-modal-{{ $product->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-xs p-4">
-                    <div class="bg-white dark:bg-gray-800 rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 text-xs">
-                        <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700 mb-4">
+                <!-- Modal Detail Deskripsi Produk -->
+                <div id="product-detail-modal-{{ $product->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-xs p-3 sm:p-4" onclick="if(event.target === this) closeProductDetailModal('{{ $product->id }}')">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-xl sm:max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden text-xs animate-in fade-in zoom-in duration-200" onclick="event.stopPropagation()">
+                        <!-- Modal Header -->
+                        <div class="flex items-center justify-between p-5 sm:p-6 pb-4 sm:pb-5 border-b border-gray-100 dark:border-gray-700 shrink-0">
                             <div>
-                                <h3 class="text-sm font-bold text-gray-900 dark:text-white">Checkout Transaksi Belanja</h3>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Pasar Peternak Milenial Jawa Timur</p>
+                                <h3 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Detail Deskripsi Produk</h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Informasi spesifikasi lengkap dan standar mutu komoditas peternakan</p>
+                            </div>
+                            <button
+                                type="button"
+                                onclick="closeProductDetailModal('{{ $product->id }}')"
+                                class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-650 text-gray-500 dark:text-gray-400 flex items-center justify-center transition cursor-pointer"
+                                title="Tutup"
+                            >
+                                <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Modal Body (Spacious with Justified Multi-Paragraph Text) -->
+                        <div class="p-6 sm:p-7 overflow-y-auto space-y-6 sm:space-y-7 flex-1">
+                            <!-- Header Kartu Produk Ringkas -->
+                            <div class="p-4 sm:p-5 bg-gray-50/90 dark:bg-gray-750/90 rounded-2xl border border-gray-200/90 dark:border-gray-700 flex items-center gap-4 sm:gap-5 shadow-2xs">
+                                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 overflow-hidden shrink-0 shadow-2xs">
+                                    @if($product->image_path)
+                                        <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="font-bold text-gray-900 dark:text-white text-sm sm:text-base leading-snug">{{ $product->name }}</h4>
+                                    <div class="flex flex-wrap items-center gap-2.5 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="inline-flex items-center gap-1">👨‍🌾 <strong class="text-gray-700 dark:text-gray-300 font-semibold">{{ $product->seller?->name ?? 'Peternak Binaan' }}</strong></span>
+                                        <span>•</span>
+                                        <span class="inline-flex items-center gap-1">📍 {{ $product->region?->name ?? 'Jawa Timur' }}</span>
+                                    </div>
+                                    <div class="mt-2.5 flex items-baseline gap-2">
+                                        <span class="text-base sm:text-lg font-bold text-primary-700 dark:text-primary-400">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                                        <span class="text-xs text-gray-400">/ {{ $product->unit }}</span>
+                                        <span class="text-xs text-gray-300 dark:text-gray-600">|</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Stok: <strong class="text-gray-700 dark:text-gray-300 font-semibold">{{ $product->stock }}</strong> {{ $product->unit }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bagian Deskripsi Produk (Rata Kanan Kiri / Justify & Jarak Lega) -->
+                            <div class="space-y-3.5 pt-1">
+                                <div class="flex items-center gap-2.5 text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                                    <div class="w-7 h-7 rounded-lg bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 flex items-center justify-center shrink-0">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                                    </div>
+                                    <span>Deskripsi &amp; Mutu Produk</span>
+                                </div>
+
+                                <div class="p-6 sm:p-7 bg-gray-50/90 dark:bg-gray-750/70 rounded-2xl border border-gray-200/90 dark:border-gray-700 shadow-2xs">
+                                    <div class="space-y-4 text-xs sm:text-[13px] text-gray-700 dark:text-gray-200 leading-relaxed sm:leading-loose text-justify">
+                                        @php
+                                            $paragraphs = preg_split('/\r\n\r\n|\n\n/', $product->description ?: 'Belum ada rincian deskripsi untuk produk ini.');
+                                        @endphp
+                                        @foreach($paragraphs as $paragraph)
+                                            @if(trim($paragraph))
+                                                <p class="text-justify indent-0">{{ trim($paragraph) }}</p>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div class="p-4 sm:p-5 border-t border-gray-100 dark:border-gray-700 bg-gray-50/75 dark:bg-gray-750/75 shrink-0 flex items-center justify-between gap-3">
+                            <button
+                                type="button"
+                                onclick="closeProductDetailModal('{{ $product->id }}')"
+                                class="px-5 py-2.5 text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-650 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-xl transition cursor-pointer"
+                            >
+                                Tutup
+                            </button>
+
+                            @if(!(auth()->check() && auth()->user()->isAdmin()))
+                                <button
+                                    type="button"
+                                    onclick="closeProductDetailModal('{{ $product->id }}'); openBuyModal('{{ $product->id }}')"
+                                    class="px-5 py-2.5 text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 rounded-xl shadow-xs transition cursor-pointer inline-flex items-center gap-1.5"
+                                >
+                                    <span>Beli Sekarang</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Checkout Transaksi -->
+                <div id="buy-modal-{{ $product->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-xs p-3 sm:p-4" onclick="if(event.target === this) closeBuyModal('{{ $product->id }}')">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden text-xs animate-in fade-in zoom-in duration-200" onclick="event.stopPropagation()">
+                        <!-- Modal Header (Fixed) -->
+                        <div class="flex items-center justify-between p-5 pb-4 border-b border-gray-100 dark:border-gray-700 shrink-0">
+                            <div>
+                                <h3 class="text-sm sm:text-base font-bold text-gray-900 dark:text-white">Checkout Transaksi Belanja</h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Pasar Peternak Milenial Jawa Timur</p>
                             </div>
                             <button
                                 type="button"
                                 onclick="closeBuyModal('{{ $product->id }}')"
-                                class="text-gray-400 hover:text-gray-600 text-sm font-bold p-1"
+                                class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-650 text-gray-500 dark:text-gray-400 flex items-center justify-center transition cursor-pointer"
                             >
-                                ✕
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                         </div>
 
-                        <!-- Product Summary -->
-                        <div class="p-3 bg-gray-50 dark:bg-gray-750 rounded-lg border border-gray-200 dark:border-gray-700 mb-4 flex items-center justify-between gap-3">
-                            <div>
-                                <h4 class="font-bold text-gray-900 dark:text-white">{{ $product->name }}</h4>
-                                <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Penjual: {{ $product->seller?->name ?? 'Peternak Binaan' }} • {{ $product->region?->name ?? 'Jatim' }}</div>
-                                <div class="font-semibold text-primary-700 dark:text-primary-400 mt-1">Rp {{ number_format($product->price, 0, ',', '.') }} / {{ $product->unit }}</div>
-                            </div>
-                        </div>
-
-                        <form action="{{ route('marketplace.products.buy', $product) }}" method="POST" class="space-y-3.5">
+                        <!-- Form with Scrollable Body and Fixed Footer -->
+                        <form action="{{ route('marketplace.products.buy', $product) }}" method="POST" class="flex flex-col flex-1 min-h-0">
                             @csrf
-                            <div>
-                                <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Jumlah Pembelian (Tersedia: {{ $product->stock }} {{ $product->unit }}) <span class="text-rose-500">*</span>
-                                </label>
-                                <div class="flex items-center gap-2">
-                                    <div class="flex items-center border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-700">
-                                        <button
-                                            type="button"
-                                            onclick="decrementQty('{{ $product->id }}', {{ $product->price }})"
-                                            class="px-2.5 py-1.5 text-gray-600 dark:text-gray-300 hover:bg-gray-200 font-bold"
-                                        >
-                                            -
-                                        </button>
-                                        <input
-                                            type="number"
-                                            id="qty-input-{{ $product->id }}"
-                                            name="quantity"
-                                            required
-                                            min="1"
-                                            max="{{ $product->stock }}"
-                                            value="1"
-                                            onchange="calculateTotal('{{ $product->id }}', {{ $product->price }})"
-                                            class="w-14 text-center border-0 bg-transparent text-xs font-bold text-gray-900 dark:text-white focus:ring-0 p-1"
-                                        >
-                                        <button
-                                            type="button"
-                                            onclick="incrementQty('{{ $product->id }}', {{ $product->stock }}, {{ $product->price }})"
-                                            class="px-2.5 py-1.5 text-gray-600 dark:text-gray-300 hover:bg-gray-200 font-bold"
-                                        >
-                                            +
-                                        </button>
+
+                            <!-- Scrollable Form Body -->
+                            <div class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1">
+                                <!-- Product Summary -->
+                                <div class="p-3.5 bg-gray-50 dark:bg-gray-750 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3">
+                                    <div>
+                                        <h4 class="font-bold text-gray-900 dark:text-white text-xs sm:text-sm">{{ $product->name }}</h4>
+                                        <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">Penjual: <span class="font-medium text-gray-700 dark:text-gray-300">{{ $product->seller?->name ?? 'Peternak Binaan' }}</span> • {{ $product->region?->name ?? 'Jatim' }}</div>
+                                        <div class="font-bold text-primary-700 dark:text-primary-400 text-xs sm:text-sm mt-1.5">Rp {{ number_format($product->price, 0, ',', '.') }} <span class="text-xs font-normal text-gray-500 dark:text-gray-400">/ {{ $product->unit }}</span></div>
                                     </div>
-                                    <span class="text-gray-500">{{ $product->unit }}</span>
                                 </div>
-                            </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <!-- Jumlah Pembelian -->
                                 <div>
-                                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Penerima <span class="text-rose-500">*</span></label>
-                                    <input
-                                        type="text"
-                                        name="buyer_name"
-                                        required
-                                        value="{{ auth()->user()?->name ?? '' }}"
-                                        placeholder="Nama lengkap Anda"
-                                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white"
-                                    >
+                                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                        Jumlah Pembelian (Tersedia: {{ $product->stock }} {{ $product->unit }}) <span class="text-rose-500">*</span>
+                                    </label>
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="flex items-center border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-700">
+                                            <button
+                                                type="button"
+                                                onclick="decrementQty('{{ $product->id }}', {{ $product->price }})"
+                                                class="px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 font-bold transition cursor-pointer"
+                                            >
+                                                -
+                                            </button>
+                                            <input
+                                                type="number"
+                                                id="qty-input-{{ $product->id }}"
+                                                name="quantity"
+                                                required
+                                                min="1"
+                                                max="{{ $product->stock }}"
+                                                value="1"
+                                                onchange="calculateTotal('{{ $product->id }}', {{ $product->price }})"
+                                                class="w-14 text-center border-0 bg-transparent text-xs font-bold text-gray-900 dark:text-white focus:ring-0 p-1"
+                                            >
+                                            <button
+                                                type="button"
+                                                onclick="incrementQty('{{ $product->id }}', {{ $product->stock }}, {{ $product->price }})"
+                                                class="px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 font-bold transition cursor-pointer"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                        <span class="text-xs text-gray-500 font-medium">{{ $product->unit }}</span>
+                                    </div>
                                 </div>
+
+                                <!-- Nama Penerima & WhatsApp -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                    <div>
+                                        <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nama Penerima <span class="text-rose-500">*</span></label>
+                                        <input
+                                            type="text"
+                                            name="buyer_name"
+                                            required
+                                            value="{{ auth()->user()?->name ?? '' }}"
+                                            placeholder="Nama lengkap Anda"
+                                            class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500"
+                                        >
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1.5">No. WhatsApp / HP <span class="text-rose-500">*</span></label>
+                                        <input
+                                            type="text"
+                                            name="buyer_phone"
+                                            required
+                                            value="{{ auth()->user()?->phone_number ?? '' }}"
+                                            placeholder="08123456789"
+                                            class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500"
+                                        >
+                                    </div>
+                                </div>
+
+                                <!-- Alamat Pengiriman -->
                                 <div>
-                                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">No. WhatsApp / HP <span class="text-rose-500">*</span></label>
-                                    <input
-                                        type="text"
-                                        name="buyer_phone"
+                                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1.5">Alamat Pengiriman di Jawa Timur <span class="text-rose-500">*</span></label>
+                                    <textarea
+                                        name="shipping_address"
                                         required
-                                        value="{{ auth()->user()?->phone_number ?? '' }}"
-                                        placeholder="08123456789"
-                                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white"
-                                    >
+                                        rows="2"
+                                        placeholder="Jalan, No. Rumah, RT/RW, Desa, Kecamatan, Kabupaten/Kota"
+                                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white leading-relaxed focus:ring-primary-500 focus:border-primary-500"
+                                    >{{ auth()->user() && auth()->user()->desa ? auth()->user()->desa . ', Kec. ' . auth()->user()->kecamatan . ', ' . auth()->user()->kabupaten : '' }}</textarea>
+                                </div>
+
+                                <!-- Metode Pembayaran -->
+                                <div>
+                                    <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1.5">Metode Pembayaran</label>
+                                    <div class="grid grid-cols-2 gap-2.5 text-xs">
+                                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer">
+                                            <input type="radio" name="payment_method" value="QRIS Instan" checked class="text-primary-700">
+                                            <span class="font-medium text-gray-800 dark:text-gray-200">QRIS Instan</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer">
+                                            <input type="radio" name="payment_method" value="Virtual Account Bank" class="text-primary-700">
+                                            <span class="font-medium text-gray-800 dark:text-gray-200">VA Bank Jatim / BCA</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer">
+                                            <input type="radio" name="payment_method" value="COD Bayar di Tempat" class="text-primary-700">
+                                            <span class="font-medium text-gray-800 dark:text-gray-200">COD (Bayar di Tempat)</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer">
+                                            <input type="radio" name="payment_method" value="Escrow Bersama Disnak" class="text-primary-700">
+                                            <span class="font-medium text-gray-800 dark:text-gray-200">Escrow Disnak</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Rincian Biaya -->
+                                <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-xl border border-gray-200 dark:border-gray-700 space-y-2">
+                                    <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                                        <span>Subtotal Produk:</span>
+                                        <span id="modal-subtotal-{{ $product->id }}" class="font-semibold text-gray-900 dark:text-white">
+                                            Rp {{ number_format($product->price, 0, ',', '.') }}
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                                        <span>Ongkos Kirim (Jatim):</span>
+                                        <span class="font-semibold text-emerald-600">Bebas Ongkir (Subsidi Jatim)</span>
+                                    </div>
+                                    <div class="pt-2 border-t border-gray-200 dark:border-gray-700 flex justify-between items-baseline font-bold">
+                                        <span class="text-gray-900 dark:text-white">Total Tagihan:</span>
+                                        <span id="modal-total-{{ $product->id }}" class="text-sm font-bold text-primary-700 dark:text-primary-400">
+                                            Rp {{ number_format($product->price, 0, ',', '.') }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div>
-                                <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Alamat Pengiriman di Jawa Timur <span class="text-rose-500">*</span></label>
-                                <textarea
-                                    name="shipping_address"
-                                    required
-                                    rows="2"
-                                    placeholder="Jalan, No. Rumah, RT/RW, Desa, Kecamatan, Kabupaten/Kota"
-                                    class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs text-gray-900 dark:text-white"
-                                >{{ auth()->user() && auth()->user()->desa ? auth()->user()->desa . ', Kec. ' . auth()->user()->kecamatan . ', ' . auth()->user()->kabupaten : '' }}</textarea>
-                            </div>
-
-                            <div>
-                                <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Metode Pembayaran</label>
-                                <div class="grid grid-cols-2 gap-2 text-xs">
-                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 cursor-pointer">
-                                        <input type="radio" name="payment_method" value="QRIS Instan" checked class="text-primary-700">
-                                        <span>QRIS Instan</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 cursor-pointer">
-                                        <input type="radio" name="payment_method" value="Virtual Account Bank" class="text-primary-700">
-                                        <span>VA Bank Jatim / BCA</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 cursor-pointer">
-                                        <input type="radio" name="payment_method" value="COD Bayar di Tempat" class="text-primary-700">
-                                        <span>COD (Bayar di Tempat)</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 cursor-pointer">
-                                        <input type="radio" name="payment_method" value="Escrow Bersama Disnak" class="text-primary-700">
-                                        <span>Escrow Disnak</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="p-3 bg-gray-50 dark:bg-gray-750 rounded-lg border border-gray-200 dark:border-gray-700 space-y-1">
-                                <div class="flex justify-between text-gray-600 dark:text-gray-400">
-                                    <span>Subtotal Produk:</span>
-                                    <span id="modal-subtotal-{{ $product->id }}" class="font-semibold text-gray-900 dark:text-white">
-                                        Rp {{ number_format($product->price, 0, ',', '.') }}
-                                    </span>
-                                </div>
-                                <div class="flex justify-between text-gray-600 dark:text-gray-400">
-                                    <span>Ongkos Kirim (Jatim):</span>
-                                    <span class="font-semibold text-emerald-600">Bebas Ongkir (Subsidi Jatim)</span>
-                                </div>
-                                <div class="pt-1.5 border-t border-gray-200 dark:border-gray-700 flex justify-between items-baseline font-bold">
-                                    <span class="text-gray-900 dark:text-white">Total Tagihan:</span>
-                                    <span id="modal-total-{{ $product->id }}" class="text-sm font-bold text-primary-700 dark:text-primary-400">
-                                        Rp {{ number_format($product->price, 0, ',', '.') }}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-end gap-2 pt-2">
+                            <!-- Modal Footer (Fixed with comfortable spacing) -->
+                            <div class="p-4 sm:p-5 border-t border-gray-100 dark:border-gray-700 bg-gray-50/75 dark:bg-gray-750/75 shrink-0 flex items-center justify-end gap-3">
                                 <button
                                     type="button"
                                     onclick="closeBuyModal('{{ $product->id }}')"
-                                    class="px-3.5 py-2 text-xs font-medium text-gray-600 hover:text-gray-900 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-lg transition"
+                                    class="px-4 py-2.5 text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-650 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-xl transition cursor-pointer"
                                 >
                                     Batal
                                 </button>
                                 <button
                                     type="submit"
-                                    class="px-4 py-2 text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 rounded-lg shadow-xs transition"
+                                    class="px-5 py-2.5 text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 rounded-xl shadow-xs transition cursor-pointer"
                                 >
                                     Konfirmasi &amp; Beli
                                 </button>
@@ -1052,14 +1231,36 @@ function previewImage(input, previewImgId, placeholderId) {
     }
 }
 
+function openProductDetailModal(productId) {
+    const modal = document.getElementById(`product-detail-modal-${productId}`);
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeProductDetailModal(productId) {
+    const modal = document.getElementById(`product-detail-modal-${productId}`);
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+}
+
 function openBuyModal(productId) {
     const modal = document.getElementById(`buy-modal-${productId}`);
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function closeBuyModal(productId) {
     const modal = document.getElementById(`buy-modal-${productId}`);
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
 }
 
 function incrementQty(productId, maxStock, unitPrice) {
@@ -1096,6 +1297,28 @@ function calculateTotal(productId, unitPrice) {
 
     if (subElem) subElem.textContent = formatted;
     if (totElem) totElem.textContent = formatted;
+}
+
+function openProductImageModal(src, title, seller) {
+    const modal = document.getElementById('modal-product-image-preview');
+    const img = document.getElementById('modal-product-image-src');
+    const titleEl = document.getElementById('modal-product-image-title');
+    const sellerEl = document.getElementById('modal-product-image-seller');
+    if (img) img.src = src;
+    if (titleEl) titleEl.innerText = title;
+    if (sellerEl) sellerEl.innerText = 'Peternak Pengunggah: ' + seller;
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeProductImageModal() {
+    const modal = document.getElementById('modal-product-image-preview');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
 }
 </script>
 @endpush

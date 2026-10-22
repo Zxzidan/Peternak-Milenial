@@ -172,7 +172,6 @@
                         </div>
 
                         <h4 class="font-bold text-slate-900 text-sm group-hover:text-orange-600 transition line-clamp-1" title="{{ $fp->name }}">{{ $fp->name }}</h4>
-                        <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">{{ $fp->description }}</p>
 
                         @if($fp->seller)
                         <div class="mt-2.5 flex items-center gap-1.5 text-[11px] text-slate-500">

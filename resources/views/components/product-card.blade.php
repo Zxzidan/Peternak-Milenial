@@ -34,12 +34,6 @@
         <h4 class="text-xs font-bold text-gray-900 dark:text-white line-clamp-1">
             {{ $title }}
         </h4>
-
-        @if($desc)
-            <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">
-                {{ $desc }}
-            </p>
-        @endif
     </div>
 
     <!-- Bottom: Price and Order Action -->

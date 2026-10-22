@@ -133,21 +133,27 @@
     <!-- ============================================== -->
     <div class="space-y-6">
         <!-- 3 KPI Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xs">
-                <span class="text-xs text-primary-600 dark:text-primary-400 font-medium">Komoditas Terpantau</span>
-                <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $commodities->count() }}</div>
-                <p class="text-[11px] text-gray-400 mt-0.5">Daging, telur, susu, pakan</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
+            <div class="bg-white dark:bg-gray-800 p-5.5 sm:p-6 rounded-2xl border border-gray-200/90 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider block">Komoditas Terpantau</span>
+                    <div class="text-2.5xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-2.5 sm:mt-3 tracking-tight">{{ $commodities->count() }}</div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">Daging, telur, susu, pakan</p>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xs">
-                <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Kondisi Pasar</span>
-                <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $commodityPrices->where('status', 'stabil')->count() }} Stabil</div>
-                <p class="text-[11px] text-gray-400 mt-0.5">{{ $commodityPrices->where('status', 'naik')->count() }} Naik &bull; {{ $commodityPrices->where('status', 'turun')->count() }} Turun</p>
+            <div class="bg-white dark:bg-gray-800 p-5.5 sm:p-6 rounded-2xl border border-gray-200/90 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">Kondisi Pasar</span>
+                    <div class="text-2.5xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-2.5 sm:mt-3 tracking-tight">{{ $commodityPrices->where('status', 'stabil')->count() }} Stabil</div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">{{ $commodityPrices->where('status', 'naik')->count() }} Naik &bull; {{ $commodityPrices->where('status', 'turun')->count() }} Turun</p>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xs">
-                <span class="text-xs text-amber-600 dark:text-amber-400 font-medium">Wilayah Sentra</span>
-                <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $regions->count() }}</div>
-                <p class="text-[11px] text-gray-400 mt-0.5">Pasar induk &amp; KUD se-Jatim</p>
+            <div class="bg-white dark:bg-gray-800 p-5.5 sm:p-6 rounded-2xl border border-gray-200/90 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">Wilayah Sentra</span>
+                    <div class="text-2.5xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-2.5 sm:mt-3 tracking-tight">{{ $regions->count() }}</div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">Pasar induk &amp; KUD se-Jatim</p>
             </div>
         </div>
 
@@ -188,53 +194,53 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-xs text-left text-gray-600 dark:text-gray-300">
+                <table class="w-full text-xs text-center text-gray-600 dark:text-gray-300">
                     <thead class="text-[11px] text-gray-700 uppercase bg-gray-50 dark:bg-gray-750 dark:text-gray-300">
                         <tr>
-                            <th class="px-4 py-3">Komoditas</th>
-                            <th class="px-4 py-3">Wilayah</th>
-                            <th class="px-4 py-3">Satuan</th>
-                            <th class="px-4 py-3">Harga Peternak</th>
-                            <th class="px-4 py-3">Harga Konsumen</th>
-                            <th class="px-4 py-3">Tren Perubahan</th>
-                            <th class="px-4 py-3">Tanggal</th>
+                            <th class="px-4 py-3 text-center">Komoditas</th>
+                            <th class="px-4 py-3 text-center">Wilayah</th>
+                            <th class="px-4 py-3 text-center">Satuan</th>
+                            <th class="px-4 py-3 text-center">Harga Peternak</th>
+                            <th class="px-4 py-3 text-center">Harga Konsumen</th>
+                            <th class="px-4 py-3 text-center">Tren Perubahan</th>
+                            <th class="px-4 py-3 text-center">Tanggal</th>
                             @if(auth()->check() && auth()->user()->isAdmin())
-                            <th class="px-4 py-3 text-right">Aksi</th>
+                            <th class="px-4 py-3 text-center">Aksi</th>
                             @endif
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                         @forelse ($commodityPrices as $item)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-750/50 transition">
-                            <td class="px-4 py-3 font-bold text-gray-900 dark:text-white">{{ $item->commodity?->name ?? 'Komoditas' }}</td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $item->region?->name ?? 'Jawa Timur' }}</td>
-                            <td class="px-4 py-3 text-gray-400">{{ $item->commodity?->unit ?? 'Satuan' }}</td>
-                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white tabular-nums">
+                            <td class="px-4 py-3 text-center font-bold text-gray-900 dark:text-white">{{ $item->commodity?->name ?? 'Komoditas' }}</td>
+                            <td class="px-4 py-3 text-center text-gray-600 dark:text-gray-300">{{ $item->region?->name ?? 'Jawa Timur' }}</td>
+                            <td class="px-4 py-3 text-center text-gray-400">{{ $item->commodity?->unit ?? 'Satuan' }}</td>
+                            <td class="px-4 py-3 text-center font-semibold text-gray-900 dark:text-white tabular-nums">
                                 Rp {{ number_format($item->farmer_price, 0, ',', '.') }}
                             </td>
-                            <td class="px-4 py-3 tabular-nums">
+                            <td class="px-4 py-3 text-center tabular-nums">
                                 Rp {{ number_format($item->consumer_price, 0, ',', '.') }}
                             </td>
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3 text-center">
                                 @if ($item->status === 'naik')
-                                    <span class="text-rose-600 dark:text-rose-400 font-semibold inline-flex items-center gap-0.5">
+                                    <span class="text-rose-600 dark:text-rose-400 font-semibold inline-flex items-center justify-center gap-0.5">
                                         &uarr; +{{ $item->price_change_percentage }}%
                                     </span>
                                 @elseif ($item->status === 'turun')
-                                    <span class="text-emerald-600 dark:text-emerald-400 font-semibold inline-flex items-center gap-0.5">
+                                    <span class="text-emerald-600 dark:text-emerald-400 font-semibold inline-flex items-center justify-center gap-0.5">
                                         &darr; {{ $item->price_change_percentage }}%
                                     </span>
                                 @else
                                     <span class="text-gray-400 font-medium">Stabil (0.0%)</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-gray-400">{{ \Carbon\Carbon::parse($item->recorded_date)->format('d M Y') }}</td>
+                            <td class="px-4 py-3 text-center text-gray-400">{{ \Carbon\Carbon::parse($item->recorded_date)->format('d M Y') }}</td>
                             @if(auth()->check() && auth()->user()->isAdmin())
-                            <td class="px-4 py-3 text-right">
+                            <td class="px-4 py-3 text-center">
                                 <form action="{{ route('harga-komoditas.destroy', $item) }}" method="POST" class="inline" onsubmit="return confirm('Hapus data harga {{ $item->commodity?->name }} ini?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-rose-600 hover:text-rose-700 text-xs font-semibold">Hapus</button>
+                                    <button type="submit" class="text-rose-600 hover:text-rose-700 text-xs font-semibold cursor-pointer">Hapus</button>
                                 </form>
                             </td>
                             @endif
@@ -258,21 +264,27 @@
     <!-- ============================================== -->
     <div class="space-y-6">
         <!-- 3 KPI Cards Sentra -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xs">
-                <span class="text-xs text-primary-600 dark:text-primary-400 font-medium">Sentra Produksi</span>
-                <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $productionCenters->count() }}</div>
-                <p class="text-[11px] text-gray-400 mt-0.5">Wilayah sentra aktif di Jawa Timur</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
+            <div class="bg-white dark:bg-gray-800 p-5.5 sm:p-6 rounded-2xl border border-gray-200/90 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider block">Sentra Produksi</span>
+                    <div class="text-2.5xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-2.5 sm:mt-3 tracking-tight">{{ $productionCenters->count() }}</div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">Wilayah sentra aktif di Jawa Timur</p>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xs">
-                <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Total Populasi Ternak</span>
-                <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ number_format($productionCenters->sum('livestock_population'), 0, ',', '.') }}</div>
-                <p class="text-[11px] text-gray-400 mt-0.5">Ekor ternak terdata</p>
+            <div class="bg-white dark:bg-gray-800 p-5.5 sm:p-6 rounded-2xl border border-gray-200/90 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">Total Populasi Ternak</span>
+                    <div class="text-2.5xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-2.5 sm:mt-3 tracking-tight">{{ number_format($productionCenters->sum('livestock_population'), 0, ',', '.') }}</div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">Ekor ternak terdata</p>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xs">
-                <span class="text-xs text-amber-600 dark:text-amber-400 font-medium">Estimasi Produksi Harian</span>
-                <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ number_format($productionCenters->sum('daily_production'), 0, ',', '.') }}</div>
-                <p class="text-[11px] text-gray-400 mt-0.5">Ton / hari</p>
+            <div class="bg-white dark:bg-gray-800 p-5.5 sm:p-6 rounded-2xl border border-gray-200/90 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">Estimasi Produksi Harian</span>
+                    <div class="text-2.5xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-2.5 sm:mt-3 tracking-tight">{{ number_format($productionCenters->sum('daily_production'), 0, ',', '.') }}</div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">Ton / hari</p>
             </div>
         </div>
 
@@ -332,21 +344,27 @@
     <!-- ============================================== -->
     <div class="space-y-6">
         <!-- 3 KPI Cards Unggulan -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xs">
-                <span class="text-xs text-primary-600 dark:text-primary-400 font-medium">Komoditas Prioritas</span>
-                <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $commodities->count() }} Komoditas</div>
-                <p class="text-[11px] text-gray-400 mt-0.5">Sektor utama ketahanan pangan Jatim</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
+            <div class="bg-white dark:bg-gray-800 p-5.5 sm:p-6 rounded-2xl border border-gray-200/90 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider block">Komoditas Prioritas</span>
+                    <div class="text-2.5xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-2.5 sm:mt-3 tracking-tight">{{ $commodities->count() }} Komoditas</div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">Sektor utama ketahanan pangan Jatim</p>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xs">
-                <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Status Ketersediaan</span>
-                <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1">Aman</div>
-                <p class="text-[11px] text-gray-400 mt-0.5">Stok surplus untuk konsumsi regional</p>
+            <div class="bg-white dark:bg-gray-800 p-5.5 sm:p-6 rounded-2xl border border-gray-200/90 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">Status Ketersediaan</span>
+                    <div class="text-2.5xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-2.5 sm:mt-3 tracking-tight">Aman</div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">Stok surplus untuk konsumsi regional</p>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xs">
-                <span class="text-xs text-amber-600 dark:text-amber-400 font-medium">Cakupan Sentra</span>
-                <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1">38 Wilayah</div>
-                <p class="text-[11px] text-gray-400 mt-0.5">Kabupaten &amp; Kota di Jawa Timur</p>
+            <div class="bg-white dark:bg-gray-800 p-5.5 sm:p-6 rounded-2xl border border-gray-200/90 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">Cakupan Sentra</span>
+                    <div class="text-2.5xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-2.5 sm:mt-3 tracking-tight">38 Wilayah</div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">Kabupaten &amp; Kota di Jawa Timur</p>
             </div>
         </div>
 

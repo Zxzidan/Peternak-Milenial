@@ -33,7 +33,6 @@
             price="Rp 18.000"
             badge="Organik"
             region="Pasuruan"
-            desc="Susu sapi perah segar tanpa pengawet dengan sertifikat uji TPC."
         />
 
         <x-product-card
@@ -41,7 +40,6 @@
             price="Rp 95.000"
             badge="Siap Saji"
             region="Batu"
-            desc="Pakan bernutrisi tinggi untuk menunjang produksi susu harian."
         />
 
         <x-product-card
@@ -49,7 +47,6 @@
             price="Rp 128.000"
             badge="RPH Halal"
             region="Lamongan"
-            desc="Daging segar higienis bersertifikat NKV dengan rantai dingin."
         />
 
         <x-product-card
@@ -57,7 +54,6 @@
             price="Rp 2.850.000"
             badge="Bersertifikat"
             region="Lumajang"
-            desc="Plasma nutfah murni Senduro dengan bobot 38 kg siap pejantan."
         />
     </div>
 </div>

@@ -256,10 +256,10 @@ test('admin can create a new quiz for a learning material', function () {
 test('sidebar has dedicated sub-navigation for Pembelajaran & Bimtek and page renders dedicated section without in-page tab bar', function () {
     $admin = User::where('role', 'admin')->first();
 
-    // 1. Visit Video & Pembelajaran
+    // 1. Visit Video Pembelajaran
     $responsePembelajaran = $this->actingAs($admin)->get(route('pelatihan', ['tab' => 'pembelajaran']));
     $responsePembelajaran->assertOk();
-    $responsePembelajaran->assertSee('Video &amp; Pembelajaran', false);
+    $responsePembelajaran->assertSee('Video Pembelajaran', false);
     $responsePembelajaran->assertSee('Video &amp; Modul Pembelajaran Mandiri', false);
     $responsePembelajaran->assertSee('Unggah Video &amp; Dokumen', false);
 
