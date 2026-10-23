@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AnimalHealthReport;
 use App\Models\AnimalHealthReportResponse;
 use App\Models\AnimalHealthReportVisit;
+use App\Models\Consultation;
 use App\Models\Region;
 use App\Services\HealthReportDistributionService;
 use Illuminate\Contracts\View\View;
@@ -164,10 +165,72 @@ class AnimalHealthReportController extends Controller
         $report->load([
             'user',
             'assignedVeterinarian',
+            'consultation',
             'responses.user',
             'visits.veterinarian',
             'statusHistories.changer',
         ]);
+
+        // Auto-heal / sync if consultation response exists but health report responses are empty
+        if ($report->responses->isEmpty()) {
+            $consultation = $report->consultation
+                ?? Consultation::where('user_id', $report->user_id)
+                    ->whereIn('status', ['selesai', 'answered', 'closed'])
+                    ->latest()
+                    ->first();
+
+            if ($consultation && (! empty($consultation->doctor_notes) || ! empty($consultation->prescription) || ! empty($consultation->hypothesis))) {
+                if (! $report->consultation_id) {
+                    $report->updateQuietly(['consultation_id' => $consultation->id]);
+                }
+                if (! $consultation->animal_health_report_id) {
+                    $consultation->updateQuietly(['animal_health_report_id' => $report->id]);
+                }
+
+                $doctorUserId = $consultation->veterinarian_id;
+
+                AnimalHealthReportResponse::firstOrCreate(
+                    [
+                        'animal_health_report_id' => $report->id,
+                        'user_id' => $doctorUserId,
+                    ],
+                    [
+                        'message' => $consultation->doctor_notes ?: 'Pemeriksaan telemedisin dan konsultasi kesehatan ternak telah diselesaikan oleh dokter hewan dinas.',
+                        'hypothesis' => $consultation->hypothesis ?: $report->symptoms,
+                        'recommendations' => $consultation->recommendations ?: $consultation->prescription,
+                        'follow_up_instructions' => $consultation->follow_up_instructions,
+                        'urgency_level' => $consultation->urgency_level ?: 'sedang',
+                        'requires_visit' => (bool) $consultation->requires_visit,
+                        'notes' => $consultation->doctor_additional_notes,
+                    ]
+                );
+
+                if ($consultation->requires_visit && $report->visits->isEmpty()) {
+                    AnimalHealthReportVisit::firstOrCreate(
+                        ['animal_health_report_id' => $report->id],
+                        [
+                            'veterinarian_id' => $report->assigned_veterinarian_id ?? 2,
+                            'created_by_id' => $doctorUserId,
+                            'visit_reason' => 'Kasus ini memerlukan Kunjungan Langsung ke Lokasi Peternakan oleh tim veteriner lapangan.',
+                            'proposed_date' => now()->addDay()->setTime(9, 0),
+                            'status' => 'menunggu_konfirmasi',
+                        ]
+                    );
+                }
+
+                $report->update([
+                    'status' => 'selesai',
+                    'resolved_at' => $report->resolved_at ?: now(),
+                    'last_responded_at' => $report->last_responded_at ?: now(),
+                ]);
+
+                $report->load([
+                    'consultation',
+                    'responses.user',
+                    'visits.veterinarian',
+                ]);
+            }
+        }
 
         return view('peternak.kesehatan.show', [
             'report' => $report,

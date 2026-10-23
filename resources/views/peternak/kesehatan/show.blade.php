@@ -32,6 +32,12 @@
             <span class="px-2.5 py-1 rounded-md text-xs font-bold border {{ $report->urgency_badge_classes }}">
                 Urgensi: {{ $report->urgency_label }}
             </span>
+            @if($report->status === 'selesai')
+            <a href="{{ route('konsultasi.rekam-medis.download', ['type' => 'report', 'id' => $report->id]) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 transition shadow-2xs">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                <span>Download PDF</span>
+            </a>
+            @endif
         </div>
     </div>
 
@@ -239,6 +245,16 @@
                 </h3>
 
                 <div class="space-y-2.5">
+                    @if($report->consultation)
+                    <div class="p-2.5 bg-primary-50/70 dark:bg-primary-950/40 rounded-xl border border-primary-200/70 dark:border-primary-800/60">
+                        <span class="text-[10px] font-bold text-primary-700 dark:text-primary-300 uppercase tracking-wider block">Sesi Konsultasi Terjadwal</span>
+                        <div class="flex items-center justify-between mt-1">
+                            <span class="font-mono font-bold text-xs text-primary-900 dark:text-primary-200">{{ $report->consultation->booking_code }}</span>
+                            <span class="text-[11px] text-primary-700 dark:text-primary-300">{{ $report->consultation->consultation_time }}</span>
+                        </div>
+                    </div>
+                    @endif
+
                     <div>
                         <span class="text-[11px] text-gray-400 block">Jenis Hewan Ternak</span>
                         <span class="font-bold text-gray-900 dark:text-white text-sm block mt-0.5">{{ $report->livestock_type }} ({{ $report->affected_count }} Ekor)</span>

@@ -508,8 +508,8 @@
                                 $cleanPhone = '62' . $cleanPhone;
                             }
                             $peternakName = $record->user?->name ?? 'Peternak';
-                            $livestockInfo = $record->livestock ? ($record->livestock->name . ' - ' . $record->livestock->type) : 'Hewan Ternak';
-                            $waMessage = urlencode("Halo Bapak/Ibu {$peternakName}, berikut adalah rekam medis dan instruksi penanganan lanjutan untuk {$livestockInfo} dari dokter hewan dinas.");
+                            $livestockInfo = $record->livestock ? (' untuk ' . $record->livestock->name . ' - ' . $record->livestock->type) : '';
+                            $waMessage = urlencode("Halo Bapak/Ibu {$peternakName}, berikut adalah laporan kesehatan dan instruksi penanganan lanjutan{$livestockInfo} dari dokter hewan dinas.");
                         @endphp
                         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group relative">
                             <div class="space-y-4">
@@ -527,10 +527,6 @@
                                             </span>
                                             <span class="font-sans font-semibold text-xs text-gray-700 dark:text-gray-300">
                                                 ({{ $record->livestock->name ?? ($record->livestock->breed ?? 'Ternak') }})
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2.5 py-1 rounded-lg">
-                                                Umum / Tidak Ditautkan
                                             </span>
                                         @endif
                                     </div>
@@ -609,10 +605,44 @@
                                                 Resep Obat & Terapi Pengobatan:
                                             </span>
                                             <p class="text-emerald-950 dark:text-emerald-200 font-semibold leading-relaxed whitespace-pre-line">
-                                                {{ $record->prescription ?: 'Tidak ada resep obat khusus. Rekomendasi perawatan terlampir pada dokumen rekam medis.' }}
+                                                {{ $record->prescription ?: ($record->recommendations ?: 'Tidak ada resep obat khusus. Rekomendasi perawatan terlampir pada dokumen laporan kesehatan.') }}
                                             </p>
                                         </div>
                                     </div>
+
+                                    @if($record->hypothesis || $record->follow_up_instructions || $record->requires_visit)
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-xs">
+                                            @if($record->hypothesis)
+                                                <div class="p-3 bg-amber-50/70 dark:bg-amber-950/30 rounded-xl border border-amber-200/80 dark:border-amber-900/40">
+                                                    <div class="flex items-center justify-between gap-1 mb-1">
+                                                        <span class="font-bold text-amber-900 dark:text-amber-300">Dugaan Masalah / Kondisi:</span>
+                                                        @if($record->urgency_level)
+                                                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full {{ $record->urgency_badge_classes }}">
+                                                                Urgensi: {{ $record->urgency_label }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                    <p class="text-amber-950 dark:text-amber-200 leading-relaxed">{{ $record->hypothesis }}</p>
+                                                </div>
+                                            @endif
+
+                                            @if($record->follow_up_instructions)
+                                                <div class="p-3 bg-indigo-50/70 dark:bg-indigo-950/30 rounded-xl border border-indigo-200/80 dark:border-indigo-900/40">
+                                                    <span class="font-bold text-indigo-900 dark:text-indigo-300 block mb-1">Instruksi Tindak Lanjut:</span>
+                                                    <p class="text-indigo-950 dark:text-indigo-200 leading-relaxed">{{ $record->follow_up_instructions }}</p>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        @if($record->requires_visit)
+                                            <div class="p-2.5 bg-rose-50 dark:bg-rose-950/40 rounded-xl border border-rose-200 dark:border-rose-900/60 flex items-center gap-2 text-xs text-rose-800 dark:text-rose-300 font-semibold">
+                                                <svg class="w-4 h-4 shrink-0 text-rose-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                                                </svg>
+                                                <span>Kasus ini memerlukan Kunjungan Langsung ke Lokasi Peternakan oleh tim veteriner lapangan.</span>
+                                            </div>
+                                        @endif
+                                    @endif
                                 </div>
                             </div>
 
@@ -623,6 +653,18 @@
                                 </div>
 
                                 <div class="flex flex-wrap items-center gap-2">
+                                    <!-- Buka Lembar Klinis Lengkap -->
+                                    <a
+                                        href="{{ route('dokter-hewan.konsultasi.show', $record) }}"
+                                        class="inline-flex items-center justify-center gap-1.5 h-8 px-3 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 dark:bg-primary-950/60 dark:text-primary-300 dark:hover:bg-primary-900/60 rounded-xl border border-primary-200 dark:border-primary-800 transition cursor-pointer shadow-2xs"
+                                        title="Buka Lembar Pemeriksaan Klinis & Tanggapan Resmi Lengkap"
+                                    >
+                                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                        </svg>
+                                        <span>Detail Klinis</span>
+                                    </a>
+
                                     <!-- Diagnosis Terkunci (Permanen) -->
                                     <span
                                         class="inline-flex items-center justify-center gap-1.5 h-8 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-750 rounded-xl border border-gray-200 dark:border-gray-700 select-none cursor-default"
@@ -648,12 +690,12 @@
                                         </a>
                                     @endif
 
-                                    <!-- Download Rekam Medis PDF -->
+                                    <!-- Download Laporan Kesehatan PDF -->
                                     <a
                                         href="{{ route('konsultasi.rekam-medis.download', ['type' => 'consultation', 'id' => $record->id]) }}"
                                         target="_blank"
                                         class="inline-flex items-center justify-center gap-1.5 h-8 px-3 text-xs font-semibold text-white bg-primary-700 hover:bg-primary-800 rounded-xl transition shadow-xs hover:shadow-sm cursor-pointer"
-                                        title="Unduh berkas rekam medis resmi format PDF"
+                                        title="Unduh berkas laporan kesehatan resmi format PDF"
                                     >
                                         <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
@@ -730,7 +772,6 @@
                                 <tr>
                                     <th class="px-3 py-2.5 text-center w-8">No</th>
                                     <th class="px-3 py-2.5 text-left">Kode & Peternak</th>
-                                    <th class="px-3 py-2.5 text-left">Hewan Ternak</th>
                                     <th class="px-3 py-2.5 text-left">Keluhan</th>
                                     <th class="px-3 py-2.5 text-center">Metode</th>
                                     <th class="px-3 py-2.5 text-center">Status</th>
@@ -751,8 +792,7 @@
                                         }
                                         $vetName = $currentVet->user?->name ?? $currentVet->name ?? auth()->user()->name ?? 'Dokter Hewan Puskeswan';
                                         $peternakName = $booking->user?->name ?? 'Peternak';
-                                        $livestockInfo = $booking->livestock ? ($booking->livestock->name . ' - ' . $booking->livestock->type) : 'Hewan Ternak';
-                                        $waMessage = urlencode("Halo Bapak/Ibu {$peternakName}, saya {$vetName} dari Dinas Peternakan Jawa Timur. Saya menghubungi Anda untuk sesi konsultasi online terkait {$livestockInfo} dengan keluhan: " . ($booking->subject ?? 'Pemeriksaan Kesehatan') . ". Apakah Anda saat ini siap berkonsultasi?");
+                                        $waMessage = urlencode("Halo Bapak/Ibu {$peternakName}, saya {$vetName} dari Dinas Peternakan Jawa Timur. Saya menghubungi Anda untuk sesi konsultasi online terkait keluhan: " . ($booking->subject ?? 'Pemeriksaan Kesehatan') . ". Apakah Anda saat ini siap berkonsultasi?");
                                     @endphp
                                     <tr class="hover:bg-gray-50/70 dark:hover:bg-gray-750 transition-colors">
                                         <td class="px-3 py-2.5 text-center font-medium text-gray-500 dark:text-gray-400">
@@ -766,13 +806,8 @@
                                             @if($userPhone)
                                                 <div class="text-[11px] text-gray-400 font-mono">📞 {{ $userPhone }}</div>
                                             @endif
-                                        </td>
-                                        <td class="px-3 py-2.5 whitespace-nowrap">
                                             @if($booking->livestock)
-                                                <div class="font-semibold text-gray-900 dark:text-white">{{ $booking->livestock->name }}</div>
-                                                <div class="text-[10px] text-gray-400 font-mono">{{ $booking->livestock->tag_number }} ({{ $booking->livestock->type }})</div>
-                                            @else
-                                                <span class="text-gray-400 italic">Umum / Tidak Ditautkan</span>
+                                                <div class="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">🐾 {{ $booking->livestock->name }} ({{ $booking->livestock->type }})</div>
                                             @endif
                                         </td>
                                         <td class="px-3 py-2.5 max-w-[160px]">
@@ -835,15 +870,30 @@
                                                     </form>
                                                 @endif
 
-                                                <button
-                                                    type="button"
-                                                    onclick="closeSlotPatientsModal({{ $schedule->id }}); openCompleteConsultationModal({{ $booking->id }}, '{{ $booking->booking_code }}', '{{ addslashes($booking->user?->name ?? 'Peternak') }}', '{{ addslashes($booking->subject) }}', '{{ addslashes($booking->doctor_notes ?? '') }}', '{{ addslashes($booking->prescription ?? '') }}')"
-                                                    class="inline-flex items-center justify-center gap-1 h-7 px-2.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900/60 rounded-lg border border-emerald-200 dark:border-emerald-800 transition-all cursor-pointer shadow-2xs whitespace-nowrap"
-                                                    title="Selesaikan sesi konsultasi"
+                                                <a
+                                                    href="{{ route('dokter-hewan.konsultasi.show', $booking) }}"
+                                                    class="inline-flex items-center justify-center gap-1 h-7 px-2.5 text-[11px] font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 dark:bg-primary-950/60 dark:text-primary-300 dark:hover:bg-primary-900/60 rounded-lg border border-primary-200 dark:border-primary-800 transition-all cursor-pointer shadow-2xs whitespace-nowrap"
+                                                    title="Buka Formulir Tanggapan & Rekomendasi Profesional Dokter"
                                                 >
-                                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                                                    <span>Selesai</span>
-                                                </button>
+                                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                                    </svg>
+                                                    <span>Tanggapi</span>
+                                                </a>
+
+                                                <form action="{{ route('dokter-hewan.jadwal.booking.status', $booking) }}" method="POST" class="inline-flex m-0 p-0" onsubmit="return confirm('Tandai sesi konsultasi {{ addslashes($booking->booking_code ?? 'ini') }} atas nama {{ addslashes($booking->user?->name ?? 'Peternak') }} sudah selesai?')">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="status" value="selesai">
+                                                    <button
+                                                        type="submit"
+                                                        class="inline-flex items-center justify-center gap-1 h-7 px-2.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900/60 rounded-lg border border-emerald-200 dark:border-emerald-800 transition-all cursor-pointer shadow-2xs whitespace-nowrap"
+                                                        title="Selesaikan sesi konsultasi"
+                                                    >
+                                                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                                        <span>Selesai</span>
+                                                    </button>
+                                                </form>
 
                                                 <form action="{{ route('dokter-hewan.jadwal.booking.status', $booking) }}" method="POST" class="inline-flex m-0 p-0" onsubmit="return confirm('Batalkan jadwal konsultasi peternak ini?')">
                                                     @csrf
@@ -1150,76 +1200,6 @@
     </div>
 </div>
 
-<!-- MODAL 4: Selesaikan Konsultasi & Catat Diagnosis / Resep -->
-<div id="modal-selesaikan-konsultasi" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden backdrop-blur-xs">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full p-6 shadow-xl border border-gray-200 dark:border-gray-700 relative">
-        <button type="button" onclick="document.getElementById('modal-selesaikan-konsultasi').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">
-            &times;
-        </button>
-
-        <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Rekam Medis & Diagnosis Konsultasi</span>
-        </h3>
-        <p id="selesai-patient-info" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Pasien Peternak
-        </p>
-
-        <form id="form-selesaikan-konsultasi" action="" method="POST" class="mt-4 space-y-4">
-            @csrf
-            @method('PATCH')
-            <input type="hidden" name="status" value="selesai">
-
-            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-900/60 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2">
-                <svg class="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span><strong>Perhatian:</strong> Setelah sesi konsultasi diselesaikan, catatan diagnosis dan resep obat akan terkunci secara permanen dan tidak dapat diedit kembali demi keabsahan dokumen rekam medis.</span>
-            </div>
-
-            <div>
-                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Catatan Pemeriksaan & Diagnosis Dokter</label>
-                <textarea
-                    id="selesai-doctor-notes"
-                    name="doctor_notes"
-                    rows="3"
-                    placeholder="Tuliskan hasil evaluasi klinis hewan ternak..."
-                    class="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white"
-                ></textarea>
-            </div>
-
-            <div>
-                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Resep Obat / Instruksi Tindakan</label>
-                <textarea
-                    id="selesai-prescription"
-                    name="prescription"
-                    rows="2"
-                    placeholder="Contoh: Beri Aftovaxpur 2ml IM + antipiretik bila demam..."
-                    class="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white"
-                ></textarea>
-            </div>
-
-            <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
-                <button
-                    type="button"
-                    onclick="document.getElementById('modal-selesaikan-konsultasi').classList.add('hidden')"
-                    class="px-3.5 py-2 text-xs font-medium text-gray-600 hover:text-gray-800"
-                >
-                    Tutup
-                </button>
-                <button
-                    type="submit"
-                    class="px-4 py-2 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-sm transition-colors"
-                >
-                    Simpan Hasil Konsultasi
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <script>
 function switchScheduleTab(tab) {
     const paneSlot = document.getElementById('tab-pane-slot');
@@ -1299,16 +1279,6 @@ function openEditSlotModal(scheduleId, date, startTime, endTime, quota, notes = 
 
 function openEditQuotaModal(scheduleId, date, timeLabel, quota, serviceType = '', notes = '', startTime = '', endTime = '') {
     openEditSlotModal(scheduleId, date, startTime, endTime, quota, notes);
-}
-
-function openCompleteConsultationModal(consultationId, bookingCode, peternakName, subject, notes, prescription) {
-    const modal = document.getElementById('modal-selesaikan-konsultasi');
-    const form = document.getElementById('form-selesaikan-konsultasi');
-    form.action = '/dokter-hewan/jadwal/bookings/' + consultationId + '/status';
-    document.getElementById('selesai-patient-info').innerText = (bookingCode || '#CONS-' + consultationId) + ' — ' + peternakName + ' (' + subject + ')';
-    document.getElementById('selesai-doctor-notes').value = notes || '';
-    document.getElementById('selesai-prescription').value = prescription || '';
-    modal.classList.remove('hidden');
 }
 </script>
 @endsection

@@ -415,13 +415,13 @@
                             <button type="button"
                                 class="sidebar-link flex items-center w-full px-2.5 py-2 rounded-lg text-[13px] font-medium border transition-all group {{ $isKesehatanActive ? 'bg-gray-100 border-gray-200/80 font-semibold text-gray-900 dark:bg-gray-700/60 dark:text-white dark:border-gray-600' : 'border-transparent text-gray-700 hover:bg-gray-100 hover:text-primary-700 dark:text-gray-300 dark:hover:bg-gray-700/60 dark:hover:text-white' }}"
                                 aria-controls="dropdown-kesehatan" data-collapse-toggle="dropdown-kesehatan"
-                                title="Layanan Kesehatan & Konsultasi Dokter Hewan">
+                                title="Konsultasi Dokter">
                                 <svg class="sidebar-icon shrink-0 w-4.5 h-4.5 text-gray-500 dark:text-gray-400 group-hover:text-primary-700 dark:group-hover:text-white"
                                     fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                                 </svg>
                                 <span class="sidebar-label flex-1 ms-2.5 text-left whitespace-nowrap">
-                                    Kesehatan Hewan
+                                    Konsultasi Dokter
                                 </span>
                                 <svg class="sidebar-dropdown-icon w-3.5 h-3.5 text-gray-400 transition-transform duration-200"
                                     fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -432,21 +432,15 @@
                             <ul id="dropdown-kesehatan"
                                 class="{{ $isKesehatanActive ? '' : 'hidden' }} py-1 space-y-0.5">
                                 <li>
-                                    <a href="{{ route('kesehatan-hewan.index') }}"
-                                        class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request()->routeIs('kesehatan-hewan.*') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
-                                        Laporan Kesehatan
-                                    </a>
-                                </li>
-                                <li>
                                     <a href="{{ url('/konsultasi?tab=dokter') }}"
                                         class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request()->is('konsultasi*') && (in_array(request('tab'), ['dokter', 'jadwal']) || (!request()->has('tab') && !request()->is('kesehatan-hewan*'))) ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
                                         Dokter Hewan
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ url('/konsultasi?tab=rekam_medis') }}"
-                                        class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request()->is('konsultasi*') && request('tab') === 'rekam_medis' ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
-                                        Rekam Medis
+                                    <a href="{{ route('kesehatan-hewan.index') }}"
+                                        class="flex items-center w-full py-1.5 pl-8 pr-2.5 text-xs rounded-lg transition-colors {{ request()->routeIs('kesehatan-hewan.*') ? 'text-primary-700 font-semibold bg-gray-50 dark:bg-gray-700/50' : 'text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/60' }}">
+                                        Laporan Kesehatan
                                     </a>
                                 </li>
                             </ul>

@@ -55,7 +55,7 @@
                 </button>
             </form>
             <a href="#form-tanggapan" class="w-full sm:w-auto inline-flex items-center justify-center gap-1 px-3.5 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-xl shadow-2xs transition">
-                <span>Tulis Solusi Medis ↓</span>
+                <span>Tulis Solusi Medis</span>
             </a>
         </div>
     </div>

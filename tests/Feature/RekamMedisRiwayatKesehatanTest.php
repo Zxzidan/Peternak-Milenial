@@ -378,3 +378,83 @@ test('rekam medis tab can filter medical records and consultations by calendar d
     $responseFiltered->assertSee('LKH-20261015-TARGET');
     $responseFiltered->assertDontSee('LKH-20261020-OTHER');
 });
+
+test('dokter completing consultation synchronizes response to peternak animal health report', function () {
+    $doctorUser = User::factory()->dokterHewan()->create(['name' => 'drh. Satria Medika']);
+    $veterinarian = Veterinarian::factory()->create([
+        'user_id' => $doctorUser->id,
+        'name' => 'drh. Satria Medika',
+        'specialization' => 'Spesialis Ruminansia',
+        'puskeswan' => 'Puskeswan Purwosari',
+        'is_active' => true,
+    ]);
+
+    $peternak = User::factory()->peternak()->create(['name' => 'Budi Santoso']);
+
+    // Create open health report for peternak
+    $report = AnimalHealthReport::create([
+        'report_number' => 'LKH-20261023-SYNC-TEST',
+        'user_id' => $peternak->id,
+        'assigned_veterinarian_id' => $veterinarian->id,
+        'livestock_type' => 'Sapi Perah',
+        'affected_count' => 1,
+        'symptoms' => 'Nafsu makan berkurang dan demam',
+        'urgency' => 'sedang',
+        'status' => 'menunggu_respons',
+    ]);
+
+    // Create consultation for this peternak
+    $consultation = Consultation::create([
+        'user_id' => $peternak->id,
+        'veterinarian_id' => $doctorUser->id,
+        'booking_code' => 'JDW-20261023-TEST1',
+        'subject' => 'Konsultasi Sapi Demam',
+        'complaint_details' => 'Sapi demam tinggi sejak kemarin',
+        'status' => 'dikonfirmasi',
+        'consultation_type' => 'online',
+    ]);
+
+    // Doctor submits professional response and marks selesai
+    $response = $this->actingAs($doctorUser)->post(route('dokter-hewan.konsultasi.response.store', $consultation), [
+        'status' => 'selesai',
+        'doctor_notes' => 'Pemeriksaan telemedisin menunjukkan indikasi infeksi saluran cerna.',
+        'hypothesis' => 'Suspek Enteritis bakterial akut',
+        'recommendations' => 'Berikan antibiotik spektrum luas dan cairan infus elektrolit.',
+        'follow_up_instructions' => 'Pantau suhu tubuh ternak tiap 4 jam.',
+        'urgency_level' => 'sedang',
+        'requires_visit' => '1',
+    ]);
+
+    $response->assertRedirect(route('dokter-hewan.konsultasi.show', $consultation));
+
+    // Verify consultation is updated
+    $consultation->refresh();
+    expect($consultation->status)->toBe('selesai');
+    expect($consultation->doctor_notes)->toBe('Pemeriksaan telemedisin menunjukkan indikasi infeksi saluran cerna.');
+
+    // Verify peternak's AnimalHealthReport is synchronized
+    $report->refresh();
+    expect($report->status)->toBe('selesai');
+    expect($report->consultation_id)->toBe($consultation->id);
+    expect($report->responses)->toHaveCount(1);
+
+    $reportResponse = $report->responses->first();
+    expect($reportResponse->message)->toBe('Pemeriksaan telemedisin menunjukkan indikasi infeksi saluran cerna.');
+    expect($reportResponse->hypothesis)->toBe('Suspek Enteritis bakterial akut');
+    expect($reportResponse->recommendations)->toBe('Berikan antibiotik spektrum luas dan cairan infus elektrolit.');
+    expect($reportResponse->follow_up_instructions)->toBe('Pantau suhu tubuh ternak tiap 4 jam.');
+    expect($reportResponse->requires_visit)->toBeTrue();
+
+    // Verify visit proposition was generated
+    expect($report->visits)->toHaveCount(1);
+    expect($report->visits->first()->status)->toBe('menunggu_konfirmasi');
+
+    // Peternak views the health report detail page and sees all results
+    $peternakView = $this->actingAs($peternak)->get(route('kesehatan-hewan.show', $report));
+    $peternakView->assertStatus(200);
+    $peternakView->assertSee('Pemeriksaan telemedisin menunjukkan indikasi infeksi saluran cerna.');
+    expect($peternakView->getContent())->toContain('Suspek Enteritis bakterial akut');
+    expect($peternakView->getContent())->toContain('Berikan antibiotik spektrum luas dan cairan infus elektrolit.');
+    expect($peternakView->getContent())->toContain('Pantau suhu tubuh ternak tiap 4 jam.');
+    expect($peternakView->getContent())->toContain('Usulan Kunjungan Lapangan Dokter Hewan');
+});

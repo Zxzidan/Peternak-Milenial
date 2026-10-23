@@ -230,6 +230,43 @@ class ConsultationController extends Controller
             'status' => 'menunggu_konfirmasi',
         ]);
 
+        // Auto-link with existing active health report or create one so peternak sees it under Laporan Kesehatan
+        $activeReport = AnimalHealthReport::where('user_id', $currentUser->id)
+            ->whereIn('status', ['menunggu_respons', 'menunggu_penugasan', 'sedang_ditangani'])
+            ->latest()
+            ->first();
+
+        if ($activeReport && ! $activeReport->consultation_id) {
+            $activeReport->update(['consultation_id' => $consultation->id]);
+            $consultation->update(['animal_health_report_id' => $activeReport->id]);
+        } else {
+            $reportNumber = AnimalHealthReport::generateReportNumber();
+            $report = AnimalHealthReport::create([
+                'report_number' => $reportNumber,
+                'user_id' => $currentUser->id,
+                'assigned_veterinarian_id' => $schedule->veterinarian_id,
+                'consultation_id' => $consultation->id,
+                'livestock_type' => $consultation->livestock?->type ?? ($consultation->livestock?->breed ?? 'Hewan Ternak'),
+                'affected_count' => 1,
+                'symptoms' => $validated['complaint_details'] ?: ($validated['subject'] ?: 'Konsultasi Layanan Kesehatan Ternak'),
+                'symptoms_started_at' => $schedule->date instanceof CarbonInterface ? $schedule->date->toDateString() : substr((string) $schedule->date, 0, 10),
+                'urgency' => 'sedang',
+                'farm_name' => $currentUser->peternakProfile?->farm_name ?? ('Peternakan '.$currentUser->name),
+                'farm_address' => $currentUser->alamat ?? ($currentUser->peternakProfile?->address ?? null),
+                'kabupaten' => $currentUser->kabupaten ?? 'Jawa Timur',
+                'status' => 'menunggu_respons',
+            ]);
+
+            $report->statusHistories()->create([
+                'changed_by_id' => $currentUser->id,
+                'previous_status' => null,
+                'new_status' => 'menunggu_respons',
+                'notes' => "Laporan dibuat otomatis dari pemesanan jadwal konsultasi dokter ({$bookingCode}).",
+            ]);
+
+            $consultation->update(['animal_health_report_id' => $report->id]);
+        }
+
         return redirect()->route('konsultasi')
             ->with('success', "Jadwal konsultasi berhasil diatur bersama {$schedule->veterinarian?->name} pada {$schedule->date->translatedFormat('d F Y')} ({$schedule->time_slot_label}). Kuota layanan Anda telah dikunci (No. Reservasi: {$bookingCode})!");
     }

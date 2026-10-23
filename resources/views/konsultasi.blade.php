@@ -465,19 +465,44 @@
                                             </div>
 
                                             <!-- Baris 4: Hasil Pemeriksaan & Resep Dokter -->
-                                            @if ($booking->doctor_notes || $booking->prescription)
+                                            @if ($booking->doctor_notes || $booking->prescription || $booking->hypothesis || $booking->follow_up_instructions)
                                                 <div
                                                     class="p-3 sm:p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/50 text-xs text-emerald-950 dark:text-emerald-200 space-y-2">
                                                     @if ($booking->doctor_notes)
                                                         <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2.5">
-                                                            <span class="font-bold text-emerald-900 dark:text-emerald-300 sm:w-56 shrink-0">Hasil Pemeriksaan / Diagnosis:</span>
+                                                            <span class="font-bold text-emerald-900 dark:text-emerald-300 sm:w-56 shrink-0">Hasil Analisis / Evaluasi Dokter:</span>
                                                             <span class="text-emerald-950 dark:text-emerald-100 flex-1 leading-relaxed">{{ $booking->doctor_notes }}</span>
                                                         </div>
                                                     @endif
-                                                    @if ($booking->prescription)
-                                                        <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2.5 {{ $booking->doctor_notes ? 'pt-2 border-t border-emerald-200/50 dark:border-emerald-800/40' : '' }}">
-                                                            <span class="font-bold text-emerald-900 dark:text-emerald-300 sm:w-56 shrink-0">Resep / Anjuran Pengobatan:</span>
-                                                            <span class="text-emerald-950 dark:text-emerald-100 flex-1 leading-relaxed">{{ $booking->prescription }}</span>
+                                                    @if ($booking->hypothesis)
+                                                        <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2.5 pt-2 border-t border-emerald-200/50 dark:border-emerald-800/40">
+                                                            <span class="font-bold text-emerald-900 dark:text-emerald-300 sm:w-56 shrink-0">Dugaan Masalah / Urgensi:</span>
+                                                            <div class="flex-1 flex items-center gap-2 flex-wrap">
+                                                                <span class="text-emerald-950 dark:text-emerald-100">{{ $booking->hypothesis }}</span>
+                                                                @if ($booking->urgency_level)
+                                                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full {{ $booking->urgency_badge_classes }}">
+                                                                        {{ $booking->urgency_label }}
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                    @if ($booking->prescription || $booking->recommendations)
+                                                        <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2.5 pt-2 border-t border-emerald-200/50 dark:border-emerald-800/40">
+                                                            <span class="font-bold text-emerald-900 dark:text-emerald-300 sm:w-56 shrink-0">Rekomendasi / Resep:</span>
+                                                            <span class="text-emerald-950 dark:text-emerald-100 flex-1 leading-relaxed">{{ $booking->prescription ?: $booking->recommendations }}</span>
+                                                        </div>
+                                                    @endif
+                                                    @if ($booking->follow_up_instructions)
+                                                        <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2.5 pt-2 border-t border-emerald-200/50 dark:border-emerald-800/40">
+                                                            <span class="font-bold text-emerald-900 dark:text-emerald-300 sm:w-56 shrink-0">Instruksi Tindak Lanjut:</span>
+                                                            <span class="text-emerald-950 dark:text-emerald-100 flex-1 leading-relaxed">{{ $booking->follow_up_instructions }}</span>
+                                                        </div>
+                                                    @endif
+                                                    @if ($booking->requires_visit)
+                                                        <div class="p-2 rounded-lg bg-rose-100/80 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 text-xs font-semibold flex items-center gap-1.5 mt-2">
+                                                            <svg class="w-4 h-4 shrink-0 text-rose-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+                                                            <span>Dokter menandai kasus ini memerlukan Kunjungan Langsung ke Kandang Peternakan.</span>
                                                         </div>
                                                     @endif
                                                 </div>
@@ -1145,28 +1170,60 @@
                                         </div>
 
                                         <!-- Diagnosa Medis & Resep Dokter: Jarak Rapi & Tidak Saling Bertumpuk -->
-                                        @if ($booking->doctor_notes || $booking->prescription)
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-                                                @if ($booking->doctor_notes)
-                                                    <div
-                                                        class="p-3.5 bg-blue-50/70 dark:bg-blue-950/40 rounded-xl border border-blue-100 dark:border-blue-900/50 text-xs">
-                                                        <span
-                                                            class="font-bold text-primary-700 dark:text-primary-300 block mb-1">Diagnosa
-                                                            Medis:</span>
-                                                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-                                                            {{ $booking->doctor_notes }}</p>
+                                        @if ($booking->doctor_notes || $booking->prescription || $booking->hypothesis || $booking->follow_up_instructions)
+                                            <div class="space-y-3 pt-1">
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                    @if ($booking->doctor_notes)
+                                                        <div
+                                                            class="p-3.5 bg-blue-50/70 dark:bg-blue-950/40 rounded-xl border border-blue-100 dark:border-blue-900/50 text-xs">
+                                                            <span
+                                                                class="font-bold text-primary-700 dark:text-primary-300 block mb-1">Hasil Analisis &amp; Diagnosa Medis:</span>
+                                                            <p class="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+                                                                {{ $booking->doctor_notes }}</p>
+                                                        </div>
+                                                    @endif
+                                                    @if ($booking->prescription || $booking->recommendations)
+                                                        <div
+                                                            class="p-3.5 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-900/50 text-xs">
+                                                            <span
+                                                                class="font-bold text-emerald-800 dark:text-emerald-300 block mb-1">Rekomendasi Penanganan / Resep:</span>
+                                                            <p
+                                                                class="text-emerald-950 dark:text-emerald-200 font-semibold leading-relaxed whitespace-pre-line">
+                                                                {{ $booking->prescription ?: $booking->recommendations }}</p>
+                                                        </div>
+                                                    @endif
+                                                </div>
+
+                                                @if ($booking->hypothesis || $booking->follow_up_instructions || $booking->requires_visit)
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                                                        @if ($booking->hypothesis)
+                                                            <div class="p-3 bg-amber-50/70 dark:bg-amber-950/30 rounded-xl border border-amber-200/80 dark:border-amber-900/40">
+                                                                <div class="flex items-center justify-between gap-1 mb-1">
+                                                                    <span class="font-bold text-amber-900 dark:text-amber-300">Dugaan Masalah / Kondisi:</span>
+                                                                    @if ($booking->urgency_level)
+                                                                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-full {{ $booking->urgency_badge_classes }}">
+                                                                            Urgensi: {{ $booking->urgency_label }}
+                                                                        </span>
+                                                                    @endif
+                                                                </div>
+                                                                <p class="text-amber-950 dark:text-amber-200 leading-relaxed">{{ $booking->hypothesis }}</p>
+                                                            </div>
+                                                        @endif
+
+                                                        @if ($booking->follow_up_instructions)
+                                                            <div class="p-3 bg-indigo-50/70 dark:bg-indigo-950/30 rounded-xl border border-indigo-200/80 dark:border-indigo-900/40">
+                                                                <span class="font-bold text-indigo-900 dark:text-indigo-300 block mb-1">Instruksi Tindak Lanjut:</span>
+                                                                <p class="text-indigo-950 dark:text-indigo-200 leading-relaxed">{{ $booking->follow_up_instructions }}</p>
+                                                            </div>
+                                                        @endif
                                                     </div>
-                                                @endif
-                                                @if ($booking->prescription)
-                                                    <div
-                                                        class="p-3.5 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-900/50 text-xs">
-                                                        <span
-                                                            class="font-bold text-emerald-800 dark:text-emerald-300 block mb-1">Resep
-                                                            &amp; Terapi:</span>
-                                                        <p
-                                                            class="text-emerald-950 dark:text-emerald-200 font-semibold leading-relaxed">
-                                                            {{ $booking->prescription }}</p>
-                                                    </div>
+
+                                                    @if ($booking->requires_visit)
+                                                        <div class="p-2.5 bg-rose-50 dark:bg-rose-950/40 rounded-xl border border-rose-200 dark:border-rose-900/60 flex items-center gap-2 text-xs text-rose-800 dark:text-rose-300 font-semibold">
+                                                            <svg class="w-4 h-4 shrink-0 text-rose-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+                                                            <span>Pemberitahuan: Kasus ini memerlukan Kunjungan Langsung ke Lokasi Peternakan oleh petugas dinas.</span>
+                                                        </div>
+                                                    @endif
                                                 @endif
                                             </div>
                                         @elseif($doctorMsg)

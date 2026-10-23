@@ -17,6 +17,7 @@ class AnimalHealthReport extends Model
         'report_number',
         'user_id',
         'assigned_veterinarian_id',
+        'consultation_id',
         'livestock_type',
         'affected_count',
         'symptoms',
@@ -63,6 +64,11 @@ class AnimalHealthReport extends Model
     public function assignedVeterinarian(): BelongsTo
     {
         return $this->belongsTo(Veterinarian::class, 'assigned_veterinarian_id');
+    }
+
+    public function consultation(): BelongsTo
+    {
+        return $this->belongsTo(Consultation::class, 'consultation_id');
     }
 
     public function responses(): HasMany

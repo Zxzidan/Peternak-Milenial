@@ -864,3 +864,64 @@ test('dokter_hewan schedule page renders navbar tabs and switches between slot a
     $responseRm->assertSee('id="tab-pane-slot" class="hidden"', false);
     $responseRm->assertSee('id="tab-pane-rekam-medis" class=""', false);
 });
+
+test('dokter_hewan can view clinical consultation examination page with exact professional recommendation form', function () {
+    $vetUser = User::where('role', 'dokter_hewan')->first();
+    $consultation = Consultation::first();
+
+    $response = $this->actingAs($vetUser)->get(route('dokter-hewan.konsultasi.show', $consultation));
+    $response->assertOk();
+    $response->assertSee('Pemeriksaan Klinis Laporan Kesehatan Ternak');
+    $response->assertSee('Informasi Klinis & Keluhan Hewan');
+    $response->assertSee('Formulir Tanggapan & Rekomendasi Profesional');
+    $response->assertSee('Pesan & Hasil Analisis Awal Dokter');
+    $response->assertSee('Dugaan Masalah / Kondisi Awal');
+    $response->assertSee('Tingkat Urgensi Tindak Lanjut');
+    $response->assertSee('Rekomendasi Penanganan Awal');
+    $response->assertSee('Instruksi Tindak Lanjut bagi Peternak');
+    $response->assertSee('Kasus ini memerlukan Kunjungan Langsung ke Lokasi Peternakan');
+    $response->assertSee('Pembaruan Status Laporan');
+    $response->assertSee('Riwayat Transisi Status (Audit Trail)');
+});
+
+test('dokter_hewan can submit professional recommendation response for consultation', function () {
+    $vetUser = User::where('role', 'dokter_hewan')->first();
+    $consultation = Consultation::first();
+
+    $payload = [
+        'doctor_notes' => 'Hewan menunjukkan gejala awal mastitis dengan pembengkakan ambing kuadran kiri.',
+        'hypothesis' => 'Suspek Mastitis Subklinis',
+        'urgency_level' => 'sedang',
+        'recommendations' => 'Kompres air hangat dan oleskan salep antiseptik. Berikan antibiotik topikal intramamari.',
+        'follow_up_instructions' => 'Pantau suhu rektal pagi dan sore, isolasi sapi dari kelompok laktasi aktif.',
+        'requires_visit' => '1',
+        'status' => 'selesai',
+        'doctor_additional_notes' => 'Jadwalkan visit petugas puskeswan besok pagi.',
+    ];
+
+    $response = $this->actingAs($vetUser)->post(
+        route('dokter-hewan.konsultasi.response.store', $consultation),
+        $payload
+    );
+
+    $response->assertRedirect();
+    $response->assertSessionHas('success');
+
+    $consultation->refresh();
+    expect($consultation->status)->toBe('selesai');
+    expect($consultation->doctor_notes)->toBe($payload['doctor_notes']);
+    expect($consultation->hypothesis)->toBe($payload['hypothesis']);
+    expect($consultation->urgency_level)->toBe($payload['urgency_level']);
+    expect($consultation->recommendations)->toBe($payload['recommendations']);
+    expect($consultation->follow_up_instructions)->toBe($payload['follow_up_instructions']);
+    expect($consultation->requires_visit)->toBeTrue();
+    expect($consultation->doctor_additional_notes)->toBe($payload['doctor_additional_notes']);
+});
+
+test('peternak cannot access clinical consultation examination view', function () {
+    $peternakUser = User::where('role', 'peternak')->first();
+    $consultation = Consultation::first();
+
+    $response = $this->actingAs($peternakUser)->get(route('dokter-hewan.konsultasi.show', $consultation));
+    $response->assertForbidden();
+});

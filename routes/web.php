@@ -152,6 +152,11 @@ Route::middleware(['role:dokter_hewan'])->prefix('dokter-hewan')->name('dokter-h
     Route::delete('/jadwal/{schedule}', [VeterinarianScheduleController::class, 'destroySlot'])->name('jadwal.destroy');
     Route::patch('/jadwal/bookings/{consultation}/status', [VeterinarianScheduleController::class, 'updateBookingStatus'])->name('jadwal.booking.status');
     Route::delete('/jadwal/bookings/{consultation}', [VeterinarianScheduleController::class, 'destroyBooking'])->name('jadwal.booking.destroy');
+
+    // 8.2.2 Pemeriksaan Klinis & Formulir Tanggapan Konsultasi Peternak
+    Route::get('/konsultasi/{consultation}', [VeterinarianScheduleController::class, 'showConsultation'])->name('konsultasi.show');
+    Route::post('/konsultasi/{consultation}/response', [VeterinarianScheduleController::class, 'storeConsultationResponse'])->name('konsultasi.response.store');
+    Route::patch('/konsultasi/{consultation}/quick-status', [VeterinarianScheduleController::class, 'updateQuickStatus'])->name('konsultasi.status.update');
 });
 
 // 8.3 Pelaporan Kesehatan Hewan oleh Peternak

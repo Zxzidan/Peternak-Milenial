@@ -20,6 +20,7 @@ use App\Models\Veterinarian;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
@@ -637,6 +638,11 @@ test('admin consultation page renders veterinarian cards and management modals',
     $peternakResponse->assertSee('https://wa.me/', false);
     $peternakResponse->assertSee('id="sesi-konsultasi"', false);
     $peternakResponse->assertSee('id="dropdown-kesehatan"', false);
+    $peternakResponse->assertSee('Konsultasi Dokter', false);
+    $dropdownContent = Str::between($peternakResponse->getContent(), 'id="dropdown-kesehatan"', '</ul>');
+    expect($dropdownContent)->toContain('Dokter Hewan')
+        ->and($dropdownContent)->toContain('Laporan Kesehatan')
+        ->and($dropdownContent)->not->toContain('Rekam Medis');
     $peternakResponse->assertDontSee('+ Tambah Dokter Hewan');
 });
 
