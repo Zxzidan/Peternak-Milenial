@@ -208,17 +208,17 @@
                 @endphp
 
                 <!-- Register Form (Step-by-Step Wizard) -->
-                <form id="register-form" action="{{ route('register.submit') }}" method="POST" enctype="multipart/form-data" class="space-y-4 sm:space-y-5">
+                <form id="register-form" action="{{ route('register.submit') }}" method="POST" enctype="multipart/form-data" class="space-y-5 sm:space-y-6">
                     @csrf
                     <input type="hidden" name="role" id="role_input" value="{{ old('role', request('role', 'peternak')) }}">
                     <input type="hidden" name="terms" value="1">
 
                     <!-- Multi-Step Wizard Progress Bar -->
-                    <div id="wizard-progress-card" class="p-3.5 sm:p-4 bg-slate-50/90 border border-slate-200/90 rounded-2xl shadow-2xs mb-5">
+                    <div id="wizard-progress-card" class="p-4 sm:p-5 bg-slate-50/90 border border-slate-200/90 rounded-2xl shadow-2xs mb-6 sm:mb-8">
                         <!-- Step Counter & Title -->
-                        <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center justify-between mb-3.5 sm:mb-4">
                             <div class="flex items-center gap-2.5">
-                                <span id="wizard-step-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-600 text-white shadow-2xs">
+                                <span id="wizard-step-badge" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-600 text-white shadow-2xs">
                                     Langkah 1 dari 4
                                 </span>
                                 <span id="wizard-current-title" class="text-xs sm:text-sm font-bold text-slate-800">
@@ -231,67 +231,16 @@
                         </div>
 
                         <!-- Progress Bar Track -->
-                        <div class="w-full bg-slate-200/90 rounded-full h-2 mb-2.5 overflow-hidden">
-                            <div id="wizard-progress-bar" class="bg-gradient-to-r from-blue-600 to-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 25%"></div>
-                        </div>
-
-                        <!-- Step Tabs -->
-                        <div id="wizard-steps-nav" class="grid grid-cols-4 gap-2 pt-2.5 border-t border-slate-200/70">
-                            <!-- Step 0 Tab -->
-                            <button type="button" onclick="handleStepNavClick(0)" id="step-nav-0"
-                                class="step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer text-blue-800 bg-blue-50 ring-1 ring-blue-200">
-                                <div id="step-num-0" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition bg-blue-600 text-white shadow-2xs">
-                                    1
-                                </div>
-                                <div class="min-w-0 hidden sm:block">
-                                    <p id="step-nav-title-0" class="text-xs font-bold text-slate-800 truncate">Identitas</p>
-                                    <p id="step-nav-sub-0" class="text-[10px] text-slate-400 truncate mt-0.5">Data diri &amp; kontak</p>
-                                </div>
-                            </button>
-
-                            <!-- Step 1 Tab -->
-                            <button type="button" onclick="handleStepNavClick(1)" id="step-nav-1"
-                                class="step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer text-slate-400 hover:bg-slate-50">
-                                <div id="step-num-1" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition bg-slate-100 text-slate-500 border border-slate-200">
-                                    2
-                                </div>
-                                <div class="min-w-0 hidden sm:block">
-                                    <p id="step-nav-title-1" class="text-xs font-bold text-slate-700 truncate">Domisili</p>
-                                    <p id="step-nav-sub-1" class="text-[10px] text-slate-400 truncate mt-0.5">Wilayah Jatim</p>
-                                </div>
-                            </button>
-
-                            <!-- Step 2 Tab -->
-                            <button type="button" onclick="handleStepNavClick(2)" id="step-nav-2"
-                                class="step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer text-slate-400 hover:bg-slate-50">
-                                <div id="step-num-2" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition bg-slate-100 text-slate-500 border border-slate-200">
-                                    3
-                                </div>
-                                <div class="min-w-0 hidden sm:block">
-                                    <p id="step-nav-title-2" class="text-xs font-bold text-slate-700 truncate">Peternakan</p>
-                                    <p id="step-nav-sub-2" class="text-[10px] text-slate-400 truncate mt-0.5">Profil usaha ternak</p>
-                                </div>
-                            </button>
-
-                            <!-- Step 3 Tab -->
-                            <button type="button" onclick="handleStepNavClick(3)" id="step-nav-3"
-                                class="step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer text-slate-400 hover:bg-slate-50">
-                                <div id="step-num-3" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition bg-slate-100 text-slate-500 border border-slate-200">
-                                    4
-                                </div>
-                                <div class="min-w-0 hidden sm:block">
-                                    <p id="step-nav-title-3" class="text-xs font-bold text-slate-700 truncate">Keamanan</p>
-                                    <p id="step-nav-sub-3" class="text-[10px] text-slate-400 truncate mt-0.5">Kata sandi &amp; KTP</p>
-                                </div>
-                            </button>
+                        <div class="w-full bg-slate-200/90 rounded-full h-2.5 overflow-hidden">
+                            <div id="wizard-progress-bar" class="bg-gradient-to-r from-blue-600 to-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 25%"></div>
                         </div>
                     </div>
 
                     <!-- STEP PANE 1: Identitas Diri & Kontak -->
-                    <div id="step-pane-1" class="step-pane space-y-4">
+                    <div id="step-pane-1" class="step-pane space-y-4 sm:space-y-5">
                         <!-- SECTION 1: Identitas Diri -->
                         <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xs">
-                            <div class="flex items-center gap-3 pb-3 border-b border-slate-200/80">
+                            <div class="flex items-center gap-3 pb-3.5 sm:pb-4 border-b border-slate-200/80">
                                 <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -303,7 +252,7 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-1">
                                 <!-- Nama Lengkap -->
                                 <div>
                                     <label for="name" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
@@ -403,10 +352,10 @@
                     </div>
 
                     <!-- STEP PANE 2: Alamat & Wilayah Domisili -->
-                    <div id="step-pane-2" class="step-pane hidden space-y-4">
+                    <div id="step-pane-2" class="step-pane hidden space-y-4 sm:space-y-5">
                         <!-- SECTION 2: Alamat & Wilayah Domisili -->
                         <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xs">
-                            <div class="flex items-center gap-3 pb-3 border-b border-slate-200/70">
+                            <div class="flex items-center gap-3 pb-3.5 sm:pb-4 border-b border-slate-200/80">
                                 <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -419,7 +368,7 @@
                                 </div>
                             </div>
 
-                            <div class="space-y-4">
+                            <div class="space-y-4 pt-1">
                                 <!-- Alamat Lengkap -->
                                 <div id="field-alamat">
                                     <label for="alamat" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
@@ -578,10 +527,10 @@
                     </div>
 
                     <!-- STEP PANE 3: Profil Usaha Peternakan -->
-                    <div id="step-pane-3" class="step-pane hidden space-y-4">
+                    <div id="step-pane-3" class="step-pane hidden space-y-4 sm:space-y-5">
                         <!-- SECTION 3: Profil Usaha Peternakan -->
                         <div id="section-livestock" class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xs">
-                            <div class="flex items-center gap-3 pb-3 border-b border-slate-200/70">
+                            <div class="flex items-center gap-3 pb-3.5 sm:pb-4 border-b border-slate-200/80">
                                 <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 11l1 6l3 1l2-3h4l2 3l3-1l1-6" />
@@ -598,7 +547,7 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-1">
                                 <!-- Jenis Ternak -->
                                 <div>
                                     <label for="livestock_type" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
@@ -685,10 +634,10 @@
                     </div>
 
                     <!-- STEP PANE 4: Keamanan Akun & Berkas KTP -->
-                    <div id="step-pane-4" class="step-pane hidden space-y-4">
+                    <div id="step-pane-4" class="step-pane hidden space-y-4 sm:space-y-5">
                         <!-- SECTION 4: Keamanan & Berkas Verifikasi -->
                         <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xs">
-                            <div class="flex items-center gap-3 pb-3 border-b border-slate-200/70">
+                            <div class="flex items-center gap-3 pb-3.5 sm:pb-4 border-b border-slate-200/80">
                                 <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
@@ -700,7 +649,7 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-1">
                                 <!-- Password Baru -->
                                 <div>
                                     <label for="password" class="block mb-2 text-xs sm:text-sm font-semibold text-slate-700">
@@ -1312,56 +1261,6 @@
             if (currentTitle) currentTitle.textContent = currentStep.title;
             if (percentText) percentText.textContent = `${progressPercent}% Selesai`;
             if (progressBar) progressBar.style.width = `${progressPercent}%`;
-
-            const navContainer = document.getElementById('wizard-steps-nav');
-            if (navContainer) {
-                if (currentRole === 'peternak') {
-                    navContainer.className = 'grid grid-cols-4 gap-2 pt-2.5 border-t border-slate-200/70';
-                } else {
-                    navContainer.className = 'grid grid-cols-3 gap-2 pt-2.5 border-t border-slate-200/70';
-                }
-            }
-
-            for (let i = 0; i < 4; i++) {
-                const navBtn = document.getElementById('step-nav-' + i);
-                const stepNum = document.getElementById('step-num-' + i);
-                const navTitle = document.getElementById('step-nav-title-' + i);
-                const navSub = document.getElementById('step-nav-sub-' + i);
-
-                if (i < totalSteps) {
-                    if (navBtn) navBtn.classList.remove('hidden');
-                    const stepData = steps[i];
-                    if (navTitle) navTitle.textContent = stepData.navTitle;
-                    if (navSub) navSub.textContent = stepData.navSub;
-
-                    if (i < currentStepIndex) {
-                        // Completed step
-                        if (stepNum) {
-                            stepNum.className = 'w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition bg-emerald-600 text-white shadow-2xs';
-                            stepNum.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
-                        }
-                        if (navBtn) navBtn.className = 'step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer text-emerald-700 bg-emerald-50/50 hover:bg-emerald-50';
-                    } else if (i === currentStepIndex) {
-                        // Current active step
-                        const activeColor = currentRole === 'umum' ? 'bg-emerald-600' : 'bg-blue-600';
-                        const activeBg = currentRole === 'umum' ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200' : 'bg-blue-50 text-blue-800 ring-1 ring-blue-200';
-                        if (stepNum) {
-                            stepNum.className = `w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition ${activeColor} text-white shadow-2xs`;
-                            stepNum.textContent = (i + 1);
-                        }
-                        if (navBtn) navBtn.className = `step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer ${activeBg}`;
-                    } else {
-                        // Upcoming step
-                        if (stepNum) {
-                            stepNum.className = 'w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition bg-slate-100 text-slate-500 border border-slate-200';
-                            stepNum.textContent = (i + 1);
-                        }
-                        if (navBtn) navBtn.className = 'step-nav-btn flex items-center gap-2 p-1.5 sm:p-2 rounded-xl text-left transition cursor-pointer text-slate-400 hover:bg-slate-50';
-                    }
-                } else {
-                    if (navBtn) navBtn.classList.add('hidden');
-                }
-            }
 
             // Update Next button labels inside panes
             const btnNext1 = document.getElementById('btn-next-step1-label');

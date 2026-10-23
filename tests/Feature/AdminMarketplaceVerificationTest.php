@@ -106,3 +106,31 @@ test('admin cannot upload products to sell in marketplace', function () {
 
     $response->assertStatus(403);
 });
+
+test('admin can see product detail button and modal in marketplace verification table', function () {
+    $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+    $peternak = User::where('role', 'peternak')->first() ?? User::factory()->create(['role' => 'peternak']);
+    $category = ProductCategory::first() ?? ProductCategory::create(['name' => 'Susu', 'slug' => 'susu']);
+    $region = Region::first() ?? Region::create(['name' => 'Kabupaten Malang', 'province' => 'Jawa Timur']);
+
+    $product = Product::create([
+        'user_id' => $peternak->id,
+        'product_category_id' => $category->id,
+        'region_id' => $region->id,
+        'name' => 'Produk Detail Admin Test',
+        'slug' => 'produk-detail-admin-test-'.time(),
+        'description' => 'Deskripsi rinci spesifikasi mutu produk untuk admin',
+        'price' => 35000,
+        'stock' => 25,
+        'unit' => 'Liter',
+        'is_verified' => false,
+        'status' => 'active',
+    ]);
+
+    $response = $this->actingAs($admin)->get(route('marketplace'));
+    $response->assertOk();
+    $response->assertSee('Detail');
+    $response->assertSee('product-detail-modal-'.$product->id);
+    $response->assertSee('Deskripsi rinci spesifikasi mutu produk untuk admin');
+    $response->assertSee('Detail Verifikasi Produk');
+});
