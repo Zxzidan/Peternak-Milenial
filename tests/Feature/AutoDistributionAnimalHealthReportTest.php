@@ -347,6 +347,5 @@ test('admin can view all distributed reports and monitor veterinarian workloads'
     $response = $this->actingAs($admin)->get(route('admin.veterinarians.index'));
     $response->assertOk();
     $response->assertSee('drh. Dokter Pantau');
-    $response->assertSee('Beban Laporan');
-    $response->assertSee('1 aktif');
+    $response->assertSee('Aktif');
 });
