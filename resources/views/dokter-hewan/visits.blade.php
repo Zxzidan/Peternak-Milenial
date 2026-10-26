@@ -8,12 +8,7 @@
     <!-- Header Section -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-gray-200 dark:border-gray-800">
         <div>
-            <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-orange-800 bg-orange-100 dark:bg-orange-950/60 dark:text-orange-300 rounded-md">
-                    Inspeksi &amp; Kunjungan On-Site
-                </span>
-            </div>
-            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white mt-1.5 leading-snug">
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-snug">
                 Jadwal Kunjungan Lapangan Peternakan
             </h1>
             <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
