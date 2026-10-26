@@ -8,13 +8,7 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-gray-200 dark:border-gray-800">
         <div>
-            <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-primary-800 bg-primary-100 dark:bg-primary-950/60 dark:text-primary-300 rounded-md">
-                    Otoritas Admin Dinas
-                </span>
-                <span class="text-xs text-gray-500 dark:text-gray-400">Provinsi Jawa Timur</span>
-            </div>
-            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white mt-1.5 leading-snug">
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-snug">
                 Manajemen Akun Dokter Hewan Dinas
             </h1>
             <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
@@ -86,68 +80,6 @@
     </div>
     @endif
 
-    <!-- Monitoring Laporan Kesehatan Hewan (Section 2.A Master Prompt) -->
-    <div class="space-y-2.5">
-        <div class="flex items-center justify-between">
-            <h2 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                Monitoring Status Penanganan Laporan Kesehatan Ternak Jawa Timur
-            </h2>
-            <span class="text-[11px] text-gray-400">Pembaruan Real-Time</span>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <div class="bg-white dark:bg-gray-800 p-3.5 rounded-xl border border-gray-200/80 dark:border-gray-700 shadow-2xs">
-                <span class="text-[11px] font-medium text-gray-500 dark:text-gray-400 block">Total Laporan</span>
-                <span class="text-xl font-bold text-gray-900 dark:text-white mt-0.5 block">{{ $reportMetrics['total'] }}</span>
-                <span class="text-[10px] text-gray-400 mt-1 block">Seluruh Laporan</span>
-            </div>
-
-            <div class="bg-white dark:bg-gray-800 p-3.5 rounded-xl border border-amber-200/80 dark:border-amber-800/60 shadow-2xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-medium text-amber-700 dark:text-amber-400">Menunggu Respons</span>
-                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                </div>
-                <span class="text-xl font-bold text-amber-700 dark:text-amber-400 mt-0.5 block">{{ $reportMetrics['menunggu_respons'] }}</span>
-                <span class="text-[10px] text-amber-600/80 mt-1 block">Belum Ditanggapi</span>
-            </div>
-
-            <div class="bg-white dark:bg-gray-800 p-3.5 rounded-xl border border-blue-200/80 dark:border-blue-800/60 shadow-2xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-medium text-blue-700 dark:text-blue-400">Sedang Ditangani</span>
-                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                </div>
-                <span class="text-xl font-bold text-blue-700 dark:text-blue-400 mt-0.5 block">{{ $reportMetrics['sedang_ditangani'] }}</span>
-                <span class="text-[10px] text-blue-600/80 mt-1 block">Proses Analisis/Pemeriksaan</span>
-            </div>
-
-            <div class="bg-white dark:bg-gray-800 p-3.5 rounded-xl border border-indigo-200/80 dark:border-indigo-800/60 shadow-2xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-medium text-indigo-700 dark:text-indigo-400">Sudah Dijawab</span>
-                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-                </div>
-                <span class="text-xl font-bold text-indigo-700 dark:text-indigo-400 mt-0.5 block">{{ $reportMetrics['sudah_dijawab'] }}</span>
-                <span class="text-[10px] text-indigo-600/80 mt-1 block">Arahan Terkirim</span>
-            </div>
-
-            <div class="bg-white dark:bg-gray-800 p-3.5 rounded-xl border border-orange-200/80 dark:border-orange-800/60 shadow-2xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-medium text-orange-700 dark:text-orange-400">Perlu Kunjungan</span>
-                    <span class="w-2 h-2 rounded-full bg-orange-500"></span>
-                </div>
-                <span class="text-xl font-bold text-orange-700 dark:text-orange-400 mt-0.5 block">{{ $reportMetrics['perlu_kunjungan'] }}</span>
-                <span class="text-[10px] text-orange-600/80 mt-1 block">Tinjauan Lapangan</span>
-            </div>
-
-            <div class="bg-white dark:bg-gray-800 p-3.5 rounded-xl border border-emerald-200/80 dark:border-emerald-800/60 shadow-2xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">Penanganan Selesai</span>
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                </div>
-                <span class="text-xl font-bold text-emerald-700 dark:text-emerald-400 mt-0.5 block">{{ $reportMetrics['selesai'] }}</span>
-                <span class="text-[10px] text-emerald-600/80 mt-1 block">Tuntas &amp; Arsip</span>
-            </div>
-        </div>
-    </div>
 
     <!-- Filter & Search Section -->
     <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200/80 dark:border-gray-700 shadow-2xs">
@@ -202,85 +134,71 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200/80 dark:border-gray-700 overflow-hidden shadow-2xs">
         <div class="overflow-x-auto">
             <table class="w-full text-xs text-left text-gray-600 dark:text-gray-300">
-                <thead class="text-[11px] text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-700/60 border-b border-gray-200 dark:border-gray-700">
+                <thead class="text-[11px] text-gray-700 dark:text-gray-300 uppercase bg-gray-50/90 dark:bg-gray-700/60 border-b border-gray-200 dark:border-gray-700 font-semibold tracking-wider text-center">
                     <tr>
-                        <th scope="col" class="px-4 py-3.5">Dokter Hewan</th>
-                        <th scope="col" class="px-4 py-3.5">Akun &amp; Kontak</th>
-                        <th scope="col" class="px-4 py-3.5">Wilayah Penugasan</th>
-                        <th scope="col" class="px-4 py-3.5">Status Layanan</th>
-                        <th scope="col" class="px-4 py-3.5">Status Akun</th>
-                        <th scope="col" class="px-4 py-3.5 text-right">Aksi</th>
+                        <th scope="col" class="px-6 py-4 whitespace-nowrap w-[30%] text-center">Dokter Hewan</th>
+                        <th scope="col" class="px-6 py-4 whitespace-nowrap w-[28%] text-center">Akun &amp; Kontak</th>
+                        <th scope="col" class="px-6 py-4 whitespace-nowrap w-[24%] text-center">Wilayah Penugasan</th>
+                        <th scope="col" class="px-6 py-4 whitespace-nowrap w-[10%] text-center">Status Akun</th>
+                        <th scope="col" class="px-6 py-4 whitespace-nowrap w-[8%] text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700/60">
                     @forelse($veterinarians as $vet)
                     <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-700/40 transition">
-                        <td class="px-4 py-3.5">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-full bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 font-bold flex items-center justify-center shrink-0 text-xs">
+                        <td class="px-6 py-5 align-middle">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 font-bold flex items-center justify-center shrink-0 text-xs shadow-2xs">
                                     {{ $vet->initials }}
                                 </div>
-                                <div>
-                                    <span class="font-bold text-gray-900 dark:text-white block">{{ $vet->name }}</span>
-                                    <span class="text-[11px] text-gray-500 dark:text-gray-400 block">{{ $vet->specialization }}</span>
+                                <div class="min-w-0">
+                                    <span class="font-bold text-gray-900 dark:text-white block text-sm leading-snug">{{ $vet->name }}</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 block mt-0.5">{{ $vet->specialization }}</span>
                                     @if($vet->strv_number)
-                                        <span class="text-[10px] text-gray-400 font-mono">STRV: {{ $vet->strv_number }}</span>
+                                        <span class="text-[10px] text-gray-400 font-mono block mt-1">STRV: {{ $vet->strv_number }}</span>
                                     @endif
                                 </div>
                             </div>
                         </td>
-                        <td class="px-4 py-3.5">
-                            <span class="font-medium text-gray-900 dark:text-white block">{{ $vet->email ?? ($vet->user?->email ?? '-') }}</span>
-                            <span class="text-gray-500 block">{{ $vet->phone_number }}</span>
-                            <span class="inline-flex items-center gap-1 text-[10px] text-primary-700 dark:text-primary-400 font-medium mt-0.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-primary-500"></span>
-                                Role: Dokter Hewan
-                            </span>
-                        </td>
-                        <td class="px-4 py-3.5">
-                            <span class="font-semibold text-gray-800 dark:text-gray-200 block">{{ $vet->puskeswan }}</span>
-                            <span class="text-[11px] text-gray-500 dark:text-gray-400 block">
-                                Wilayah: {{ $vet->wilayah_penugasan ?? $vet->puskeswan }}
-                            </span>
-                            <span class="text-[10px] text-gray-400 block mt-0.5">Jam: {{ $vet->consultation_hours }}</span>
-                        </td>
-                        <td class="px-4 py-3.5">
-                            @if($vet->status === 'online')
-                                <span class="px-2 py-0.5 text-[10px] font-semibold text-emerald-800 bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300 rounded-md">Online (Siaga)</span>
-                            @elseif($vet->status === 'praktik_lapangan')
-                                <span class="px-2 py-0.5 text-[10px] font-semibold text-blue-800 bg-blue-100 dark:bg-blue-950/60 dark:text-blue-300 rounded-md">Praktik Lapangan</span>
-                            @elseif($vet->status === 'siaga')
-                                <span class="px-2 py-0.5 text-[10px] font-semibold text-amber-800 bg-amber-100 dark:bg-amber-950/60 dark:text-amber-300 rounded-md">Siaga Darurat</span>
-                            @else
-                                <span class="px-2 py-0.5 text-[10px] font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-md">Offline</span>
-                            @endif
-                            <div class="mt-1 flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400">
-                                <span class="font-medium text-gray-700 dark:text-gray-300">Beban Laporan:</span>
-                                <span class="px-1.5 py-0.5 rounded font-semibold {{ ($vet->active_reports_count ?? 0) > 0 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
-                                    {{ $vet->active_reports_count ?? 0 }} aktif
+                        <td class="px-6 py-5 align-middle">
+                            <span class="font-medium text-gray-900 dark:text-white block text-xs">{{ $vet->email ?? ($vet->user?->email ?? '-') }}</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block mt-0.5">{{ $vet->phone_number }}</span>
+                            <div class="mt-1.5">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-semibold text-primary-700 bg-primary-50 border border-primary-200/60 dark:bg-primary-950/60 dark:text-primary-300 dark:border-primary-800">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-primary-500"></span>
+                                    Role: Dokter Hewan
                                 </span>
                             </div>
                         </td>
-                        <td class="px-4 py-3.5">
-                            <form method="POST" action="{{ route('admin.veterinarians.toggle-active', $vet) }}" class="inline">
-                                @csrf
-                                @method('PATCH')
-                                <button
-                                    type="submit"
-                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition cursor-pointer {{ $vet->is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800 hover:bg-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800 hover:bg-rose-100' }}"
-                                    title="Klik untuk ubah status akun"
-                                >
-                                    <span class="w-1.5 h-1.5 rounded-full {{ $vet->is_active ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
-                                    <span>{{ $vet->is_active ? 'Aktif' : 'Nonaktif' }}</span>
-                                </button>
-                            </form>
+                        <td class="px-6 py-5 align-middle">
+                            <span class="font-semibold text-gray-800 dark:text-gray-200 block text-xs leading-snug">{{ $vet->puskeswan }}</span>
+                            <span class="text-[11px] text-gray-500 dark:text-gray-400 block mt-0.5">
+                                Wilayah: {{ $vet->wilayah_penugasan ?? $vet->puskeswan }}
+                            </span>
+                            <span class="text-[10px] text-gray-400 block mt-1">Jam: {{ $vet->consultation_hours }}</span>
                         </td>
-                        <td class="px-4 py-3.5 text-right">
-                            <div class="flex items-center justify-end gap-1.5">
+                        <td class="px-6 py-5 align-middle text-center">
+                            <div class="flex items-center justify-center">
+                                <form method="POST" action="{{ route('admin.veterinarians.toggle-active', $vet) }}" class="inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button
+                                        type="submit"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition cursor-pointer {{ $vet->is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800 hover:bg-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800 hover:bg-rose-100' }}"
+                                        title="Klik untuk ubah status akun"
+                                    >
+                                        <span class="w-1.5 h-1.5 rounded-full {{ $vet->is_active ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
+                                        <span>{{ $vet->is_active ? 'Aktif' : 'Nonaktif' }}</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5 align-middle text-center">
+                            <div class="flex items-center justify-center gap-2">
                                 <button
                                     type="button"
                                     onclick='openEditVetAdminModal(@json($vet))'
-                                    class="p-1.5 text-gray-600 hover:text-primary-700 dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                                    class="p-2 text-gray-500 hover:text-primary-700 hover:bg-primary-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 rounded-lg transition"
                                     title="Edit Akun, Email & Kata Sandi Dokter"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
@@ -290,7 +208,7 @@
                                     @method('DELETE')
                                     <button
                                         type="submit"
-                                        class="p-1.5 text-rose-500 hover:text-rose-700 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+                                        class="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition cursor-pointer"
                                         title="Hapus dokter hewan"
                                     >
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
@@ -301,7 +219,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                        <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                             <div class="max-w-sm mx-auto space-y-2">
                                 <svg class="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AnimalHealthReport;
 use App\Models\User;
 use App\Models\Veterinarian;
 use App\Services\HealthReportDistributionService;
@@ -15,7 +14,7 @@ use Illuminate\Support\Facades\Hash;
 class AdminVeterinarianController extends Controller
 {
     /**
-     * Display veterinarians list and health report monitoring summary for Admin Dinas.
+     * Display veterinarians list for Admin Dinas.
      */
     public function index(Request $request): View
     {
@@ -58,20 +57,8 @@ class AdminVeterinarianController extends Controller
 
         $veterinarians = $query->paginate(10)->withQueryString();
 
-        // Monitoring Statistics for Admin Dinas (termasuk antrean menunggu penugasan)
-        $reportMetrics = [
-            'total' => AnimalHealthReport::count(),
-            'menunggu_penugasan' => AnimalHealthReport::where('status', 'menunggu_penugasan')->orWhereNull('assigned_veterinarian_id')->whereNotIn('status', ['selesai'])->count(),
-            'menunggu_respons' => AnimalHealthReport::where('status', 'menunggu_respons')->count(),
-            'sedang_ditangani' => AnimalHealthReport::where('status', 'sedang_ditangani')->count(),
-            'sudah_dijawab' => AnimalHealthReport::where('status', 'sudah_dijawab')->count(),
-            'perlu_kunjungan' => AnimalHealthReport::whereIn('status', ['menunggu_kunjungan', 'kunjungan_terjadwal'])->count(),
-            'selesai' => AnimalHealthReport::where('status', 'selesai')->count(),
-        ];
-
         return view('admin.veterinarians.index', [
             'veterinarians' => $veterinarians,
-            'reportMetrics' => $reportMetrics,
             'search' => $search,
             'statusFilter' => $statusFilter,
         ]);
