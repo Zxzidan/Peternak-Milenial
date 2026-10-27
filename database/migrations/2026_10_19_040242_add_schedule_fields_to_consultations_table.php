@@ -23,6 +23,10 @@ return new class extends Migration
             $table->string('consultation_type', 30)->default('telemedisin')->after('prescription');
             $table->string('status', 30)->default('menunggu_konfirmasi')->change();
         });
+
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            Schema::getConnection()->statement('ALTER TABLE consultations DROP CONSTRAINT IF EXISTS consultations_status_check');
+        }
     }
 
     /**

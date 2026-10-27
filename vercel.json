@@ -40,12 +40,27 @@
     }
   ],
   "env": {
+    "APP_NAME": "Peternak Milenial Jatim",
     "APP_ENV": "production",
-    "APP_DEBUG": "true",
+    "APP_KEY": "base64:FbnaEdtoUnlxMkjQ23jwvM5VsvepoMSBbG2K2vN+hOs=",
+    "APP_DEBUG": "false",
+    "APP_URL": "https://peternak-milenial-alpha.vercel.app",
     "LOG_CHANNEL": "stderr",
     "CACHE_STORE": "array",
     "SESSION_DRIVER": "cookie",
     "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
-    "APP_STORAGE": "/tmp/storage"
+    "APP_STORAGE": "/tmp/storage",
+    "APP_PACKAGES_CACHE": "/tmp/storage/bootstrap/cache/packages.php",
+    "APP_SERVICES_CACHE": "/tmp/storage/bootstrap/cache/services.php",
+    "APP_CONFIG_CACHE": "/tmp/storage/bootstrap/cache/config.php",
+    "APP_ROUTES_CACHE": "/tmp/storage/bootstrap/cache/routes.php",
+    "APP_EVENTS_CACHE": "/tmp/storage/bootstrap/cache/events.php",
+    "DB_CONNECTION": "pgsql",
+    "DB_HOST": "aws-0-ap-northeast-1.pooler.supabase.com",
+    "DB_PORT": "5432",
+    "DB_DATABASE": "postgres",
+    "DB_USERNAME": "postgres.uebidwpxfdxzcccrngkd",
+    "DB_PASSWORD": "JANCOK1234567810@",
+    "DB_SSLMODE": "require"
   }
 }

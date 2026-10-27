@@ -4,10 +4,23 @@ declare(strict_types=1);
 
 /**
  * Entrypoint serverless function untuk Vercel.
- *
- * Menyiapkan direktori runtime /tmp untuk Laravel dan meneruskan request.
  */
+
+// Siapkan direktori /tmp untuk environment serverless
 $storagePath = getenv('APP_STORAGE') ?: '/tmp/storage';
+
+// Redirect bootstrap cache ke /tmp yang writable
+$cacheDir = $storagePath.'/bootstrap/cache';
+putenv("APP_PACKAGES_CACHE={$cacheDir}/packages.php");
+putenv("APP_SERVICES_CACHE={$cacheDir}/services.php");
+putenv("APP_CONFIG_CACHE={$cacheDir}/config.php");
+putenv("APP_ROUTES_CACHE={$cacheDir}/routes.php");
+putenv("APP_EVENTS_CACHE={$cacheDir}/events.php");
+$_ENV['APP_PACKAGES_CACHE'] = "{$cacheDir}/packages.php";
+$_ENV['APP_SERVICES_CACHE'] = "{$cacheDir}/services.php";
+$_ENV['APP_CONFIG_CACHE'] = "{$cacheDir}/config.php";
+$_ENV['APP_ROUTES_CACHE'] = "{$cacheDir}/routes.php";
+$_ENV['APP_EVENTS_CACHE'] = "{$cacheDir}/events.php";
 
 $directories = [
     $storagePath.'/app',
@@ -18,6 +31,7 @@ $directories = [
     $storagePath.'/framework/sessions',
     $storagePath.'/framework/views',
     $storagePath.'/logs',
+    $cacheDir,
 ];
 
 foreach ($directories as $directory) {
