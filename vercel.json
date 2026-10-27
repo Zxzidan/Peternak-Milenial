@@ -2,11 +2,12 @@
   "version": 2,
   "outputDirectory": "public",
   "buildCommand": "npm run build",
+  "regions": ["hnd1"],
   "functions": {
     "api/index.php": {
       "runtime": "vercel-php@0.9.0",
       "memory": 1024,
-      "maxDuration": 15
+      "maxDuration": 30
     }
   },
   "routes": [
@@ -46,7 +47,7 @@
     "APP_DEBUG": "false",
     "APP_URL": "https://peternak-milenial-alpha.vercel.app",
     "LOG_CHANNEL": "stderr",
-    "CACHE_STORE": "array",
+    "CACHE_STORE": "file",
     "SESSION_DRIVER": "cookie",
     "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
     "APP_STORAGE": "/tmp/storage",

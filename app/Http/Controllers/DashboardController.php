@@ -21,6 +21,7 @@ use App\Services\JatimLivestockDataService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
@@ -41,33 +42,77 @@ class DashboardController extends Controller
 
         $userRole = $user?->role ?? 'umum';
 
-        // 1. KPI Pengguna Terdaftar (100% Real-time Berdasarkan Tabel users Authentication)
-        $totalUserCount = User::where('is_active', true)->count();
+        $publicData = Cache::remember('dashboard_public_metrics_v1', 60, function () {
+            $totalUserCount = User::where('is_active', true)->count();
+            $commodityCount = Commodity::count();
+            $activeEmergencyCount = EmergencyReport::whereIn('status', ['received', 'verified', 'in_progress'])->count();
+            $openTrainingCount = Training::where('status', 'open')->count();
+            $activeProductCount = Product::where('status', 'active')->where('is_verified', true)->count();
+
+            $adminMetrics = [
+                'pendingProductsCount' => Product::where('is_verified', false)->count(),
+                'pendingExhibitionsCount' => ExhibitionRegistration::where('status', 'pending')->count(),
+                'pendingTrainingsCount' => TrainingRegistration::where('status', 'pending')->count(),
+                'activeEmergencyCount' => $activeEmergencyCount,
+                'healthReportsTotal' => AnimalHealthReport::count(),
+                'healthReportsWaiting' => AnimalHealthReport::where('status', 'menunggu_respons')->count(),
+                'healthReportsInProgress' => AnimalHealthReport::whereIn('status', ['sedang_ditangani', 'menunggu_kunjungan', 'kunjungan_terjadwal', 'menunggu_tindak_lanjut'])->count(),
+                'healthReportsAnswered' => AnimalHealthReport::where('status', 'sudah_dijawab')->count(),
+                'healthReportsResolved' => AnimalHealthReport::where('status', 'selesai')->count(),
+            ];
+
+            $sentras = ProductionCenter::with(['region', 'commodity'])->get();
+            $latestPrices = CommodityPrice::with(['commodity', 'region'])
+                ->latest('recorded_date')
+                ->take(5)
+                ->get();
+            $activeReports = EmergencyReport::with(['reporter', 'region'])
+                ->whereIn('status', ['received', 'verified', 'in_progress'])
+                ->latest()
+                ->take(2)
+                ->get();
+            $upcomingEvents = CalendarEvent::where('event_date', '>=', now()->toDateString())
+                ->orderBy('event_date')
+                ->take(3)
+                ->get();
+            $buyerFeaturedProducts = Product::with(['category', 'region', 'seller'])
+                ->where('status', 'active')
+                ->where('is_verified', true)
+                ->latest()
+                ->take(6)
+                ->get();
+            $exhibitionsCount = Exhibition::count();
+
+            return compact(
+                'totalUserCount',
+                'commodityCount',
+                'activeEmergencyCount',
+                'openTrainingCount',
+                'activeProductCount',
+                'adminMetrics',
+                'sentras',
+                'latestPrices',
+                'activeReports',
+                'upcomingEvents',
+                'buyerFeaturedProducts',
+                'exhibitionsCount'
+            );
+        });
+
+        $totalUserCount = $publicData['totalUserCount'];
         $displayUserCount = number_format($totalUserCount, 0, ',', '.');
         $displayPeternakCount = $displayUserCount;
 
         // Ambil Data Statistik Resmi Provinsi Jawa Timur (Disnak Jatim & BPS)
         $jatimStats = $this->livestockDataService->getStatistics();
         $displayDailyProduction = number_format($jatimStats['summary']['daily_total_production_ton'] ?? 8348, 0, ',', '.');
-
-        $commodityCount = Commodity::count();
         $totalLivestockPopulation = $jatimStats['summary']['total_livestock_population'];
-        $activeEmergencyCount = EmergencyReport::whereIn('status', ['received', 'verified', 'in_progress'])->count();
-        $openTrainingCount = Training::where('status', 'open')->count();
-        $activeProductCount = Product::where('status', 'active')->where('is_verified', true)->count();
 
-        // 2. Metrik Khusus Sesuai Role Pengguna
-        $adminMetrics = [
-            'pendingProductsCount' => Product::where('is_verified', false)->count(),
-            'pendingExhibitionsCount' => ExhibitionRegistration::where('status', 'pending')->count(),
-            'pendingTrainingsCount' => TrainingRegistration::where('status', 'pending')->count(),
-            'activeEmergencyCount' => $activeEmergencyCount,
-            'healthReportsTotal' => AnimalHealthReport::count(),
-            'healthReportsWaiting' => AnimalHealthReport::where('status', 'menunggu_respons')->count(),
-            'healthReportsInProgress' => AnimalHealthReport::whereIn('status', ['sedang_ditangani', 'menunggu_kunjungan', 'kunjungan_terjadwal', 'menunggu_tindak_lanjut'])->count(),
-            'healthReportsAnswered' => AnimalHealthReport::where('status', 'sudah_dijawab')->count(),
-            'healthReportsResolved' => AnimalHealthReport::where('status', 'selesai')->count(),
-        ];
+        $commodityCount = $publicData['commodityCount'];
+        $activeEmergencyCount = $publicData['activeEmergencyCount'];
+        $openTrainingCount = $publicData['openTrainingCount'];
+        $activeProductCount = $publicData['activeProductCount'];
+        $adminMetrics = $publicData['adminMetrics'];
 
         $peternakMetrics = [
             'myLivestockCount' => $user ? Livestock::where('user_id', $user->id)->count() : 0,
@@ -84,47 +129,20 @@ class DashboardController extends Controller
         ];
 
         $umumMetrics = [
-            'availableProductsCount' => Product::where('is_verified', true)->where('status', 'active')->count(),
+            'availableProductsCount' => $activeProductCount,
             'myOrdersCount' => $user ? Order::where('buyer_id', $user->id)->count() : 0,
-            'exhibitionsCount' => Exhibition::count(),
+            'exhibitionsCount' => $publicData['exhibitionsCount'],
             'commoditiesCount' => $commodityCount,
         ];
 
-        // 3. Sentra Produksi Geospasial (MASP)
-        $sentras = ProductionCenter::with(['region', 'commodity'])->get();
+        $sentras = $publicData['sentras'];
+        $latestPrices = $publicData['latestPrices'];
+        $activeReports = $publicData['activeReports'];
+        $upcomingEvents = $publicData['upcomingEvents'];
+        $buyerFeaturedProducts = $publicData['buyerFeaturedProducts'];
 
-        // 4. Harga Komoditas Harian Terbaru
-        $latestPrices = CommodityPrice::with(['commodity', 'region'])
-            ->latest('recorded_date')
-            ->take(5)
-            ->get();
-
-        // 5. Laporan Darurat Siaga Terbaru
-        $activeReports = EmergencyReport::with(['reporter', 'region'])
-            ->whereIn('status', ['received', 'verified', 'in_progress'])
-            ->latest()
-            ->take(2)
-            ->get();
-
-        // 6. Agenda Terdekat
-        $upcomingEvents = CalendarEvent::where('event_date', '>=', now()->toDateString())
-            ->orderBy('event_date')
-            ->take(3)
-            ->get();
-
-        // 7. Data Chart Distribusi Populasi Ternak Jawa Timur (Valid dari Disnak Jatim & BPS)
         $chartPopulasi = $jatimStats['populasi'];
-
-        // 8. Data Chart Produksi Komoditas Utama Jawa Timur (Valid dari Disnak Jatim & BPS)
         $chartProduksi = $jatimStats['produksi'];
-
-        // 9. Data Khusus Pengguna Masyarakat (Marketplace Focus)
-        $buyerFeaturedProducts = Product::with(['category', 'region', 'seller'])
-            ->where('status', 'active')
-            ->where('is_verified', true)
-            ->latest()
-            ->take(6)
-            ->get();
 
         $buyerOrders = ($user && $user->isUmum())
             ? Order::where('buyer_id', $user->id)
