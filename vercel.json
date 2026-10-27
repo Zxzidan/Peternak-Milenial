@@ -11,7 +11,28 @@
   },
   "routes": [
     {
-      "handle": "filesystem"
+      "src": "/build/(.*)",
+      "dest": "/build/$1"
+    },
+    {
+      "src": "/img/(.*)",
+      "dest": "/img/$1"
+    },
+    {
+      "src": "/png/(.*)",
+      "dest": "/png/$1"
+    },
+    {
+      "src": "/js/(.*)",
+      "dest": "/js/$1"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/favicon.ico"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/robots.txt"
     },
     {
       "src": "/(.*)",
@@ -20,7 +41,7 @@
   ],
   "env": {
     "APP_ENV": "production",
-    "APP_DEBUG": "false",
+    "APP_DEBUG": "true",
     "LOG_CHANNEL": "stderr",
     "CACHE_STORE": "array",
     "SESSION_DRIVER": "cookie",

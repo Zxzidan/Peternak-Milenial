@@ -5,8 +5,7 @@ declare(strict_types=1);
 /**
  * Entrypoint serverless function untuk Vercel.
  *
- * Pada Vercel Lambda, sistem file bersifat read-only kecuali direktori /tmp.
- * Skrip ini memastikan direktori runtime Laravel di /tmp tersedia sebelum mem-boot aplikasi.
+ * Menyiapkan direktori runtime /tmp untuk Laravel dan meneruskan request.
  */
 $storagePath = getenv('APP_STORAGE') ?: '/tmp/storage';
 
@@ -27,5 +26,13 @@ foreach ($directories as $directory) {
     }
 }
 
-// Teruskan request ke public/index.php Laravel
-require __DIR__.'/../public/index.php';
+try {
+    require __DIR__.'/../public/index.php';
+} catch (Throwable $e) {
+    http_response_code(500);
+    header('Content-Type: text/html; charset=utf-8');
+    echo '<h2>Peternak Milenial - Vercel Serverless Error</h2>';
+    echo '<p><strong>Pesan:</strong> '.htmlspecialchars($e->getMessage()).'</p>';
+    echo '<p><strong>File:</strong> '.htmlspecialchars($e->getFile()).':'.$e->getLine().'</p>';
+    echo '<pre style="background:#f4f4f4;padding:12px;border-radius:6px;overflow:auto;">'.htmlspecialchars($e->getTraceAsString()).'</pre>';
+}
