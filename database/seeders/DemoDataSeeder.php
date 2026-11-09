@@ -1863,6 +1863,12 @@ class DemoDataSeeder extends Seeder
             ]
         );
 
+        // Bersihkan data tes lama yang berisi ketikan acak agar tampilan demo 100% profesional
+        Consultation::where('subject', 'like', '%sioajdoia%')
+            ->orWhere('subject', 'like', '%exed2dw%')
+            ->orWhere('subject', 'like', '%awdwadw%')
+            ->delete();
+
         // -------------------------------------------------------------
         // 11. BERSIHKAN CACHE APLIKASI
         // -------------------------------------------------------------
