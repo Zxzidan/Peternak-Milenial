@@ -268,6 +268,7 @@ class DemoDataSeeder extends Seeder
                 'role' => 'peternak',
                 'is_active' => true,
                 'email_verified_at' => now(),
+                'password' => Hash::make('password'),
                 'livestock_type' => 'Bebek / Itik',
                 'livestock_count' => 150,
                 'kabupaten' => 'Kabupaten Nganjuk',

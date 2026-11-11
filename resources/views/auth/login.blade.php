@@ -170,8 +170,105 @@
                     @endif
 
                     <!-- Login Form -->
-                    <form action="{{ route('login.submit') }}" method="POST" class="space-y-4 sm:space-y-4.5">
+                    <form id="login-form" action="{{ route('login.submit') }}" method="POST" class="space-y-4 sm:space-y-4.5">
                         @csrf
+
+                        <!-- Quick Demo Accounts Selector (1-Klik Isi Akun Presentasi) -->
+                        <div class="mb-5 p-3.5 bg-slate-50 border border-slate-200/90 rounded-2xl shadow-2xs">
+                            <div class="flex items-center justify-between mb-2.5">
+                                <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span>Akun Demo Presentasi (1-Klik Isi)</span>
+                                </div>
+                                <span class="text-[10px] text-slate-400 font-medium">Database Siap Demo</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <!-- 1. Admin Dinas -->
+                                <button type="button"
+                                    onclick="fillDemoAccount('admin@disnak.jatimprov.go.id', 'password', 'Admin Dinas — Dr. Ir. Indyah Aryani, MM', this)"
+                                    class="demo-card text-left p-2.5 rounded-xl border border-slate-200/90 bg-white hover:border-blue-400 hover:bg-blue-50/40 transition shadow-2xs cursor-pointer group">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-md">👑 Admin</span>
+                                        <span class="text-[10px] text-slate-400 group-hover:text-blue-600 transition font-mono">1-Klik</span>
+                                    </div>
+                                    <div class="font-bold text-slate-900 text-xs mt-1 truncate">Dr. Ir. Indyah</div>
+                                    <div class="text-[10px] text-slate-500 truncate">admin@disnak...</div>
+                                </button>
+
+                                <!-- 2. Peternak Randy Zidan -->
+                                <button type="button"
+                                    onclick="fillDemoAccount('dandiazaidanekerja35@gmail.com', 'password', 'Peternak Bebek Nganjuk — Randy Zidan', this)"
+                                    class="demo-card text-left p-2.5 rounded-xl border border-slate-200/90 bg-white hover:border-emerald-400 hover:bg-emerald-50/40 transition shadow-2xs cursor-pointer group">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-md">🦆 Peternak</span>
+                                        <span class="text-[10px] text-slate-400 group-hover:text-emerald-600 transition font-mono">1-Klik</span>
+                                    </div>
+                                    <div class="font-bold text-slate-900 text-xs mt-1 truncate">Randy Zidan</div>
+                                    <div class="text-[10px] text-slate-500 truncate">Itik Nganjuk</div>
+                                </button>
+
+                                <!-- 3. Peternak Slamet Rahardjo -->
+                                <button type="button"
+                                    onclick="fillDemoAccount('slamet@peternak.com', 'password', 'Peternak Sapi Pasuruan — Slamet Rahardjo', this)"
+                                    class="demo-card text-left p-2.5 rounded-xl border border-slate-200/90 bg-white hover:border-emerald-400 hover:bg-emerald-50/40 transition shadow-2xs cursor-pointer group">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-md">🐄 Peternak</span>
+                                        <span class="text-[10px] text-slate-400 group-hover:text-emerald-600 transition font-mono">1-Klik</span>
+                                    </div>
+                                    <div class="font-bold text-slate-900 text-xs mt-1 truncate">Slamet R.</div>
+                                    <div class="text-[10px] text-slate-500 truncate">Sapi Pasuruan</div>
+                                </button>
+
+                                <!-- 4. Dokter Hewan drh. Nur Cahyo -->
+                                <button type="button"
+                                    onclick="fillDemoAccount('nurcahyo@disnak.jatimprov.go.id', 'password', 'Dokter Hewan — drh. Nur Cahyo, M.Vet', this)"
+                                    class="demo-card text-left p-2.5 rounded-xl border border-slate-200/90 bg-white hover:border-purple-400 hover:bg-purple-50/40 transition shadow-2xs cursor-pointer group">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-md">🩺 Dokter</span>
+                                        <span class="text-[10px] text-slate-400 group-hover:text-purple-600 transition font-mono">1-Klik</span>
+                                    </div>
+                                    <div class="font-bold text-slate-900 text-xs mt-1 truncate">drh. Nur Cahyo</div>
+                                    <div class="text-[10px] text-slate-500 truncate">Spesialis Unggas</div>
+                                </button>
+
+                                <!-- 5. Dokter Hewan drh. Ratna Kusuma -->
+                                <button type="button"
+                                    onclick="fillDemoAccount('ratnak@disnak.jatimprov.go.id', 'password', 'Dokter Hewan — drh. Ratna Kusuma', this)"
+                                    class="demo-card text-left p-2.5 rounded-xl border border-slate-200/90 bg-white hover:border-purple-400 hover:bg-purple-50/40 transition shadow-2xs cursor-pointer group">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-md">🩺 Dokter</span>
+                                        <span class="text-[10px] text-slate-400 group-hover:text-purple-600 transition font-mono">1-Klik</span>
+                                    </div>
+                                    <div class="font-bold text-slate-900 text-xs mt-1 truncate">drh. Ratna K.</div>
+                                    <div class="text-[10px] text-slate-500 truncate">Spesialis Sapi</div>
+                                </button>
+
+                                <!-- 6. Warga / Pembeli Budi Santoso -->
+                                <button type="button"
+                                    onclick="fillDemoAccount('budi@gmail.com', 'password', 'Masyarakat Umum / Pembeli — Budi Santoso', this)"
+                                    class="demo-card text-left p-2.5 rounded-xl border border-slate-200/90 bg-white hover:border-amber-400 hover:bg-amber-50/40 transition shadow-2xs cursor-pointer group">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-100 px-1.5 py-0.5 rounded-md">🛒 Warga</span>
+                                        <span class="text-[10px] text-slate-400 group-hover:text-amber-600 transition font-mono">1-Klik</span>
+                                    </div>
+                                    <div class="font-bold text-slate-900 text-xs mt-1 truncate">Budi Santoso</div>
+                                    <div class="text-[10px] text-slate-500 truncate">Konsumen Sby</div>
+                                </button>
+                            </div>
+
+                            <!-- Selected Status Notification & Instant Login button -->
+                            <div id="demo-selected-banner" class="hidden mt-2.5 pt-2 border-t border-slate-200/80 flex items-center justify-between text-xs">
+                                <span class="text-slate-600 font-medium flex items-center gap-1.5 truncate mr-2">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                                    <span class="truncate">Terpilih: <strong id="demo-selected-name" class="text-slate-900"></strong></span>
+                                </span>
+                                <button type="button" onclick="submitLoginForm()" class="shrink-0 text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 cursor-pointer bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100 hover:bg-blue-100 transition">
+                                    <span>Langsung Masuk</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                                </button>
+                            </div>
+                        </div>
 
                         <!-- Email Input -->
                         <div>
@@ -279,6 +376,46 @@
         function fillAccount(email, password) {
             document.getElementById('email').value = email;
             document.getElementById('password').value = password;
+        }
+
+        function fillDemoAccount(email, password, roleLabel, buttonEl) {
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            if (emailInput && passwordInput) {
+                emailInput.value = email;
+                passwordInput.value = password;
+
+                // Reset active styling pada semua kartu demo
+                document.querySelectorAll('.demo-card').forEach(card => {
+                    card.classList.remove('ring-2', 'ring-blue-500', 'border-blue-500', 'bg-blue-50/50');
+                });
+
+                // Tambahkan active ring pada kartu yang diklik
+                if (buttonEl) {
+                    buttonEl.classList.add('ring-2', 'ring-blue-500', 'border-blue-500', 'bg-blue-50/50');
+                }
+
+                // Efek visual highlight pada input email & password
+                emailInput.classList.add('ring-4', 'ring-emerald-200', 'border-emerald-500');
+                passwordInput.classList.add('ring-4', 'ring-emerald-200', 'border-emerald-500');
+                setTimeout(() => {
+                    emailInput.classList.remove('ring-4', 'ring-emerald-200', 'border-emerald-500');
+                    passwordInput.classList.remove('ring-4', 'ring-emerald-200', 'border-emerald-500');
+                }, 1000);
+
+                // Tampilkan banner notifikasi akun terpilih
+                const banner = document.getElementById('demo-selected-banner');
+                const nameEl = document.getElementById('demo-selected-name');
+                if (banner && nameEl) {
+                    nameEl.textContent = roleLabel;
+                    banner.classList.remove('hidden');
+                }
+            }
+        }
+
+        function submitLoginForm() {
+            const form = document.getElementById('login-form');
+            if (form) form.submit();
         }
 
         // Password visibility toggler
